@@ -4,4 +4,4 @@ _coverage/
 *.coverage
 strands.json
 *.json
-sudoku.config
+strands.config
