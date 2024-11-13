@@ -1,5 +1,5 @@
 (library
  (name strands)  
- (modules game board)
+ (modules game grid utils)
  (libraries core)
  (preprocess (pps ppx_jane bisect_ppx)))
