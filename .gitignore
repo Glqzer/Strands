@@ -5,3 +5,6 @@ _coverage/
 strands.json
 *.json
 strands.config
+
+/lib/
+.bsb.lock
