@@ -6,6 +6,5 @@ strands.json
 *.json
 strands.config
 
-/lib/
 .bsb.lock
 /node_modules/
