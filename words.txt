@@ -1,0 +1,15 @@
+{
+  "3": ["cat", "dog", "bat", "sun", "box", "pen", "car", "bag", "hat", "toy"],
+  "4": ["tree", "book", "bird", "star", "ball", "sand", "wind", "milk", "fish", "coin"],
+  "5": ["apple", "grape", "piano", "stone", "table", "water", "chair", "light", "music", "bread"],
+  "6": ["orange", "yellow", "banana", "rocket", "forest", "circle", "square", "planet", "mirror", "shoes"],
+  "7": ["diamond", "picture", "jungle", "island", "window", "guitar", "butter", "flower", "cookie", "garden"],
+  "8": ["elephant", "universe", "rainbow", "mountain", "computer", "academy", "balloon", "spectrum", "pirates", "kingdom"],
+  "9": ["champion", "sandwich", "adventure", "horizon", "journey", "laughter", "unicorn", "tornado", "harmony", "treasure"],
+  "10": ["celebrate", "workplace", "friendship", "mystical", "molecule", "outreach", "community", "vacation", "airplane", "paradise"],
+  "11": ["celebration", "misfortune", "wonderful", "snowflakes", "admission", "discovery", "abandoned", "momentum", "destination", "satisfaction"],
+  "12": ["photography", "perception", "harmonious", "realistic", "expression", "perspective", "adventure", "remarkable", "territory", "reflection"],
+  "13": ["manipulation", "identification", "environment", "concentration", "evaluation", "existential", "transformation", "reputation", "acquisition", "investment"],
+  "14": ["organization", "acceleration", "independence", "professional", "collaboration", "persuasive", "relationship", "communication", "revolution", "assertiveness"],
+  "15": ["infrastructure", "rejuvenation", "contemplation", "development", "reliability", "adaptability", "compensation", "optimistic", "intelligence", "understanding"]
+}
