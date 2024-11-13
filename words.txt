@@ -1,5 +1,4 @@
 {
-  "3": ["cat", "dog", "bat", "sun", "box", "pen", "car", "bag", "hat", "toy"],
   "4": ["tree", "book", "bird", "star", "ball", "sand", "wind", "milk", "fish", "coin"],
   "5": ["apple", "grape", "piano", "stone", "table", "water", "chair", "light", "music", "bread"],
   "6": ["orange", "yellow", "banana", "rocket", "forest", "circle", "square", "planet", "mirror", "shoes"],
