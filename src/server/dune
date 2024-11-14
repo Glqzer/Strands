@@ -1,7 +1,7 @@
 (executable
  (name server)
  (libraries 
-  opium
+  dream
   yojson
  )
  (preprocess
