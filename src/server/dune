@@ -1,0 +1,8 @@
+(executable
+ (name server)
+ (libraries 
+  opium
+  yojson
+ )
+ (preprocess
+  (pps ppx_deriving_yojson)))

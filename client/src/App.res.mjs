@@ -39,6 +39,10 @@ function App(props) {
                             }),
                         " and save to test Fast Refresh."
                       ]
+                    }),
+                JsxRuntime.jsx("h3", {
+                      children: "Fetched Name: ",
+                      className: "mt-4"
                     })
               ],
               className: "p-6"
