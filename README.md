@@ -12,7 +12,6 @@ Run from root
 cd ./client
 yarn
 npm run res:build
+yarn dev
 
 ```
-open the index.html file
-
