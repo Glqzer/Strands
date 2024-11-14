@@ -3,7 +3,6 @@ _build/
 _coverage/
 *.coverage
 strands.json
-*.json
 strands.config
 
 .bsb.lock
