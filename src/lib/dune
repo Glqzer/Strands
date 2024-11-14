@@ -1,5 +1,5 @@
 (library
  (name strands)  
- (modules game grid words utils)
+ (modules game grid graph words utils)
  (libraries core)
  (preprocess (pps ppx_jane bisect_ppx)))
