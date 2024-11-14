@@ -1,21 +1,21 @@
-type grid = char array array
+[@@@ocaml.warning "-27"]
+
+
 type word = string
 
-exception Not_implemented
+type position = int * int
 
+let mark_word_found (word : word) : unit =
+  ()
 
-let create_grid rows cols = 
-  raise Not_implemented
+let is_spangram (word : word) : bool =
+  false
 
+let check_word_valid (word : word) : bool =
+  false
 
-let place_word grid word position =
-  raise Not_implemented
+let check_word_length (word : word) : bool =
+  false
 
-
-let is_spangram grid word =
-  raise Not_implemented
-
-
-let find_words grid =
-  raise Not_implemented
-
+let print_found_words () : unit =
+  ()

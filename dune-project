@@ -1,26 +1,13 @@
-(lang dune 3.16)
-
+(lang dune 3.0)
 (name strands)
-
 (generate_opam_files true)
-
-(source
- (github username/reponame))
-
-(authors "Author Name")
-
-(maintainers "Maintainer Name")
-
-(license LICENSE)
-
-(documentation https://url/to/documentation)
 
 (package
  (name strands)
- (synopsis "A short synopsis")
- (description "A longer description")
- (depends ocaml dune)
- (tags
-  (topics "to describe" your project)))
-
-; See the complete stanza docs at https://dune.readthedocs.io/en/stable/reference/dune-project/index.html
+ (depends
+  (ocaml (>= 4.14.0))
+  (dune (>= 3.0))
+  (cohttp-lwt-unix (>= 5.0.0))
+  (yojson (>= 2.0.0))
+  (lwt (>= 5.6.1))
+  (ppx_deriving_yojson (>= 3.7.0))))
