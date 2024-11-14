@@ -1,16 +1,18 @@
-type response
-@val external fetch: string => promise<response> = "fetch"
-@send external json: response => promise<'a> = "json"
+open Webapi
+open Promise
 
-let makeRequest = async url => {
-  let response = await fetch(url)
-  let json = await response->json
-  Js.log(json)
-}
+
 
 @react.component
 let make = () => {
   let (count, setCount) = React.useState(() => 0)
+
+  
+  let _ = {
+  Fetch.fetch("http://127.0.0.1:8080/echo/hi")
+  ->then(Fetch.Response.text)
+  ->then(text=> Js.log(text)->resolve)
+  }
 
 
 

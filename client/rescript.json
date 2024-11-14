@@ -16,7 +16,7 @@
   "bs-dependencies": [
     "@rescript/core",
     "@rescript/react",
-    "bs-fetch"
+    "rescript-webapi"
   ],
   "bsc-flags": [
     "-open RescriptCore"
