@@ -7,7 +7,11 @@
 
 
 ## Starting the server
+```
+dune build
+dune exec ./_build/default/src/server/server.exe 
 
+```
 
 ## Starting Rescript
 Run from root
