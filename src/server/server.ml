@@ -1,14 +1,21 @@
 let () =
-  Dream.run
+  Dream.run ~interface:"0.0.0.0" ~port:8080
   @@ Dream.logger
+  @@ Dream.cors
   @@ Dream.router [
     Dream.get "/"
       (fun _ ->
-        let json = `Assoc [("message", `String "Good morning, world")] in
-        Dream.json (Yojson.Safe.to_string json));
+        let response = 
+          `Assoc [("message", `String "Good morning, world")]
+          |> Yojson.Safe.to_string
+        in
+        Dream.respond ~headers:[("Content-Type", "application/json")] response);
 
     Dream.get "/echo/:word" @@ fun request ->
       let word = Dream.param request "word" in
-      let json = `Assoc [("echo", `String word)] in
-      Dream.json (Yojson.Safe.to_string json);
+      let response = 
+        `Assoc [("echo", `String word)]
+        |> Yojson.Safe.to_string
+      in
+      Dream.respond ~headers:[("Content-Type", "application/json")] response;
   ]
