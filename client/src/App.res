@@ -9,7 +9,7 @@ let make = () => {
 
   
   let _ = {
-  Fetch.fetch("http://127.0.0.1:8080/echo/hi")
+  Fetch.fetch("https://http://127.0.0.1:8080/echo/hi")
   ->then(Fetch.Response.text)
   ->then(text=> Js.log(text)->resolve)
   }

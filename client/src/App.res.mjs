@@ -10,7 +10,7 @@ function App(props) {
         return 0;
       });
   var setCount = match[1];
-  fetch("http://127.0.0.1:8080/echo/hi").then(function (prim) {
+  fetch("https://127.0.0.1:8080/echo/hi").then(function (prim) {
           return prim.text();
         }).then(function (text) {
         return Promise.resolve((console.log(text), undefined));
