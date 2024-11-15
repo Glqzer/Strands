@@ -1,5 +1,5 @@
 open Core
-open Random
+
 (** Module representing positions as (row, col) coordinates. *)
 module Position : sig
   (** Type representing a position as a pair of integers. *)

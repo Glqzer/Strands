@@ -1,3 +1,5 @@
+open Random
+
 module Position = struct
   type t = int * int
 
