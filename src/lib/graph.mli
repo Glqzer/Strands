@@ -1,4 +1,5 @@
 open Core
+open Random
 (** Module representing positions as (row, col) coordinates. *)
 module Position : sig
   (** Type representing a position as a pair of integers. *)
@@ -26,9 +27,11 @@ val get_neighbors : graph -> Position.t -> Position.t list
 (** Update the list of neighbors for a given position in the graph *)
 val update_neighbors : graph -> Position.t -> Position.t list -> graph
 
+(** Create a graph given a number of rows and columns *)
 val initialize_graph : int -> int -> graph
 
-val remove_diagonals : graph -> graph
+(** Randomly remove one diagonal from each pair of diagonals *)
+val remove_random_diagonals : graph -> int -> int -> graph
 
 
 

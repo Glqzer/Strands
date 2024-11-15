@@ -43,5 +43,45 @@ let initialize_graph rows cols =
   in
 
   create_graph 0 0 empty_graph  (* Start the recursive graph creation from (0, 0) *)
+;;
 
+let remove_random_diagonals graph rows cols =
+  (* Helper to remove a neighbor from a position's neighbor list *)
+  let remove_neighbor neighbors neighbor =
+    List.filter ((<>) neighbor) neighbors
+  in
 
+  (* Helper function to remove a bidirectional edge between two nodes *)
+  let remove_diagonal graph pos1 pos2 =
+    let neighbors1 = PositionMap.find_opt pos1 graph |> Option.value ~default:[] in
+    let neighbors2 = PositionMap.find_opt pos2 graph |> Option.value ~default:[] in
+    let updated_neighbors1 = remove_neighbor neighbors1 pos2 in
+    let updated_neighbors2 = remove_neighbor neighbors2 pos1 in
+    graph
+    |> PositionMap.add pos1 updated_neighbors1
+    |> PositionMap.add pos2 updated_neighbors2
+  in
+
+  (* Traverse each "box" in the grid *)
+  let rec traverse_boxes x y graph =
+    if y >= rows - 1 then graph  (* Finished all rows *)
+    else if x >= cols - 1 then traverse_boxes 0 (y + 1) graph  (* Move to next row *)
+    else
+      (* Define positions in the 2x2 box *)
+      let pos1 = (x, y) in
+      let pos2 = (x + 1, y) in
+      let pos3 = (x, y + 1) in
+      let pos4 = (x + 1, y + 1) in
+
+      (* Randomly remove one of each pair of crossing diagonals *)
+      let graph =
+        if Random.bool () then remove_diagonal graph pos1 pos4 else remove_diagonal graph pos2 pos3
+      in
+
+      (* Continue to the next box *)
+      traverse_boxes (x + 1) y graph
+  in
+
+  (* Start the traversal from the top-left corner of the grid *)
+  traverse_boxes 0 0 graph
+;;
