@@ -1,49 +1,51 @@
 (* utils.ml *)
-open Stdlib
-
+open Core
 [@@@ocaml.warning "-27"]
-
 
 type word_dict = (int * string list) list
 
-let read_words (filename : string) : word_dict =
-  let input_channel = open_in filename in
-  (* parse the file, into a word dictionary *)
+(* let read_words (filename : string) : word_dict =
+  let input_channel = filename in
   let rec read_lines acc =
-    match input_line input_channel with
-    | line -> 
-
+      let line = input_channel in 
+      if String.length line > 0 then
         let process_line line =
-          (* removes unwanted chars and split into key and list of words *)
-          let line = String.trim line in
-          if String.length line > 0 then
-            match String.split_on_char ':' line with
-            | [length_str; words_str] ->
-                let length = int_of_string (String.trim length_str) in
-                let words = String.split_on_char ',' (String.trim words_str) in
-                (* clean up the words and associate them with their length *)
-                let words = List.map (fun word -> String.trim (String.sub word 1 (String.length word - 2))) words in
-                (length, words) :: acc
-            | _ -> acc
-          else acc
+          match String.split_on_chars line ~on:[':'] with
+          | [length_str; words_str] ->
+              let length = int_of_string (length_str) in
+              let words =
+                words_str
+                |> (fun s -> String.sub s 1 (String.length s - 2)) (* remove outer brackets *)
+                |> String.split_on_char ~sep:','                     (* split to individual words *)
+                
+              in
+              (length, words) :: acc
+          | _ -> acc (* skip malformed lines *)
         in
-        read_lines (process_line line @ acc)      (* accumulate processed lines *)
-   
+        read_lines (process_line line)
+      else
+        read_lines acc (* skip empty lines *)
+
   in
-  let result = read_lines [] in
-  close_in input_channel;
-  result
+    let result = read_lines [] in
+      close_in input_channel;
+      result *)
 
-
+(* let () =
+  let words = read_words "words.txt" in
+  List.iter (fun (length, word_list) ->
+      Printf.printf "%d: [%s]\n" length (String.concat ", " word_list))
+    words *)
 
 let select_words (word_dict : word_dict) (total_chars : int) : string list =
   []
+  
 
 
 
 
 
-let convert_sample_grid (sample_grid: string) : char array array =
+(* let convert_sample_grid (sample_grid: string) : char array array =
   let cleaned_grid = 
     String.trim sample_grid
     |> String.split_on_char '['
@@ -53,4 +55,4 @@ let convert_sample_grid (sample_grid: string) : char array array =
       |> List.map (fun c -> c.[0])) 
   in
     (* convert the list of rows into an array of character arrays *)
-    Array.of_list (List.map (Array.of_list) cleaned_grid)
+    Array.of_list (List.map (Array.of_list) cleaned_grid) *)

@@ -9,9 +9,10 @@ module Position : sig
   val compare : t -> t -> int
 end
 
-(* wrapped for each cell, there is its position on the graph and its char *)
+(* TODO - check this:  wrapped for each cell, there is its position on the graph and its char *)
 module Cell : sig
   type t = char * Position.t
+  (* type t = { letter : char; coords : Position.t } *)
 end
 
 (** Module for a map where each key is a position and the value is a list of neighboring positions. *)
@@ -19,6 +20,9 @@ module PositionMap : Map.S with type Key.t = Position.t
 
 (** Type representing the graph as a map from positions to a list of neighbors. *)
 type graph = Position.t list PositionMap.t
+
+(* TODO - Would this be a better implementation than wrapping each cell's position and its letter in a module ? *)
+(* type char_graph = char PositionMap.t *)
 
 (** An empty graph. *)
 val empty_graph : graph 
