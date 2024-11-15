@@ -9,6 +9,11 @@ module Position : sig
   val compare : t -> t -> int
 end
 
+(* wrapped for each cell, there is its position on the graph and its char *)
+module Cell : sig
+  type t = char * Position.t
+end
+
 (** Module for a map where each key is a position and the value is a list of neighboring positions. *)
 module PositionMap : Map.S with type Key.t = Position.t
 
@@ -16,7 +21,7 @@ module PositionMap : Map.S with type Key.t = Position.t
 type graph = Position.t list PositionMap.t
 
 (** An empty graph. *)
-val empty_graph : graph
+val empty_graph : graph 
 
 (** Add a node to the graph, associating it with a list of neighbors. *)
 val add_node : graph -> Position.t -> Position.t list -> graph

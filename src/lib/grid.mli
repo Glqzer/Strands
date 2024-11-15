@@ -4,7 +4,7 @@ module type Grid = sig
 
   val init : t -> char array array 
 
-  val print_grid : t -> unit 
+  val print_grid : t -> char array array 
   (** [print_grid grid] prints [grid] to the console in a readable format. *)
 
 end
