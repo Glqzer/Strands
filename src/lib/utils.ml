@@ -1,5 +1,4 @@
-(* utils.ml *)
-open Core
+
 [@@@ocaml.warning "-27"]
 
 type word_dict = (int * string list) list

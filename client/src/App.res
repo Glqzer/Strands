@@ -5,31 +5,35 @@ open Promise
 
 @react.component
 let make = () => {
-  let (count, setCount) = React.useState(() => 0)
+  let (echo, setEcho) = React.useState(() => "")
 
-  
-  let _ = {
-  Fetch.fetch("https://http://127.0.0.1:8080/echo/hi")
-  ->then(Fetch.Response.text)
-  ->then(text=> Js.log(text)->resolve)
-  }
+  React.useEffect0(() => {
+    let _ = Fetch.fetch("http://localhost:8080/echo/hi")
+    ->then(Fetch.Response.json)
+    ->then(json => {
+        switch Js.Json.decodeObject(json) {
+        | Some(obj) =>
+          switch obj->Js.Dict.get("echo") {
+          | Some(value) =>
+            switch Js.Json.decodeString(value) {
+            | Some(echoText) => setEcho(_ => echoText)
+            | None => Js.Console.error("Value is not a string")
+            }
+          | None => Js.Console.error("Could not find 'echo' field")
+          }
+        | None => Js.Console.error("Invalid JSON object")
+        }
+        resolve()
+    })
+    ->catch(err => {
+      Js.Console.error2("Error fetching data:", err)
+      resolve()
+    })
+    
+    None
+  })
 
-
-
-  <div className="p-6">
-    <h1 className="text-3xl font-semibold"> {"What is this about?"->React.string} </h1>
-    <p>
-      {React.string("This is a simple template for a Vite project using ReScript & Tailwind CSS.")}
-    </p>
-    <h2 className="text-2xl font-semibold mt-5"> {React.string("Fast Refresh Test")} </h2>
-    <Button onClick={_ => setCount(count => count + 1)}>
-      {React.string(`count is ${count->Int.toString}`)}
-    </Button>
-    <p>
-      {React.string("Edit ") }
-      <code> {React.string("src/App.res")} </code>
-      {React.string(" and save to test Fast Refresh.")}
-    </p>
-    <h3 className="mt-4">{React.string("Fetched Name: ")}</h3>
+  <div>
+    <p> {React.string("Echo response: " ++ echo)} </p>
   </div>
 }

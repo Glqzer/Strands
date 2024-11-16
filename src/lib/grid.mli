@@ -1,10 +1,12 @@
 module type Grid = sig
-  type t [@@deriving sexp]    (* type representing a 2D array of characters, i.e., a char array array *)
-  type position = int * int   (* type representing a position on the grid as (row, col) *)
+  type t [@@deriving sexp]
+  type position = int * int
 
-  val init : t -> char array array 
-
-  val print_grid : t -> char array array 
-  (** [print_grid grid] prints [grid] to the console in a readable format. *)
-
+  val init : unit -> t
+  val get_letter : t -> position -> char
+  val set_letter : t -> position -> char -> unit
+  val select_spangram : string list -> string option
+  val place_spangram : t -> string -> position -> position -> bool
+  val populate_grid : t -> string list -> unit
+  val print_grid : t -> unit
 end
