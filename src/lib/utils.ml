@@ -45,14 +45,16 @@ let select_words (word_dict : word_dict) (total_chars : int) : string list =
 
 
 
-(* let convert_sample_grid (sample_grid: string) : char array array =
-  let cleaned_grid = 
-    String.trim sample_grid
-    |> String.split_on_char '['
-    |> List.map (fun s -> String.trim s 
-      |> String.split_on_char ';'             
-      |> List.filter (fun str -> str <> "")
-      |> List.map (fun c -> c.[0])) 
-  in
-    (* convert the list of rows into an array of character arrays *)
-    Array.of_list (List.map (Array.of_list) cleaned_grid) *)
+
+(* hard coded for testing *)
+let sample_grid (grid: string) : char list list = 
+  let grid = 
+    [['e'; 'b'; 'l'; 'y'; 'r'; 'r'];
+    ['p'; 'a'; 'r'; 'u'; 'e'; 'b'];
+    ['g'; 'e'; 'g'; 'e'; 'a'; 'w'];
+    ['m'; 'n'; 'b'; 'r'; 'm'; 'a'];
+    ['a'; 'a'; 'r'; 'e'; 't'; 'n'];
+    ['n'; 'g'; 'o'; 'r'; 's'; 'd'];
+    ['a'; 'o'; 'e'; 'r'; 'n'; 'a'];
+    ['p'; 'p'; 'l'; 'y'; 'i'; 'r']]
+  in grid

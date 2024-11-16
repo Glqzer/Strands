@@ -11,4 +11,4 @@ val select_words : word_dict -> int -> string list
 (** [select_words word_dict total_chars] selects words from [word_dict] until the
     total character count of the selected words reaches [total_chars] *)
 
-val convert_sample_grid : string -> char array array  
+val grid : string -> char list list  
