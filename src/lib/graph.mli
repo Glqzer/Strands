@@ -1,4 +1,4 @@
-open Core
+(* open Core
 
 (** Module representing positions as (row, col) coordinates. *)
 module Position : sig
@@ -10,10 +10,10 @@ module Position : sig
 end
 
 (* TODO - check this:  wrapped for each cell, there is its position on the graph and its char *)
-module Cell : sig
+(* module Cell : sig
   type t = char * Position.t
   (* type t = { letter : char; coords : Position.t } *)
-end
+end *)
 
 (** Module for a map where each key is a position and the value is a list of neighboring positions. *)
 module PositionMap : Map.S with type Key.t = Position.t
@@ -65,4 +65,4 @@ val place_spangram : unit -> string -> Position.t -> Position.t -> bool
  **)
 val populate_grid : unit -> string list -> unit
 (** [populate_grid grid words] populates [grid] with the remaining words in [words]
-    without overlapping existing characters on the grid. *)
+    without overlapping existing characters on the grid. *) *)

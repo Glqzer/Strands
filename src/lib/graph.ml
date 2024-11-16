@@ -1,4 +1,4 @@
-open Random
+(* open Random
 
 module Position = struct
   type t = int * int
@@ -86,4 +86,4 @@ let remove_random_diagonals graph rows cols =
 
   (* Start the traversal from the top-left corner of the grid *)
   traverse_boxes 0 0 graph
-;;
+;; *)
