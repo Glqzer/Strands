@@ -22,8 +22,11 @@ module Cell : sig
   (* TODO: sexp_of_t *)
 end
 
-
 module CellMap : Map.S with type Key.t = Cell.t
+
+type graph = Cell.t list CellMap.t
+
+
 
 
 

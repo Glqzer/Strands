@@ -11,7 +11,6 @@ module Graph = struct
 end
   *)
 
-
 module Position = struct
   type t = int * int [@@deriving sexp, compare]
 end
@@ -20,7 +19,7 @@ module Cell = struct
   type t = char * Position.t 
   let compare (char1, pos1) (char2, pos2) =
     match Position.compare pos1 pos2 with
-    | 0 -> Char.compare char1 char2 (* if same position, same compare chars *)
+    | 0 -> Char.compare char1 char2 (* if position are the same, compare chars *)
     | other -> other
     let t_of_sexp _ = failwith "not sure"
     let sexp_of_t _ = failwith "not sure"
@@ -28,7 +27,9 @@ end
 
 module CellMap = Map.Make(Cell)
 
-(* type graph = Cell.t list CellMap.t *)
+(* our graph is a map of Cell keys (char * Postion.t) 
+and their values will correspond to their list of neighbors *)
+type graph = Cell.t list CellMap.t 
 
  
 
