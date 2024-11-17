@@ -1,3 +1,31 @@
+(* open Core *)
+(* potential structure - tam 
+
+module Graph = struct
+  module Node = struct
+    type position = int * int
+    type letter = char 
+    type t = letter * position
+    let compare = compare
+  end
+end
+  *)
+
+
+module Position = struct
+  type t = int * int 
+end
+
+module Cell = struct
+  type t = char * Position.t
+end
+
+(* module CellMap = Map.Make(Cell) *)
+
+(* type graph = Cell.t list CellMap.t *)
+
+ 
+
 (* open Random
 
 module Position = struct

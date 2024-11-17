@@ -1,3 +1,28 @@
+(* open Core *)
+(* potential structure - tam 
+
+module Graph : sig
+  module Node : sig
+    type position 
+    type letter 
+    type t
+
+    val compare : t -> t -> int
+  end
+end  *)
+
+module Position : sig
+  type t = int * int 
+end
+
+module Cell : sig
+  type t = char * Position.t
+end
+
+(* module CellMap : Map.S with type Key.t = Cell.t *)
+
+
+
 (* open Core
 
 (** Module representing positions as (row, col) coordinates. *)
