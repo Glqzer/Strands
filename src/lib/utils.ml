@@ -46,7 +46,7 @@ let select_words (word_dict : word_dict) (total_chars : int) : string list =
 
 
 (* hard coded for testing *)
-let sample_grid (grid: string) : char list list = 
+let sample_grid : char list list = 
   let grid = 
     [['e'; 'b'; 'l'; 'y'; 'r'; 'r'];
     ['p'; 'a'; 'r'; 'u'; 'e'; 'b'];
