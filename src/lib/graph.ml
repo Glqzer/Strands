@@ -1,4 +1,4 @@
-(* open Core *)
+open Core
 (* potential structure - tam 
 
 module Graph = struct
@@ -13,14 +13,20 @@ end
 
 
 module Position = struct
-  type t = int * int 
+  type t = int * int [@@deriving sexp, compare]
 end
 
 module Cell = struct
-  type t = char * Position.t
+  type t = char * Position.t 
+  let compare (char1, pos1) (char2, pos2) =
+    match Position.compare pos1 pos2 with
+    | 0 -> Char.compare char1 char2 (* if same position, same compare chars *)
+    | other -> other
+    let t_of_sexp _ = failwith "not sure"
+    let sexp_of_t _ = failwith "not sure"
 end
 
-(* module CellMap = Map.Make(Cell) *)
+module CellMap = Map.Make(Cell)
 
 (* type graph = Cell.t list CellMap.t *)
 

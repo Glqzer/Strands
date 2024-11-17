@@ -1,4 +1,4 @@
-(* open Core *)
+open Core
 (* potential structure - tam 
 
 module Graph : sig
@@ -17,9 +17,13 @@ end
 
 module Cell : sig
   type t = char * Position.t
+  val compare : char * Position.t -> char * Position.t -> int
+  (* TODO: t_of_sexp *)
+  (* TODO: sexp_of_t *)
 end
 
-(* module CellMap : Map.S with type Key.t = Cell.t *)
+
+module CellMap : Map.S with type Key.t = Cell.t
 
 
 
