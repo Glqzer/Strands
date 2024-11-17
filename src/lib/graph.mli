@@ -26,9 +26,7 @@ module CellMap : Map.S with type Key.t = Cell.t
 
 type graph = Cell.t list CellMap.t
 
-
-
-
+(* val init_graph : unit -> graph  *)
 
 (* open Core
 

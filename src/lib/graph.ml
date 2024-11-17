@@ -31,8 +31,19 @@ module CellMap = Map.Make(Cell)
 and their values will correspond to their list of neighbors *)
 type graph = Cell.t list CellMap.t 
 
+(* let init_graph () : graph =
+  let letter = ' ' in
+  let rows = 8 in
+  let cols = 6 in
+  let cells = 
+    *)
  
 
+
+
+
+
+    
 (* open Random
 
 module Position = struct
