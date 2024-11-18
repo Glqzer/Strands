@@ -1,19 +1,18 @@
-(* Module to create a map where the key is a letter (char) and the value is a coordinate (int, int) *)
-module WordCoords : sig
-  type t
+open Core
 
-  (* Create an empty map *)
-  val empty : t
+(** Module representing positions as (row, col) coordinates. *)
+module Position : sig
+  (** Type representing a position as a pair of integers. *)
+  type t = int * int
 
-  (* Add a letter-coordinate pair to the map *)
-  val add : char -> int * int -> t -> t
-
-  (* Find the value for a given letter in the map *)
-  val find : char -> t -> (int * int)
-
-  (* Iterate over all letter-value pairs in the map *)
-  val iter : (char -> int * int -> unit) -> t -> unit
+  (** Comparison function for positions. *)
+  val compare : t -> t -> int
 end
+
+module StringMap : Map.S with type Key.t = String.t
+
+(** Type wordcoords is a map where the key is a string and the value is a list of positions *)
+type wordcoords = Position.t list StringMap.t
 
 (* Module to create a map where the key is a word (string) and the value is a record (0 or 1) *)
 module WordRecord : sig
@@ -34,6 +33,9 @@ module WordRecord : sig
   (* Iterate over all key-value pairs in the map *)
   val iter : (string -> int -> unit) -> t -> unit
 end
+
+(* Functions for interacting with Front-End are below: *)
+
 
 
 

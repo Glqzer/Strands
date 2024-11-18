@@ -1,30 +1,21 @@
-(* Module to create a map where the key is a letter (char) and the value is a coordinate (int, int) *)
-module WordCoords = struct
-  (* Create a map with a char key and (int * int) value using Map.Make *)
-  module M = Map.Make(Char)
+(* Module to create a map where the key is a word and the value is a Position (int, int) *)
+module Position = struct
+  type t = int * int
 
-  (* The map type is now (int * int) (coordinates) M.t *)
-  type t = (int * int) M.t
-
-  (* Create an empty map *)
-  let empty = M.empty
-
-  (* Add a letter-coordinate pair to the map *)
-  let add letter coord map = M.add letter coord map
-
-  (* Find the coordinate for a given letter in the map *)
-  let find letter map = M.find letter map
-
-  (* Iterate over all letter-coordinate pairs in the map *)
-  let iter f map = M.iter f map
+  let compare = compare
 end
+
+module StringMap = Map.Make(String)
+
+(** Type wordcoords is a map where the key is a string and the value is a list of positions *)
+type wordcoords = (Position.t list) StringMap.t
 
 (* Module to create a map where the key is a word (string) and the value is a record (0 or 1) *)
 module WordRecord = struct
   (* Create a map with a string key and int value using Map.Make *)
   module M = Map.Make(String)
 
-  type t = int M.t  (* The map type is now int M.t *)
+  type t = int M.t
 
   (* Create an empty map *)
   let empty = M.empty
@@ -45,3 +36,5 @@ module WordRecord = struct
   (* Iterate over all word-record pairs in the map *)
   let iter f map = M.iter f map
 end
+
+(* Functions for interacting with Front-End are below: *)
