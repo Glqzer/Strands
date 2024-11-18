@@ -4,6 +4,8 @@ import * as Cell from "./Cell.res.mjs";
 import * as React from "react";
 import * as Js_dict from "rescript/lib/es6/js_dict.js";
 import * as Js_json from "rescript/lib/es6/js_json.js";
+import * as Caml_obj from "rescript/lib/es6/caml_obj.js";
+import * as Belt_List from "rescript/lib/es6/belt_List.js";
 import * as Belt_Array from "rescript/lib/es6/belt_Array.js";
 import * as Core__Promise from "@rescript/core/src/Core__Promise.res.mjs";
 import * as JsxRuntime from "react/jsx-runtime";
@@ -13,6 +15,11 @@ function App(props) {
         return [];
       });
   var setBoard = match[1];
+  var match$1 = React.useState(function () {
+        return /* [] */0;
+      });
+  var setSelectedCells = match$1[1];
+  var selectedCells = match$1[0];
   React.useEffect((function () {
           Core__Promise.$$catch(fetch("http://localhost:8080/initialize").then(function (prim) {
                       return prim.json();
@@ -56,26 +63,73 @@ function App(props) {
                   return Promise.resolve();
                 }));
         }), []);
+  React.useEffect((function () {
+          console.log("Selected cells:", selectedCells);
+        }), [selectedCells]);
+  var isCellSelected = function (rowIndex, colIndex) {
+    var coordinate = [
+      rowIndex,
+      colIndex
+    ];
+    return Belt_List.has(selectedCells, coordinate, Caml_obj.equal);
+  };
   return JsxRuntime.jsxs("div", {
               children: [
                 JsxRuntime.jsx("h1", {
                       children: "Strands FP",
-                      className: "mb-3"
+                      className: "text-2xl font-bold mb-4"
+                    }),
+                JsxRuntime.jsx("div", {
+                      children: JsxRuntime.jsx("button", {
+                            children: "Clear Selection",
+                            className: "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600",
+                            onClick: (function (param) {
+                                setSelectedCells(function (param) {
+                                      return /* [] */0;
+                                    });
+                              })
+                          }),
+                      className: "mb-4"
                     }),
                 JsxRuntime.jsx("div", {
                       children: JsxRuntime.jsx("div", {
                             children: Belt_Array.mapWithIndex(match[0], (function (rowIndex, row) {
                                     return Belt_Array.mapWithIndex(row, (function (colIndex, letter) {
                                                   return JsxRuntime.jsx(Cell.make, {
-                                                              letter: letter
-                                                            }, "cell-" + rowIndex.toString() + "-" + String(colIndex));
+                                                              letter: letter,
+                                                              isSelected: isCellSelected(rowIndex, colIndex),
+                                                              onClick: (function () {
+                                                                  var coordinate = [
+                                                                    rowIndex,
+                                                                    colIndex
+                                                                  ];
+                                                                  setSelectedCells(function (prev) {
+                                                                        if (prev) {
+                                                                          if (Caml_obj.equal(prev.hd, coordinate)) {
+                                                                            return prev.tl;
+                                                                          } else {
+                                                                            return {
+                                                                                    hd: coordinate,
+                                                                                    tl: prev
+                                                                                  };
+                                                                          }
+                                                                        } else {
+                                                                          return {
+                                                                                  hd: coordinate,
+                                                                                  tl: /* [] */0
+                                                                                };
+                                                                        }
+                                                                      });
+                                                                })
+                                                            }, "cell-" + String(rowIndex) + "-" + String(colIndex));
                                                 }));
                                   })),
                             className: "grid grid-cols-6 gap-1"
                           }),
                       className: "flex justify-center"
                     })
-              ]
+              ],
+              className: "p-4"
             });
 }
 
