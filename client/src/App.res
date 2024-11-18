@@ -6,6 +6,8 @@ open Webapi
 let make = () => {
   let (board, setBoard) = useState(() => []) 
   let (selectedCells, setSelectedCells) = useState(() => list{}) 
+  let (lastValidCell, setLastValidCell) = useState(() => None)
+
   useEffect0(() => {
     let _ = Fetch.fetch("http://localhost:8080/initialize")
     ->then(Fetch.Response.json)
@@ -49,26 +51,56 @@ let make = () => {
     None
   }, [selectedCells])
 
-  let handleCellClick = (rowIndex, colIndex) => {
-    let coordinate = (rowIndex, colIndex)
-    setSelectedCells(prev => {
-      switch prev {
-      | list{} => list{coordinate}
-      | list{head, ...rest} => 
-          if head == coordinate {
-            rest  
+  let isAdjacent = (prev, current) => {
+    let (prevRow, prevCol) = prev;
+    let (currentRow, currentCol) = current;
+    let rowDiff = abs(prevRow - currentRow);
+    let colDiff = abs(prevCol - currentCol);
+    rowDiff <= 1 && colDiff <= 1;
+  };
+
+let handleCellClick = (rowIndex, colIndex) => {
+  let coordinate = (rowIndex, colIndex);
+  setSelectedCells(prev => {
+    switch prev {
+    | list{} => 
+      list{coordinate}
+    | list{head, ...rest} => 
+        switch (lastValidCell) {
+        | Some(lastValid) =>
+          if isAdjacent(lastValid, coordinate) {
+            if head == coordinate {
+              rest
+            } else {
+              list{coordinate, ...prev}
+            }
           } else {
-            list{coordinate, ...prev}  
+            prev;
+          }
+        | None => 
+            list{coordinate}
+        };
+      };
+    });
+    setLastValidCell(prev => 
+      switch prev {
+      | None => Some(coordinate)
+      | Some(lastValid) =>
+          if isAdjacent(lastValid, coordinate) {
+            Some(coordinate)
+          } else {
+            prev
           }
       }
-    })
-  }
+    );
+  };
 
   let clearSelection = () => {
     setSelectedCells(_ => list{})
   }
 
   let isCellSelected = (rowIndex, colIndex) => {
+
     let coordinate = (rowIndex, colIndex)
     selectedCells->Belt.List.has(coordinate, (a, b) => a == b)
   }

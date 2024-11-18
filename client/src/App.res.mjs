@@ -7,6 +7,7 @@ import * as Js_json from "rescript/lib/es6/js_json.js";
 import * as Caml_obj from "rescript/lib/es6/caml_obj.js";
 import * as Belt_List from "rescript/lib/es6/belt_List.js";
 import * as Belt_Array from "rescript/lib/es6/belt_Array.js";
+import * as PervasivesU from "rescript/lib/es6/pervasivesU.js";
 import * as Core__Promise from "@rescript/core/src/Core__Promise.res.mjs";
 import * as JsxRuntime from "react/jsx-runtime";
 
@@ -20,6 +21,11 @@ function App(props) {
       });
   var setSelectedCells = match$1[1];
   var selectedCells = match$1[0];
+  var match$2 = React.useState(function () {
+        
+      });
+  var setLastValidCell = match$2[1];
+  var lastValidCell = match$2[0];
   React.useEffect((function () {
           Core__Promise.$$catch(fetch("http://localhost:8080/initialize").then(function (prim) {
                       return prim.json();
@@ -66,6 +72,15 @@ function App(props) {
   React.useEffect((function () {
           console.log("Selected cells:", selectedCells);
         }), [selectedCells]);
+  var isAdjacent = function (prev, current) {
+    var rowDiff = PervasivesU.abs(prev[0] - current[0] | 0);
+    var colDiff = PervasivesU.abs(prev[1] - current[1] | 0);
+    if (rowDiff <= 1) {
+      return colDiff <= 1;
+    } else {
+      return false;
+    }
+  };
   var isCellSelected = function (rowIndex, colIndex) {
     var coordinate = [
       rowIndex,
@@ -104,20 +119,31 @@ function App(props) {
                                                                     colIndex
                                                                   ];
                                                                   setSelectedCells(function (prev) {
-                                                                        if (prev) {
-                                                                          if (Caml_obj.equal(prev.hd, coordinate)) {
-                                                                            return prev.tl;
+                                                                        if (prev && lastValidCell !== undefined) {
+                                                                          if (isAdjacent(lastValidCell, coordinate)) {
+                                                                            if (Caml_obj.equal(prev.hd, coordinate)) {
+                                                                              return prev.tl;
+                                                                            } else {
+                                                                              return {
+                                                                                      hd: coordinate,
+                                                                                      tl: prev
+                                                                                    };
+                                                                            }
                                                                           } else {
-                                                                            return {
-                                                                                    hd: coordinate,
-                                                                                    tl: prev
-                                                                                  };
+                                                                            return prev;
                                                                           }
                                                                         } else {
                                                                           return {
                                                                                   hd: coordinate,
                                                                                   tl: /* [] */0
                                                                                 };
+                                                                        }
+                                                                      });
+                                                                  setLastValidCell(function (prev) {
+                                                                        if (prev !== undefined && !isAdjacent(prev, coordinate)) {
+                                                                          return prev;
+                                                                        } else {
+                                                                          return coordinate;
                                                                         }
                                                                       });
                                                                 })
