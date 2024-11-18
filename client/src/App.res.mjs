@@ -126,17 +126,15 @@ function App(props) {
                                                                   ];
                                                                   setSelectedCells(function (prev) {
                                                                         if (prev && lastValidCell !== undefined) {
-                                                                          if (isAdjacent(lastValidCell, coordinate)) {
-                                                                            if (Caml_obj.equal(prev.hd, coordinate)) {
-                                                                              return prev.tl;
-                                                                            } else {
-                                                                              return {
-                                                                                      hd: coordinate,
-                                                                                      tl: prev
-                                                                                    };
-                                                                            }
-                                                                          } else {
+                                                                          if (Caml_obj.equal(lastValidCell, coordinate) || !isAdjacent(lastValidCell, coordinate)) {
                                                                             return prev;
+                                                                          } else if (Caml_obj.equal(prev.hd, coordinate)) {
+                                                                            return prev.tl;
+                                                                          } else {
+                                                                            return {
+                                                                                    hd: coordinate,
+                                                                                    tl: prev
+                                                                                  };
                                                                           }
                                                                         } else {
                                                                           return {
@@ -146,7 +144,7 @@ function App(props) {
                                                                         }
                                                                       });
                                                                   setLastValidCell(function (prev) {
-                                                                        if (prev !== undefined && !isAdjacent(prev, coordinate)) {
+                                                                        if (prev !== undefined && (Caml_obj.equal(prev, coordinate) || !isAdjacent(prev, coordinate))) {
                                                                           return prev;
                                                                         } else {
                                                                           return coordinate;
