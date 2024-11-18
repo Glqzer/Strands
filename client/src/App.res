@@ -63,42 +63,37 @@ let handleCellClick = (rowIndex, colIndex) => {
   let coordinate = (rowIndex, colIndex);
   setSelectedCells(prev => {
     switch prev {
-    | list{} =>
-        list{coordinate}
-    | list{head, ...rest} =>
+    | list{} => 
+      list{coordinate}
+    | list{head, ...rest} => 
         switch (lastValidCell) {
-        | Some(lastValid) =>s
-            if lastValid == coordinate {
-              prev;
-            } else if isAdjacent(lastValid, coordinate) {
-              if head == coordinate {
-                rest
-              } else {
-                list{coordinate, ...prev}
-              }
+        | Some(lastValid) =>
+          if isAdjacent(lastValid, coordinate) {
+            if head == coordinate {
+              rest
             } else {
-              prev;
+              list{coordinate, ...prev}
             }
+          } else {
+            prev;
+          }
         | None => 
             list{coordinate}
         };
-    };
-  });
-
-  setLastValidCell(prev => 
-    switch prev {
-    | None => Some(coordinate)
-    | Some(lastValid) =>
-        if lastValid == coordinate {
-          prev
-        } else if isAdjacent(lastValid, coordinate) {
-          Some(coordinate)
-        } else {
-          prev
-        }
-    }
-  );
-};
+      };
+    });
+    setLastValidCell(prev => 
+      switch prev {
+      | None => Some(coordinate)
+      | Some(lastValid) =>
+          if isAdjacent(lastValid, coordinate) {
+            Some(coordinate)
+          } else {
+            prev
+          }
+      }
+    );
+  };
 
   let clearSelection = () => {
     setSelectedCells(_ => list{})
