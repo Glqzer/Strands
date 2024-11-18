@@ -3,9 +3,15 @@
 import * as JsxRuntime from "react/jsx-runtime";
 
 function Cell(props) {
+  var onClick = props.onClick;
   return JsxRuntime.jsx("div", {
               children: props.letter,
-              className: "w-12 h-12 border border-gray-300 flex items-center justify-center font-bold cursor-pointer"
+              className: "w-12 h-12 border border-gray-300 flex items-center justify-center font-bold cursor-pointer " + (
+                props.isSelected ? "bg-gray-200" : ""
+              ),
+              onClick: (function (param) {
+                  onClick();
+                })
             });
 }
 
