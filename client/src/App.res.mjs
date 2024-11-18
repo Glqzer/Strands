@@ -81,6 +81,14 @@ function App(props) {
       return false;
     }
   };
+  var clearSelection = function () {
+    setSelectedCells(function (param) {
+          return /* [] */0;
+        });
+    setLastValidCell(function (param) {
+          
+        });
+  };
   var isCellSelected = function (rowIndex, colIndex) {
     var coordinate = [
       rowIndex,
@@ -99,9 +107,7 @@ function App(props) {
                             children: "Clear Selection",
                             className: "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600",
                             onClick: (function (param) {
-                                setSelectedCells(function (param) {
-                                      return /* [] */0;
-                                    });
+                                clearSelection();
                               })
                           }),
                       className: "mb-4"

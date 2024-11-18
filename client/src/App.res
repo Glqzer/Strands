@@ -97,6 +97,7 @@ let handleCellClick = (rowIndex, colIndex) => {
 
   let clearSelection = () => {
     setSelectedCells(_ => list{})
+    setLastValidCell(_ => None)
   }
 
   let isCellSelected = (rowIndex, colIndex) => {
