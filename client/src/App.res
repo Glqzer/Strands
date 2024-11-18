@@ -2,13 +2,10 @@ open React
 open Promise
 open Webapi
 
-type position = (int, int)
-
 @react.component
 let make = () => {
-  let (board, setBoard) = useState(() => []) // Keep as array since it comes from API
-  let (selectedCells, setSelectedCells) = useState(() => list{}) // Change to list
-
+  let (board, setBoard) = useState(() => []) 
+  let (selectedCells, setSelectedCells) = useState(() => list{}) 
   useEffect0(() => {
     let _ = Fetch.fetch("http://localhost:8080/initialize")
     ->then(Fetch.Response.json)
@@ -59,9 +56,9 @@ let make = () => {
       | list{} => list{coordinate}
       | list{head, ...rest} => 
           if head == coordinate {
-            rest  // Remove last selected cell if clicking it again
+            rest  
           } else {
-            list{coordinate, ...prev}  // Add new cell to front of list
+            list{coordinate, ...prev}  
           }
       }
     })
