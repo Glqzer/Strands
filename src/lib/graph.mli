@@ -1,3 +1,33 @@
+open Core
+(* potential structure - tam 
+
+module Graph : sig
+  module Node : sig
+    type position 
+    type letter 
+    type t
+
+    val compare : t -> t -> int
+  end
+end  *)
+
+module Position : sig
+  type t = int * int 
+end
+
+module Cell : sig
+  type t = char * Position.t
+  val compare : char * Position.t -> char * Position.t -> int
+  (* TODO: t_of_sexp *)
+  (* TODO: sexp_of_t *)
+end
+
+module CellMap : Map.S with type Key.t = Cell.t
+
+type graph = Cell.t list CellMap.t
+
+(* val init_graph : unit -> graph  *)
+
 (* open Core
 
 (** Module representing positions as (row, col) coordinates. *)

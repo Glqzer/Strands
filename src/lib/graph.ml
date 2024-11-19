@@ -1,3 +1,49 @@
+open Core
+(* potential structure - tam 
+
+module Graph = struct
+  module Node = struct
+    type position = int * int
+    type letter = char 
+    type t = letter * position
+    let compare = compare
+  end
+end
+  *)
+
+module Position = struct
+  type t = int * int [@@deriving sexp, compare]
+end
+
+module Cell = struct
+  type t = char * Position.t 
+  let compare (char1, pos1) (char2, pos2) =
+    match Position.compare pos1 pos2 with
+    | 0 -> Char.compare char1 char2 (* if position are the same, compare chars *)
+    | other -> other
+    let t_of_sexp _ = failwith "not sure"
+    let sexp_of_t _ = failwith "not sure"
+end
+
+module CellMap = Map.Make(Cell)
+
+(* our graph is a map of Cell keys (char * Postion.t) 
+and their values will correspond to their list of neighbors *)
+type graph = Cell.t list CellMap.t 
+
+(* let init_graph () : graph =
+  let letter = ' ' in
+  let rows = 8 in
+  let cols = 6 in
+  let cells = 
+    *)
+ 
+
+
+
+
+
+    
 (* open Random
 
 module Position = struct
