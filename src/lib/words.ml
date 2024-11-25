@@ -1,12 +1,12 @@
+module Position = struct
+  type t = int * int
+  let compare = compare
+end
+
 (* Module to create a map where the key is a word and the value is a list of coordinates *)
 module WordCoords = struct
   (* Create a map with a char key and (int * int) value using Map.Make *)
   module M = Map.Make(String)
-
-  module Position = struct
-    type t = int * int
-    let compare = compare
-  end
 
   (* The map type is now (int * int) (coordinates) M.t *)
   type t = Position.t list M.t
@@ -51,13 +51,26 @@ module WordRecord = struct
   let iter f map = M.iter f map
 end
 
-let check_result word coords word_coords_map = 
+let check_result (word : string) (coords : Position.t list) (word_coords_map : WordCoords.t) : bool = 
   match WordCoords.find word word_coords_map with
   | None -> false (* The word is not a key in the map *)
   | Some stored_coords -> coords = stored_coords (* Check if coords match *)
 
-let set_found word word_record_map = 
+let set_found (word : string) (word_record_map : WordRecord.t) : WordRecord.t = 
   match WordRecord.find word word_record_map with
   | None -> word_record_map
   | Some _ -> WordRecord.add word 1 word_record_map
+
+let is_found (word : string) (word_record_map : WordRecord.t) : bool = 
+  match WordRecord.find word word_record_map with
+  | None -> false
+  | Some 0 -> false
+  | Some 1 -> true 
+  (* SHOULD NEVER GET TO THIS POINT *)
+  | Some _ -> false 
+
+let initialize_word_record (words : string list) : WordRecord.t = 
+  List.fold_left (fun acc word -> WordRecord.add word 0 acc) WordRecord.empty words
+
+
 

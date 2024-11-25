@@ -1,10 +1,10 @@
+module Position : sig
+  type t = int * int
+  val compare : t -> t -> int
+end
+
 (* Module to create a map where the key is a word and the value is a list of coordinates *)
 module WordCoords : sig
-
-  module Position : sig
-    type t = int * int
-    val compare : t -> t -> int
-  end
 
   type t
 
