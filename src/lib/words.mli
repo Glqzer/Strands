@@ -44,5 +44,11 @@ end
 (* Validate function signature *)
 val check_result : string -> (int * int) list -> WordCoords.t -> bool
 
+val set_found : string -> WordRecord.t -> WordRecord.t
+
+val is_found : string -> WordRecord.t -> bool
+
+val initialize_word_record : string list -> WordRecord.t
+
 
 
