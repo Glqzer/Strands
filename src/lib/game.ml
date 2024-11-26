@@ -1,6 +1,5 @@
 [@@@ocaml.warning "-27"]
 
-
 type word = string
 
 type position = int * int
@@ -18,4 +17,4 @@ let check_word_length (word : word) : bool =
   false
 
 let print_found_words () : unit =
-  ()
+  () 

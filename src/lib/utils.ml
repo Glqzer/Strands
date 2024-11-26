@@ -32,15 +32,7 @@ let get_spangram (words : string list) =
 let get_words (words : string list) = 
   match words with 
   | [] -> []              
-  | _ :: tl -> tl       
-
-(* print testing, shown in dune utop ! *)
-let () = 
-  let words = parse_file "sample_words.txt" in 
-  let spangram = get_spangram words in 
-    Printf.printf "This is our spangram! %s\n" spangram
-    
-let () =     
-  let words = parse_file "sample_words.txt" in
-  let themed_words = get_words words in
-    List.iter print_endline themed_words
+  | _ :: tl -> tl   
+  
+let split_into_letters (s : string) = 
+  List.of_seq (String.to_seq s)
