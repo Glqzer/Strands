@@ -1,4 +1,5 @@
 open Stdio 
+
 [@@@ocaml.warning "-27"]
 
 (* Hard coded for testing front end *)
@@ -33,6 +34,3 @@ let get_words (words : string list) =
   match words with 
   | [] -> []              
   | _ :: tl -> tl   
-  
-let split_into_letters (s : string) = 
-  List.of_seq (String.to_seq s)

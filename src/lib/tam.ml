@@ -1,64 +1,80 @@
-(* open Core *)
+open Core
 
 module Grid = struct
-  (* type t = char list list *)
+  type t = char list list
 
-  (* initalized an empty grid, both rows and columns have default '-' *)
-  (* let create_empty_grid (rows : int) (cols : int) : t =
-    List.init rows ~f:(fun _ -> List.init cols ~f:(fun _ -> '-')) *)
+  (* DIRECTIONS AND MOVEMENTS *)
+  type direction = Up | Down | Left | Right | UpLeft | UpRight | DownLeft | DownRight
+  let directions = [Up; Down; Left; Right; UpLeft; UpRight; DownLeft; DownRight]
 
-  (* list of directions to help place each letter of the spangram *)
-  (* let directions = [
-    (* --- BASIC --- *)
-    (* up, down, left, right *)
-    (-1, 0); (1, 0); (0, -1);(0, 1);   
+  let move (x, y) direction =
+    match direction with
+    | Up -> (x, y - 1)
+    | Down -> (x, y + 1)
+    | Left -> (x - 1, y)
+    | Right -> (x + 1, y)
+    | UpLeft -> (x - 1, y - 1)
+    | UpRight -> (x + 1, y - 1)
+    | DownLeft -> (x - 1, y + 1)
+    | DownRight -> (x + 1, y + 1)
 
-    (* --- DIAGONALS ---  *)
-    (* up-left, up-right, down-left, down-right *)
-    (-1, -1); (-1, 1); (1, -1); (1, 1);   
-  ] *)
+  let random_direction () =
+    List.nth_exn directions (Random.int (List.length directions))
 
-  (* place the spangram on a vertical-like path, starting at a random column *)
-  (* let vertical_span (spangram : string) (rows : int) (cols : int) : t = *)
-    (* --- SET UP ---  *)
-    (* let letters = Utils.split_into_letters spangram in
-    let span_len = List.length letters in
-    let grid = create_empty_grid rows cols in 
-    let starting_col = Random.int cols in   *)
+  (* CONDITIONS / CONSTRAINTS *)
+  let in_bounds (x, y) rows cols =
+    x >= 0 && x < rows && y >= 0 && y < cols
 
-    (* using recursion to place all of the letters on new grid until there's no more letters *)
-    (* let rec place_letters letters grid = 
-      match letters with 
-    | [] -> grid 
-    | letter :: rest ->  *)
-      (* choose a direction to place a letter -- random *)
-      (* let next_dir = Random.int (List.length directions) in  *)
+  let is_free (x, y) grid =
+    match List.nth grid y with
+    | Some row_data -> (
+        match List.nth row_data x with
+        | Some cell -> Char.equal cell '-'
+        | None -> false)
+    | None -> false
 
-      (* check valid position -- if its in bounds and not overlap *)
-      
-      (* make a new grid and recurse until all letters are placed well *)
-      (* make sure it spans the grid  *)
-      
+  let create_empty_grid (rows : int) (cols : int) : t =
+    List.init rows ~f:(fun _ -> List.init cols ~f:(fun _ -> '-'))
 
+  let place_spangram (spangram : string) (grid : char list list) =
+    let rows = List.length grid in
+    let cols = List.length (List.hd_exn grid) in
+    let letters = String.to_list spangram in
+  
+    let rec place_letters grid (x, y) letters =
+      match letters with
+      | [] -> grid  (* if no more letters to place, return the grid *)
+      | letter :: rest ->
+        if in_bounds (x, y) rows cols && is_free (x, y) grid then
+          (* place the current letter *)
+          let updated_row = List.mapi ~f:(fun i cell -> if i = x then letter else cell) (List.nth_exn grid y) in
+          let updated_grid = List.mapi ~f:(fun i row -> if i = y then updated_row else row) grid in
 
+          (* recursively place the next letter in the chosen direction *)
+          let direction = random_direction () in
+          let (new_x, new_y) = move (x, y) direction in
+          place_letters updated_grid (new_x, new_y) rest
+        else
+          (* if the position is invalid, try a different direction *)
+          let direction = random_direction () in
+          let (new_x, new_y) = move (x, y) direction in
+          place_letters grid (new_x, new_y) letters 
+          
+    in
+    (* start spangram at the top and make our way down *)
+    let start_x = Random.int cols in
+    let start_y = 0 in  
+    place_letters grid (start_x, start_y) letters
+    
 
-
-  (* place the spangram on the grid (vertical or horizontal) *)
-  (* let generate_spangram (spangram: string) : t = 
-    let rows = 8 in 
-    let cols = 6 in  
-    (* TODO: randomize between vertical or horizontal span -- will use Random *)
-    vertical_span spangram rows cols *)
-
-  (* Print out the grid *)
-  (* let print_grid (grid : t) : unit =
+  let print_grid (grid : t) : unit =
     List.iter grid ~f:(fun row ->
-      List.iter row ~f:(fun col -> Printf.printf "%c " col);  
-      Printf.printf "\n")  *)
+      List.iter row ~f:(fun col -> Printf.printf "%c " col);
+      Printf.printf "\n")
 end
 
-(* Print testing, shown in dune utop *)
-(* let () = 
-  let spangram = "blueberr" in 
-  let grid_with_spangram = Grid.place_spangram spangram in 
-  Grid.print_grid grid_with_spangram *)
+let () =
+  let grid = Grid.create_empty_grid 8 6 in
+  let grid_with_spangram = Grid.place_spangram "blueberry" grid in
+  Grid.print_grid grid_with_spangram
+
