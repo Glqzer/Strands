@@ -5,7 +5,7 @@ end
 
 (* Module to create a map where the key is a word and the value is a list of coordinates *)
 module WordCoords = struct
-  (* Create a map with a char key and (int * int) value using Map.Make *)
+  (* Create a map with a string key and (int * int) value using Map.Make *)
   module M = Map.Make(String)
 
   (* The map type is now (int * int) (coordinates) M.t *)

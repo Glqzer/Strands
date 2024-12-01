@@ -4,6 +4,6 @@
   dream
   yojson
   utils
+  words
  )
- (preprocess
-  (pps ppx_deriving_yojson)))
+ (preprocess (pps ppx_deriving_yojson)))

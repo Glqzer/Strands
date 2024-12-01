@@ -1,6 +1,6 @@
 (library
  (name strands)  
- (modules grid graph words tam)
+ (modules grid graph tam)
  (libraries core utils)
  (preprocess (pps ppx_deriving.show ppx_jane bisect_ppx)))
 
@@ -13,6 +13,12 @@
  (library
  (name game)
  (modules game)
+ (libraries core)
+ (preprocess (pps ppx_deriving.show ppx_jane bisect_ppx)))
+
+ (library
+ (name words)
+ (modules words)
  (libraries core)
  (preprocess (pps ppx_deriving.show ppx_jane bisect_ppx)))
 
