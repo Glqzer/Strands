@@ -1,6 +1,6 @@
 (library
  (name strands)  
- (modules grid graph tam)
+ (modules grid graph tam david)
  (libraries core utils)
  (preprocess (pps ppx_deriving.show ppx_jane bisect_ppx)))
 
