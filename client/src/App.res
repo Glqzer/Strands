@@ -10,6 +10,8 @@ let make = () => {
   let (foundWords, setFoundWords) = useState(() => list{})
   let (currentWord, setCurrentWord) = useState(() => "")
 
+  let (csrfToken, setCsrfToken) = useState(() => "");
+
 
   useEffect0(() => {
     let _ = Fetch.fetch("http://localhost:8080/initialize")
@@ -17,6 +19,15 @@ let make = () => {
     ->then(json => {
       switch Js.Json.decodeObject(json) {
       | Some(obj) =>
+        switch obj->Js.Dict.get("csrfToken") {
+          | Some(token) =>
+              switch Js.Json.decodeString(token) {
+              | Some(tokenStr) => 
+                  setCsrfToken(_ => tokenStr)
+              | None => Js.Console.error("Invalid CSRF token format")
+              }
+          | None => Js.Console.error("No CSRF token found in response")
+          };
         switch obj->Js.Dict.get("board") {
         | Some(boardJson) =>
           switch Js.Json.decodeArray(boardJson) {
@@ -137,6 +148,7 @@ let make = () => {
           ), 
           ~headers=Fetch.HeadersInit.make({
             "Content-Type": "application/json",
+            "X-Csrf-Token": csrfToken,
           }),
           ()
         )
