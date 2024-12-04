@@ -27,9 +27,12 @@ let () =
         )] response);
 
       Dream.get "/initialize" 
-        (fun _ ->
+        (fun request ->
+          let csrf_token = Dream.csrf_token request in
           let board = sample_grid in
-          let response = `Assoc [("board", `List (
+          let response = `Assoc [
+            ("csrfToken", `String csrf_token);
+            ("board", `List (
             List.map (fun row ->
               `List (List.map (fun c -> `String (String.make 1 c)) row)
             ) board
@@ -56,16 +59,23 @@ let () =
               )
             in
                       
-            let is_valid = check_result word coords solution_coords in
-            
-            let response = 
-              `Assoc [
-                ("word", `String word);
-                ("isValid", `Bool is_valid)
-              ]
-              |> Yojson.Safe.to_string 
-            in
-            Dream.respond ~headers:[("Content-Type", "application/json"); ("Access-Control-Allow-Origin", "http://127.0.0.1:5173")] response;
+            match Dream.request_header "X-Csrf-Token" request with
+            | Some(client_token) when client_token = Dream.csrf_token request -> 
+                let is_valid = check_result word coords solution_coords in
+                
+                let response = 
+                  `Assoc [
+                    ("word", `String word);
+                    ("isValid", `Bool is_valid)
+                  ]
+                  |> Yojson.Safe.to_string 
+                in
+                Dream.respond ~headers:[("Content-Type", "application/json"); ("Access-Control-Allow-Origin", "http://127.0.0.1:5173")] response;
+            | _ -> 
+                Dream.respond 
+                  ~status:`Forbidden 
+                  ~headers:[("Content-Type", "application/json"); ("Access-Control-Allow-Origin", "http://127.0.0.1:5173")] 
+                  {|{"error": "Invalid or missing CSRF token"}|}
           with 
           | _ -> 
             Dream.respond 
