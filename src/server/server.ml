@@ -12,6 +12,12 @@ let solution_coords =
   empty
   |> add "apple" 0 *)
 
+let cors_headers =
+  [("Content-Type", "application/json");
+    ("Access-Control-Allow-Origin", "*");
+    ("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    ("Access-Control-Allow-Headers", "Content-Type, X-Csrf-Token")]
+
 let () =
   Dream.run
   @@ Dream.logger
@@ -23,8 +29,7 @@ let () =
           `Assoc [("message", `String "Good morning, world")]
           |> Yojson.Safe.to_string
         in
-        Dream.respond ~headers:[("Content-Type", "application/json"); ("Access-Control-Allow-Origin", "http://127.0.0.1:5173"
-        )] response);
+        Dream.respond ~headers:(cors_headers) response);
 
       Dream.get "/initialize" 
         (fun _ ->
@@ -36,7 +41,7 @@ let () =
           ))]
           |> Yojson.Safe.to_string
         in 
-        Dream.respond ~headers:[("Content-Type", "application/json"); ("Access-Control-Allow-Origin", "http://127.0.0.1:5173")] response);
+        Dream.respond ~headers: (cors_headers) response);
 
       Dream.post "/validate"
       (fun request ->
@@ -65,12 +70,12 @@ let () =
               ]
               |> Yojson.Safe.to_string 
             in
-            Dream.respond ~headers:[("Content-Type", "application/json"); ("Access-Control-Allow-Origin", "http://127.0.0.1:5173")] response;
+            Dream.respond ~headers: (cors_headers) response;
           with 
           | _ -> 
             Dream.respond 
               ~status:`Bad_Request 
-              ~headers:[("Content-Type", "application/json"); ("Access-Control-Allow-Origin", "http://127.0.0.1:5173")] 
+              ~headers: (cors_headers) 
               {|{"error": "Invalid request"}|}
         )
       )
