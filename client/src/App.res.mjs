@@ -120,7 +120,9 @@ function App(props) {
                       ]);
           }));
     Core__Promise.$$catch(fetch("http://localhost:8080/validate", Webapi__Fetch.RequestInit.make("Post", {
-                      "Content-Type": "application/json"
+                      "Content-Type": "application/json",
+                      "Access-Control-Allow-Methods": "POST",
+                      "Access-Control-Allow-Origin": "http://127.0.0.1:5173"
                     }, Caml_option.some(Belt_Option.getWithDefault(JSON.stringify({
                                   word: currentWord,
                                   coordinates: coordinates

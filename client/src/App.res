@@ -137,6 +137,8 @@ let make = () => {
           ), 
           ~headers=Fetch.HeadersInit.make({
             "Content-Type": "application/json",
+            "Access-Control-Allow-Methods":"POST",
+            "Access-Control-Allow-Origin": "http://127.0.0.1:5173"
           }),
           ()
         )
