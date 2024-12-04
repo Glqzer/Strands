@@ -12,13 +12,15 @@ let cors_headers = [
   ("Access-Control-Allow-Headers", "Content-Type");
 ]
 
-let handle_options_request _ = 
-  Dream.respond ~status:`No_Content ~headers:cors_headers ""
+(* let handle_options_request _ = 
+  Dream.respond ~status:`No_Content ~headers:cors_headers "" *)
 
+let handle_options (_ : Dream.request) =
+    Dream.respond ~status:`OK ~headers:cors_headers ""
+      
 let () =
-  Dream.run
-  @@ Dream.logger
-  @@ Dream.router [
+    Dream.run
+    @@ Dream.logger
     Dream.get "/"
       (fun _ ->
         let response = 
