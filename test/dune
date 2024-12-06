@@ -4,6 +4,5 @@
  (libraries
    core
    ounit2
-   spangram
-  )
- (preprocess (pps ppx_jane)))
+   grid
+  ))
