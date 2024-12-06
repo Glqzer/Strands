@@ -9,16 +9,22 @@ let solution_coords =
 let cors_headers = [
   ("Access-Control-Allow-Origin", "*");
   ("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  ("Access-Control-Allow-Headers", "Content-Type");
+  ("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Methods");
 ]
 
 let handle_options_request _ = 
   Dream.respond ~status:`No_Content ~headers:cors_headers ""
 
+let handle_options (_ : Dream.request) =
+    Dream.respond ~status:`OK ~headers:cors_headers ""
+      
 let () =
-  Dream.run
-  @@ Dream.logger
-  @@ Dream.router [
+    Dream.run
+    @@ Dream.logger
+    
+    @@ Dream.router [
+      Dream.options "/initialize" handle_options;
+      Dream.options "/validate" handle_options;
     Dream.get "/"
       (fun _ ->
         let response = 
