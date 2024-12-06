@@ -1,10 +1,11 @@
-open Utils
 open Words
+open Spangram
 
 let solution_coords = 
   let open WordCoords in
   empty
   |> add "apple" [(6, 0); (7, 0); (7, 1); (7, 2); (6, 2)]
+
 
 let cors_headers = [
   ("Access-Control-Allow-Origin", "*");
@@ -12,19 +13,17 @@ let cors_headers = [
   ("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Methods");
 ]
 
-let handle_options_request _ = 
-  Dream.respond ~status:`No_Content ~headers:cors_headers ""
-
 let handle_options (_ : Dream.request) =
     Dream.respond ~status:`OK ~headers:cors_headers ""
       
 let () =
-    Dream.run
-    @@ Dream.logger
+  Dream.run
+  @@ Dream.logger
     
-    @@ Dream.router [
-      Dream.options "/initialize" handle_options;
-      Dream.options "/validate" handle_options;
+  @@ Dream.router [
+    Dream.options "/initialize" handle_options;
+    Dream.options "/validate" handle_options;
+
     Dream.get "/"
       (fun _ ->
         let response = 
@@ -34,16 +33,22 @@ let () =
         Dream.respond ~headers:cors_headers response);
 
     Dream.get "/initialize" 
-      (fun _ ->
-        let board = sample_grid in
-        let response = `Assoc [("board", `List (
-          List.map (fun row ->
-            `List (List.map (fun c -> `String (String.make 1 c)) row)
-          ) board
-        ))]
-        |> Yojson.Safe.to_string
-        in 
-        Dream.respond ~headers:cors_headers response);
+    (fun _ ->
+      let initial_grid = Grid.create_empty_grid 8 6 in
+      let spangram = "racecar" in 
+      let board_with_spangram = Grid.place_spangram spangram initial_grid in
+  
+      let response = `Assoc [("board", `List (
+        board_with_spangram 
+        |> List.map (fun row ->
+          `List (List.map (fun alpha ->
+            `String (String.make 1 (Alpha.show alpha))
+          ) row)
+        )
+      ))]
+      |> Yojson.Safe.to_string
+      in 
+      Dream.respond ~headers:cors_headers response);
 
     Dream.post "/validate"
       (fun request ->
@@ -79,6 +84,4 @@ let () =
               {|{"error": "Invalid request"}|}
         )
       );
-
-    Dream.options "/validate" handle_options_request;
-  ]
+]

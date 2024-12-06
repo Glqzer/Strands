@@ -49,21 +49,21 @@ function App(props) {
                       if (boardJson !== undefined) {
                         var rows = Js_json.decodeArray(boardJson);
                         if (rows !== undefined) {
-                          var board = Belt_Array.map(rows, (function (row) {
-                                  var cells = Js_json.decodeArray(row);
-                                  if (cells !== undefined) {
-                                    return Belt_Array.map(cells, (function (cell) {
-                                                  var letter = Js_json.decodeString(cell);
-                                                  if (letter !== undefined) {
-                                                    return letter;
-                                                  } else {
-                                                    return "";
-                                                  }
-                                                }));
-                                  } else {
-                                    return [];
-                                  }
-                                }));
+                          var board = rows.map(function (row) {
+                                var cells = Js_json.decodeArray(row);
+                                if (cells !== undefined) {
+                                  return cells.map(function (cell) {
+                                              var letter = Js_json.decodeString(cell);
+                                              if (letter !== undefined) {
+                                                return letter;
+                                              } else {
+                                                return "";
+                                              }
+                                            });
+                                } else {
+                                  return [];
+                                }
+                              });
                           setBoard(function (param) {
                                 return board;
                               });
@@ -107,18 +107,12 @@ function App(props) {
     return Belt_List.has(selectedCells, coordinate, Caml_obj.equal);
   };
   var handleSubmit = function () {
-    var coordinates = Belt_List.map(Belt_List.reverse(selectedCells), (function (param) {
-            return Js_dict.fromArray([
-                        [
-                          "row",
-                          param[0]
-                        ],
-                        [
-                          "col",
-                          param[1]
-                        ]
-                      ]);
-          }));
+    var coordinates = Belt_List.toArray(Belt_List.map(Belt_List.reverse(selectedCells), (function (param) {
+                return {
+                        row: param[0],
+                        col: param[1]
+                      };
+              })));
     Core__Promise.$$catch(fetch("http://localhost:8080/validate", Webapi__Fetch.RequestInit.make("Post", {
                       "Content-Type": "application/json",
                       "Access-Control-Allow-Methods": "POST",
@@ -176,7 +170,7 @@ function App(props) {
   return JsxRuntime.jsxs("div", {
               children: [
                 JsxRuntime.jsx("h1", {
-                      children: "Strands FP",
+                      children: "FP Strands",
                       className: "text-2xl font-bold mb-4"
                     }),
                 JsxRuntime.jsx("p", {
