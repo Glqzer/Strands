@@ -1,18 +1,18 @@
 (library
  (name strands)  
- (modules grid david)
+ (modules david)
  (libraries core utils)
- (preprocess (pps ppx_deriving.show ppx_jane bisect_ppx)))
-
- (library
- (name utils)
- (modules utils)
- (libraries core)
  (preprocess (pps ppx_deriving.show ppx_jane bisect_ppx)))
 
  (library
  (name game)
  (modules game)
+ (libraries core grid words)
+ (preprocess (pps ppx_deriving.show ppx_jane bisect_ppx)))
+
+ (library
+ (name grid)
+ (modules grid)
  (libraries core)
  (preprocess (pps ppx_deriving.show ppx_jane bisect_ppx)))
 
@@ -23,9 +23,7 @@
  (preprocess (pps ppx_deriving.show ppx_jane bisect_ppx)))
 
  (library
- (name spangram)
- (modules spangram)
+ (name utils)
+ (modules utils)
  (libraries core)
  (preprocess (pps ppx_deriving.show ppx_jane bisect_ppx)))
-
-

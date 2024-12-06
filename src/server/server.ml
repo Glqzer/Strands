@@ -1,5 +1,5 @@
 open Words
-open Spangram
+open Grid
 
 let solution_coords = 
   let open WordCoords in
