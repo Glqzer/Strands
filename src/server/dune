@@ -5,6 +5,6 @@
   yojson
   utils
   words
-  spangram
+  grid
  )
  (preprocess (pps ppx_deriving_yojson)))
