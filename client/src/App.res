@@ -21,10 +21,10 @@ let make = () => {
         | Some(boardJson) =>
           switch Js.Json.decodeArray(boardJson) {
           | Some(rows) =>
-            let board = rows->Belt.Array.map(row =>
+            let board = rows->Array.map(row =>
               switch Js.Json.decodeArray(row) {
               | Some(cells) =>
-                cells->Belt.Array.map(cell =>
+                cells->Array.map(cell =>
                   switch Js.Json.decodeString(cell) {
                   | Some(letter) => letter
                   | None => ""
@@ -117,12 +117,13 @@ let make = () => {
     let coordinates = 
       selectedCells
       ->Belt.List.reverse
-      ->Belt.List.map(((row, col)) => 
-        Js.Dict.fromArray([
-          ("row", Js.Json.number(float_of_int(row))),
-          ("col", Js.Json.number(float_of_int(col)))
-        ])
-      );
+      ->Belt.List.map(((row, col)) => {
+        {
+          "row": float_of_int(row),
+          "col": float_of_int(col)
+        }
+      })
+      ->Belt.List.toArray;
 
 
     let _ = 
@@ -179,7 +180,7 @@ let make = () => {
   }
 
   <div className="p-4">
-    <h1 className="text-2xl font-bold mb-4">{React.string("Strands FP")}</h1>
+    <h1 className="text-2xl font-bold mb-4">{React.string("FP Strands")}</h1>
     <p className="text-center h-[30px]">{string(currentWord)}</p>
     <div className="flex justify-center">
       <div className="grid grid-cols-6 gap-1">
