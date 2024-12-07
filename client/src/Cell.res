@@ -1,9 +1,13 @@
 @react.component
-let make = (~letter: string, ~isSelected: bool, ~onClick: unit => unit) => {
+let make = (~letter: string, ~isSelected: bool, ~isFound: bool, ~isSpangram: bool=false, ~onClick: unit => unit) => {
   <div 
-    className={`w-12 h-12 border border-gray-300 flex items-center justify-center font-bold cursor-pointer rounded-md ${isSelected ? "bg-gray-200" : ""}`}
-    onClick={_ => onClick()}
+    className={`w-12 h-12 border border-gray-300 flex items-center justify-center font-bold rounded-md 
+      ${isFound 
+        ? (isSpangram ? "bg-yellow-300 cursor-default" : "bg-green-300 cursor-default") 
+        : "cursor-pointer"} 
+      ${isSelected ? "bg-gray-200" : ""}`}
+    onClick={_ => if (!isFound) { onClick(); }}
   >
     {React.string(letter)}
   </div>
-}
+};

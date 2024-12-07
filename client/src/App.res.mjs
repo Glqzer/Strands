@@ -40,124 +40,64 @@ function App(props) {
       });
   var setCurrentWord = match$4[1];
   var currentWord = match$4[0];
+  var match$5 = React.useState(function () {
+        return /* [] */0;
+      });
+  var setFoundCells = match$5[1];
+  var foundCells = match$5[0];
+  var match$6 = React.useState(function () {
+        return /* [] */0;
+      });
+  var setSpangramCells = match$6[1];
+  var spangramCells = match$6[0];
   React.useEffect((function () {
-          Core__Promise.$$catch(fetch("http://localhost:8080/initialize").then(function (prim) {
-                      return prim.json();
-                    }).then(function (json) {
-                    var obj = Js_json.decodeObject(json);
-                    if (obj !== undefined) {
-                      var boardJson = Js_dict.get(obj, "board");
-                      if (boardJson !== undefined) {
-                        var rows = Js_json.decodeArray(boardJson);
-                        if (rows !== undefined) {
-                          var board = rows.map(function (row) {
+          var handleBoardInitialization = function (json) {
+            var boardResult = Belt_Option.map(Belt_Option.flatMap(Belt_Option.flatMap(Js_json.decodeObject(json), (function (obj) {
+                            return Js_dict.get(obj, "board");
+                          })), Js_json.decodeArray), (function (rows) {
+                    return rows.map(function (row) {
                                 var cells = Js_json.decodeArray(row);
                                 if (cells !== undefined) {
                                   return cells.map(function (cell) {
-                                              var letter = Js_json.decodeString(cell);
-                                              if (letter !== undefined) {
-                                                return letter;
-                                              } else {
-                                                return "";
-                                              }
+                                              return Belt_Option.getWithDefault(Js_json.decodeString(cell), "");
                                             });
                                 } else {
                                   return [];
                                 }
                               });
-                          setBoard(function (param) {
-                                return board;
-                              });
-                        } else {
-                          console.error("Invalid board array");
-                        }
-                      } else {
-                        console.error("Could not find 'board' field");
-                      }
-                    } else {
-                      console.error("Invalid JSON object");
-                    }
-                    return Promise.resolve();
-                  }), (function (err) {
+                  }));
+            if (boardResult !== undefined) {
+              setBoard(function (param) {
+                    return boardResult;
+                  });
+            } else {
+              console.error("Failed to initialize board");
+            }
+            return Promise.resolve();
+          };
+          Core__Promise.$$catch(fetch("http://localhost:8080/initialize").then(function (prim) {
+                      return prim.json();
+                    }).then(handleBoardInitialization), (function (err) {
                   console.error("Error", err);
                   return Promise.resolve();
                 }));
         }), []);
-  var isAdjacent = function (prev, current) {
-    var rowDiff = PervasivesU.abs(prev[0] - current[0] | 0);
-    var colDiff = PervasivesU.abs(prev[1] - current[1] | 0);
+  var isAdjacent = function (param, param$1) {
+    var rowDiff = PervasivesU.abs(param[0] - param$1[0] | 0);
+    var colDiff = PervasivesU.abs(param[1] - param$1[1] | 0);
     if (rowDiff <= 1) {
       return colDiff <= 1;
     } else {
       return false;
     }
   };
-  var clearSelection = function () {
-    setSelectedCells(function (param) {
-          return /* [] */0;
-        });
-    setLastValidCell(function (param) {
-          
-        });
+  var getArrayValue = function (arr, index, defaultValue) {
+    return Belt_Option.getWithDefault(Belt_Array.get(arr, index), defaultValue);
   };
-  var isCellSelected = function (rowIndex, colIndex) {
-    var coordinate = [
-      rowIndex,
-      colIndex
-    ];
-    return Belt_List.has(selectedCells, coordinate, Caml_obj.equal);
+  var getLetterAt = function (rowIndex, colIndex) {
+    return getArrayValue(getArrayValue(board, rowIndex, []), colIndex, "");
   };
-  var handleSubmit = function () {
-    var coordinates = Belt_List.toArray(Belt_List.map(Belt_List.reverse(selectedCells), (function (param) {
-                return {
-                        row: param[0],
-                        col: param[1]
-                      };
-              })));
-    Core__Promise.$$catch(fetch("http://localhost:8080/validate", Webapi__Fetch.RequestInit.make("Post", {
-                      "Content-Type": "application/json",
-                      "Access-Control-Allow-Methods": "POST",
-                      "Access-Control-Allow-Origin": "http://127.0.0.1:5173"
-                    }, Caml_option.some(Belt_Option.getWithDefault(JSON.stringify({
-                                  word: currentWord,
-                                  coordinates: coordinates
-                                }), "{}")), undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)).then(function (prim) {
-                return prim.json();
-              }).then(function (json) {
-              var obj = Js_json.decodeObject(json);
-              if (obj !== undefined) {
-                var isValidJson = Js_dict.get(obj, "isValid");
-                if (isValidJson !== undefined) {
-                  var isValid = Js_json.decodeBoolean(isValidJson);
-                  if (isValid !== undefined) {
-                    if (isValid) {
-                      setFoundWords(function (prev) {
-                            return {
-                                    hd: currentWord,
-                                    tl: prev
-                                  };
-                          });
-                      clearSelection();
-                      console.log("Valid word!");
-                    } else {
-                      console.log("Invalid word!");
-                    }
-                  } else {
-                    console.error("Invalid isValid value");
-                  }
-                } else {
-                  console.error("No isValid field");
-                }
-              } else {
-                console.error("Invalid JSON");
-              }
-              return Promise.resolve();
-            }), (function (err) {
-            console.error("Error validating word", err);
-            return Promise.resolve();
-          }));
-  };
-  var clearSelection$1 = function () {
+  var clearWord = function () {
     setSelectedCells(function (param) {
           return /* [] */0;
         });
@@ -167,6 +107,107 @@ function App(props) {
     setCurrentWord(function (param) {
           return "";
         });
+  };
+  var isCellSelected = function (rowIndex, colIndex) {
+    var coordinate = [
+      rowIndex,
+      colIndex
+    ];
+    return Belt_List.has(selectedCells, coordinate, Caml_obj.equal);
+  };
+  var isCellFound = function (rowIndex, colIndex) {
+    var coordinate = [
+      rowIndex,
+      colIndex
+    ];
+    return Belt_List.has(foundCells, coordinate, Caml_obj.equal);
+  };
+  var isCellSpangram = function (rowIndex, colIndex) {
+    var coordinate = [
+      rowIndex,
+      colIndex
+    ];
+    return Belt_List.has(spangramCells, coordinate, Caml_obj.equal);
+  };
+  var handleSubmit = function () {
+    var coordinates = Belt_List.toArray(Belt_List.map(Belt_List.reverse(selectedCells), (function (param) {
+                return {
+                        row: param[0],
+                        col: param[1]
+                      };
+              })));
+    var handleValidationResponse = function (json) {
+      var validationResult = Belt_Option.flatMap(Js_json.decodeObject(json), (function (obj) {
+              return Belt_Option.flatMap(Js_dict.get(obj, "isValid"), Js_json.decodeBoolean);
+            }));
+      if (validationResult !== undefined) {
+        if (validationResult) {
+          var isSpangram = Belt_Option.flatMap(Js_json.decodeObject(json), (function (obj) {
+                  return Belt_Option.flatMap(Js_dict.get(obj, "isSpangram"), Js_json.decodeBoolean);
+                }));
+          var exit = 0;
+          if (isSpangram !== undefined && isSpangram) {
+            console.log("Spangram word!");
+            setFoundWords(function (prev) {
+                  return {
+                          hd: currentWord,
+                          tl: prev
+                        };
+                });
+            setFoundCells(function (prev) {
+                  return Belt_List.concatMany([
+                              prev,
+                              selectedCells
+                            ]);
+                });
+            setSpangramCells(function (prev) {
+                  return Belt_List.concatMany([
+                              prev,
+                              selectedCells
+                            ]);
+                });
+            clearWord();
+          } else {
+            exit = 1;
+          }
+          if (exit === 1) {
+            console.log("Valid word!");
+            setFoundWords(function (prev) {
+                  return {
+                          hd: currentWord,
+                          tl: prev
+                        };
+                });
+            setFoundCells(function (prev) {
+                  return Belt_List.concatMany([
+                              prev,
+                              selectedCells
+                            ]);
+                });
+            clearWord();
+          }
+          
+        } else {
+          console.log("Invalid word!");
+        }
+      } else {
+        console.error("Invalid validation response");
+      }
+      return Promise.resolve();
+    };
+    Core__Promise.$$catch(fetch("http://localhost:8080/validate", Webapi__Fetch.RequestInit.make("Post", {
+                      "Content-Type": "application/json",
+                      "Access-Control-Allow-Methods": "POST",
+                      "Access-Control-Allow-Origin": "http://127.0.0.1:5173"
+                    }, Caml_option.some(Belt_Option.getWithDefault(JSON.stringify({
+                                  word: currentWord,
+                                  coordinates: coordinates
+                                }), "{}")), undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)).then(function (prim) {
+                return prim.json();
+              }).then(handleValidationResponse), (function (err) {
+            console.error("Error validating word", err);
+            return Promise.resolve();
+          }));
   };
   return JsxRuntime.jsxs("div", {
               children: [
@@ -185,22 +226,17 @@ function App(props) {
                                                   return JsxRuntime.jsx(Cell.make, {
                                                               letter: letter,
                                                               isSelected: isCellSelected(rowIndex, colIndex),
+                                                              isFound: isCellFound(rowIndex, colIndex),
+                                                              isSpangram: isCellSpangram(rowIndex, colIndex),
                                                               onClick: (function () {
                                                                   var coordinate = [
                                                                     rowIndex,
                                                                     colIndex
                                                                   ];
-                                                                  var row = Belt_Array.get(board, rowIndex);
-                                                                  var letter;
-                                                                  if (row !== undefined) {
-                                                                    var l = Belt_Array.get(row, colIndex);
-                                                                    letter = l !== undefined ? l : "";
-                                                                  } else {
-                                                                    letter = "";
-                                                                  }
+                                                                  var letter = getLetterAt(rowIndex, colIndex);
                                                                   setSelectedCells(function (prev) {
-                                                                        if (prev && lastValidCell !== undefined) {
-                                                                          if (isAdjacent(lastValidCell, coordinate)) {
+                                                                        if (prev) {
+                                                                          if (lastValidCell !== undefined && isAdjacent(lastValidCell, coordinate)) {
                                                                             if (Caml_obj.equal(prev.hd, coordinate)) {
                                                                               return prev.tl;
                                                                             } else {
@@ -219,18 +255,19 @@ function App(props) {
                                                                                 };
                                                                         }
                                                                       });
-                                                                  if (lastValidCell !== undefined) {
-                                                                    if (isAdjacent(lastValidCell, coordinate)) {
-                                                                      setCurrentWord(function (prev) {
-                                                                            if (Belt_List.has(selectedCells, coordinate, Caml_obj.equal)) {
-                                                                              return Js_string.slice(0, prev.length - 1 | 0, prev);
-                                                                            } else {
-                                                                              return prev + letter;
-                                                                            }
-                                                                          });
-                                                                    }
-                                                                    
+                                                                  var exit = 0;
+                                                                  if (lastValidCell !== undefined && isAdjacent(lastValidCell, coordinate)) {
+                                                                    setCurrentWord(function (prev) {
+                                                                          if (Belt_List.has(selectedCells, coordinate, Caml_obj.equal)) {
+                                                                            return Js_string.slice(0, prev.length - 1 | 0, prev);
+                                                                          } else {
+                                                                            return prev + letter;
+                                                                          }
+                                                                        });
                                                                   } else {
+                                                                    exit = 1;
+                                                                  }
+                                                                  if (exit === 1) {
                                                                     setCurrentWord(function (prev) {
                                                                           return prev + letter;
                                                                         });
@@ -263,7 +300,7 @@ function App(props) {
                               children: "Clear",
                               className: "px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600",
                               onClick: (function (param) {
-                                  clearSelection$1();
+                                  clearWord();
                                 })
                             })
                       ],

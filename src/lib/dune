@@ -1,7 +1,7 @@
  (library
  (name game)
  (modules game)
- (libraries core grid words)
+ (libraries core grid words utils)
  (preprocess (pps ppx_deriving.show ppx_jane bisect_ppx)))
 
  (library
