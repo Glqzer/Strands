@@ -37,12 +37,16 @@ There are notions of RANDOMNESS when it comes to:
  (3) the directions that the spangram letters chooses from
 
 - MAIN ISSUE(S): there are still a few chances where the spangram generates orphans :/// i am trying to debug [check_no_orphans] function to see in what cases they don't work. i mentioned this on [COURSELORE #193] . also there is also a limitation on when the spangram is way too long
+- (1) Letter placement for words sometimes skips cells and places them in a way where the word isn't continuous
+- (2) Letter placement for words (logically) will sometimes have words cross one another path-wise
+- (3) Word placement function stops before all possible cells are filled due to a logic issue in algorithm
 
 - PENDING / Currently working on: 
 (1) updating game.ml to tie together overall grid generation with the word found record 
 (2) debugging the above issues 
 (3) refactor the grid file such that we have a module for Direction with type t;
 and we wanna use [@@deriving enumerate] isntead of all_directions list in current Grid module
+(4) Working on debugging issues 1, 2, and 3 listed above
 
 - TESTING: made test suites for different modules (Alpha, Coord, Grid) in tests_strands files. 
 
