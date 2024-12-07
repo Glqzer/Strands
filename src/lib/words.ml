@@ -68,6 +68,7 @@ let is_found (word : string) (word_record_map : WordRecord.t) : bool =
   | Some 1 -> true 
   (* SHOULD NEVER GET TO THIS POINT *)
   | Some _ -> false 
+  
 
 let initialize_word_record (words : string list) : WordRecord.t = 
   List.fold_left (fun acc word -> WordRecord.add word 0 acc) WordRecord.empty words

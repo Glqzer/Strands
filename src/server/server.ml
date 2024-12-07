@@ -1,13 +1,22 @@
 open Utils
 open Words
-(* open Grid *)
+open Game 
+open Grid
 
 
-let solution_coords = 
-  let open WordCoords in
-  empty
-  |> add "apple" [(6, 0); (7, 0); (7, 1); (7, 2); (6, 2)]
+let initial_state : Game.state = { 
+  board = Grid.create_empty_grid 8 6; 
+  word_coords = (
+    let open WordCoords in
+    empty
+    |> add "apple" [(6, 0); (7, 0); (7, 1); (7, 2); (6, 2)]
+    |> add "blueberry" [(0, 1); (0, 2); (1, 3); (2, 3); (3, 2); (4, 3); (5, 3); (6, 3); (7, 3)]
+  ); 
+  word_records = WordRecord.empty; 
+  spangram = ""
+}
 
+let game_state = Game.initialize_game initial_state
 
 let cors_headers = [
   ("Access-Control-Allow-Origin", "*");
@@ -38,12 +47,9 @@ let () =
     (fun _ ->
       (* THIS SECTION IS FOR POPULATING THE FRONT-END WITH THE OUTPUT OF OUR GRID CREATION FUNCTIONS*)
       
-      (* let initial_grid = Grid.create_empty_grid 8 6 in
-      let spangram = "blueberry" in 
-      let board_with_spangram = Grid.place_spangram spangram initial_grid in
-  
+      (* let board = game_state.board in  
       let response = `Assoc [("board", `List (
-        board_with_spangram 
+        board 
         |> List.map (fun row ->
           `List (List.map (fun alpha ->
             `String (String.make 1 (Alpha.show alpha))
@@ -80,11 +86,13 @@ let () =
                 (row, col)
               )
             in
-            let is_valid = check_result word coords solution_coords in
+            let is_valid = check_result word coords game_state.word_coords in
+            let is_spangram = (word = game_state.spangram) in
             let response = 
               `Assoc [
                 ("word", `String word);
-                ("isValid", `Bool is_valid)
+                ("isValid", `Bool is_valid);
+                ("isSpangram", `Bool is_spangram)
               ]
               |> Yojson.Safe.to_string 
             in

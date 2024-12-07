@@ -6,6 +6,7 @@ module Game : sig
   board: Grid.t;  
   word_coords: WordCoords.t;  
   word_records: WordRecord.t; 
+  spangram : string;
  }
 
   (** [initialize_game state] initializes the game state *)
@@ -17,4 +18,5 @@ module Game : sig
 
   (** [set_found word state] updates the game state to mark the given word as found *)
   val set_found : string -> state -> state
+
 end

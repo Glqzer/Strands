@@ -9,140 +9,118 @@ let make = () => {
   let (lastValidCell, setLastValidCell) = useState(() => None)
   let (foundWords, setFoundWords) = useState(() => list{})
   let (currentWord, setCurrentWord) = useState(() => "")
-  let (foundCells, setFoundCells) = useState(() => list{});
-
-
+  let (foundCells, setFoundCells) = useState(() => list{})
+  let (spangramCells, setSpangramCells) = useState(() => list{})
 
   useEffect0(() => {
-    // initialize the grid by fetching the initial game board
-    // TO-DO replace this with fetching the game state instead
-    let _ = Fetch.fetch("http://localhost:8080/initialize")
-    ->then(Fetch.Response.json)
-    ->then(json => {
-      switch Js.Json.decodeObject(json) {
-      | Some(obj) =>
-        switch obj->Js.Dict.get("board") {
-        | Some(boardJson) =>
-          switch Js.Json.decodeArray(boardJson) {
-          | Some(rows) =>
-            let board = rows->Array.map(row =>
-              switch Js.Json.decodeArray(row) {
-              | Some(cells) =>
-                cells->Array.map(cell =>
-                  switch Js.Json.decodeString(cell) {
-                  | Some(letter) => letter
-                  | None => ""
-                  }
-                )
-              | None => []
-              }
-            )
-            setBoard(_ => board)
-          | None => Js.Console.error("Invalid board array")
-          }
-        | None => Js.Console.error("Could not find 'board' field")
-        }
-      | None => Js.Console.error("Invalid JSON object")
-      }
-      resolve()
-    })
-    ->catch(err => {
-      Js.Console.error2("Error", err)
-      resolve()
-    })
-    None
-  })
+    let handleBoardInitialization = json => {
+      let boardResult = 
+        json
+        ->Js.Json.decodeObject
+        ->Belt.Option.flatMap(obj => obj->Js.Dict.get("board"))
+        ->Belt.Option.flatMap(Js.Json.decodeArray)
+        ->Belt.Option.map(rows => 
+          rows->Array.map(row => 
+            switch Js.Json.decodeArray(row) {
+            | Some(cells) => 
+              cells->Array.map(cell => 
+                cell->Js.Json.decodeString->Belt.Option.getWithDefault("")
+              )
+            | None => []
+            }
+          )
+        );
 
-  let isAdjacent = (prev, current) => {
-    let (prevRow, prevCol) = prev;
-    let (currentRow, currentCol) = current;
+      switch boardResult {
+      | Some(initialBoard) => setBoard(_ => initialBoard)
+      | None => Js.Console.error("Failed to initialize board")
+      };
+      resolve()
+    };
+
+    let _ = Fetch.fetch("http://localhost:8080/initialize")
+      ->then(Fetch.Response.json)
+      ->then(handleBoardInitialization)
+      ->catch(err => {
+        Js.Console.error2("Error", err)
+        resolve()
+      });
+
+    None
+  });
+
+  let isAdjacent = ((prevRow, prevCol), (currentRow, currentCol)) => {
     let rowDiff = abs(prevRow - currentRow);
     let colDiff = abs(prevCol - currentCol);
     rowDiff <= 1 && colDiff <= 1;
   };
 
-  // handles cell selection
+  let getArrayValue = (arr, index, defaultValue) => 
+    arr->Belt.Array.get(index)->Belt.Option.getWithDefault(defaultValue)
+
+  let getLetterAt = (rowIndex, colIndex) => 
+    board
+    ->getArrayValue(rowIndex, [])
+    ->getArrayValue(colIndex, "");
+
   let handleCellClick = (rowIndex, colIndex) => {
     let coordinate = (rowIndex, colIndex);
-    // get the letter of the cell
-    let letter = 
-      switch (board->Belt.Array.get(rowIndex)) {
-      | Some(row) => 
-          switch (row->Belt.Array.get(colIndex)) {
-          | Some(l) => l
-          | None => ""
-          }
-      | None => ""
-      };
+    let letter = getLetterAt(rowIndex, colIndex);
+
     setSelectedCells(prev => {
       switch prev {
-      | list{} => 
-        list{coordinate}
+      | list{} => list{coordinate}
       | list{head, ...rest} => 
-          switch (lastValidCell) {
-          | Some(lastValid) =>
-            if isAdjacent(lastValid, coordinate) {
-              if head == coordinate {
-                rest
-              } else {
-                list{coordinate, ...prev}
-              }
-            } else {
-              prev;
-            }
-          | None => 
-              list{coordinate}
-          };
-        };
-      });
-    switch (lastValidCell) {
-    | Some(lastValid) =>
-      if isAdjacent(lastValid, coordinate) {
-        setCurrentWord(prev => 
-          switch (selectedCells->Belt.List.has(coordinate, (a, b) => a == b)) {
-          | true => 
-              Js.String.slice(prev, ~from=0, ~to_=Js.String.length(prev) - 1)
-          | false =>
-              prev ++ letter
-          }
-        );
+        switch lastValidCell {
+        | Some(lastValid) when isAdjacent(lastValid, coordinate) =>
+          head == coordinate ? rest : list{coordinate, ...prev}
+        | _ => prev
+        }
       }
-    | None =>
-      setCurrentWord(prev => prev ++ letter);
-    }
+    });
+
+    switch lastValidCell {
+    | Some(lastValid) when isAdjacent(lastValid, coordinate) =>
+      setCurrentWord(prev => 
+        selectedCells->Belt.List.has(coordinate, (a, b) => a == b)
+          ? Js.String.slice(prev, ~from=0, ~to_=Js.String.length(prev) - 1)
+          : prev ++ letter
+      )
+    | _ => 
+      setCurrentWord(prev => prev ++ letter)
+    };
+
     setLastValidCell(prev => 
       switch prev {
       | None => Some(coordinate)
-      | Some(lastValid) =>
-          if isAdjacent(lastValid, coordinate) {
-            Some(coordinate)
-          } else {
-            prev
-          }
+      | Some(lastValid) when isAdjacent(lastValid, coordinate) => 
+        Some(coordinate)
+      | _ => prev
       }
     );
   };
 
-  // clears the selected word
   let clearWord = () => {
     setSelectedCells(_ => list{})
     setLastValidCell(_ => None)
     setCurrentWord(_ => "")
   }
   
-  // updates the coordinates of selected cells
   let isCellSelected = (rowIndex, colIndex) => {
     let coordinate = (rowIndex, colIndex)
     selectedCells->Belt.List.has(coordinate, (a, b) => a == b)
   }
 
-  // updates the coordinates of found cells
   let isCellFound = (rowIndex, colIndex) => {
     let coordinate = (rowIndex, colIndex);
     foundCells->Belt.List.has(coordinate, (a, b) => a == b);
   };
 
-  // handles submitting a word for validation
+  let isCellSpangram = (rowIndex, colIndex) => {
+    let coordinate = (rowIndex, colIndex);
+    spangramCells->Belt.List.has(coordinate, (a, b) => a == b);
+  };
+
   let handleSubmit = () => {
     let coordinates = 
       selectedCells
@@ -155,7 +133,48 @@ let make = () => {
       })
       ->Belt.List.toArray;
 
-    // make a post request to the server to validate the word
+    let handleValidationResponse = json => {
+      let validationResult = 
+        json
+        ->Js.Json.decodeObject
+        ->Belt.Option.flatMap(obj => 
+          obj->Js.Dict.get("isValid")
+          ->Belt.Option.flatMap(Js.Json.decodeBoolean)
+        );
+
+      switch validationResult {
+      | Some(true) => 
+        let isSpangram = 
+          json
+          ->Js.Json.decodeObject
+          ->Belt.Option.flatMap(obj => 
+            obj->Js.Dict.get("isSpangram")
+            ->Belt.Option.flatMap(Js.Json.decodeBoolean)
+          );
+
+        switch isSpangram {
+        | Some(true) => 
+          Js.Console.log("Spangram word!");
+          setFoundWords(prev => list{currentWord, ...prev});
+          setFoundCells(prev => list{...prev, ...selectedCells});
+          setSpangramCells(prev => list{...prev, ...selectedCells});
+          clearWord();
+        | _ => 
+          Js.Console.log("Valid word!");
+          setFoundWords(prev => list{currentWord, ...prev});
+          setFoundCells(prev => list{...prev, ...selectedCells});
+          clearWord();
+        };
+
+      | Some(false) => 
+        Js.Console.log("Invalid word!")
+      | None => 
+        Js.Console.error("Invalid validation response")
+      };
+
+      resolve()
+    };
+
     let _ = 
       Fetch.fetchWithInit("http://localhost:8080/validate", 
         Fetch.RequestInit.make(
@@ -175,36 +194,12 @@ let make = () => {
         )
       )
       ->then(Fetch.Response.json)
-      ->then(json => {
-        switch Js.Json.decodeObject(json) {
-        | Some(obj) => 
-          switch obj->Js.Dict.get("isValid") {
-          | Some(isValidJson) => 
-            switch Js.Json.decodeBoolean(isValidJson) {
-            | Some(isValid) => 
-              if (isValid) {
-                setFoundWords(prev => list{currentWord, ...prev});
-                setFoundCells(prev => list{...prev, ...selectedCells});
-                clearWord();
-                Js.Console.log("Valid word!");
-              } else {
-                Js.Console.log("Invalid word!");
-              }
-            | None => Js.Console.error("Invalid isValid value")
-            }
-          | None => Js.Console.error("No isValid field")
-          }
-        | None => Js.Console.error("Invalid JSON")
-        }
-        resolve()
-      })
+      ->then(handleValidationResponse)
       ->catch(err => {
         Js.Console.error2("Error validating word", err)
         resolve()
       });
   };
-  
-
 
   <div className="p-4">
     <h1 className="text-2xl font-bold mb-4">{React.string("FP Strands")}</h1>
@@ -219,6 +214,7 @@ let make = () => {
               letter={letter}
               isSelected={isCellSelected(rowIndex, colIndex)}
               isFound={isCellFound(rowIndex, colIndex)}
+              isSpangram={isCellSpangram(rowIndex, colIndex)}
               onClick={() => handleCellClick(rowIndex, colIndex)}
             />
           })->React.array
