@@ -55,7 +55,8 @@ and we wanna use [@@deriving enumerate] isntead of all_directions list in curren
 
 - TESTING: made test suites for different modules (Alpha, Coord, Grid) in tests_strands files. 
 
-Right now, Coverage report is 94.16% for src/lib/grid.ml
+Right now, Coverage report overall is 94.02% 
+**We added a screenshot of our code coverage**
 
 ### Frontend and Server
 #### GOOD TO GO PARTS: 
