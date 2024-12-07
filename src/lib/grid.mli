@@ -32,4 +32,5 @@ module Grid : sig
   val fits_horizontally : int -> int -> bool
   val place_spangram : string -> t -> t
   val print_grid : t -> unit
+  val place_all_words : string list -> Alpha.t list list -> Alpha.t list list
 end

@@ -15,17 +15,20 @@ let sample_grid : char list list =
     ['p'; 'p'; 'l'; 'y'; 'i'; 'r']]
   in grid
 
+[@@@coverage off]
 (* parses a file and returns a list of words *)
-let parse_file (filename : string) : string list = 
-  let content = In_channel.read_all filename in 
+let parse_file (filename : string) : string list =
+  let content = In_channel.read_all filename in
   let words_list = String.split_on_char ' ' content in 
-    List.map String.trim words_list  
+    List.map String.trim words_list
+;;
 
+[@@@coverage on]
 (* 
   in our implementation, spangram is the first word of the words list
   and the remaining are the themed words 
 *)
-let get_spangram (words : string list) = 
+let get_spangram (words : string list) =
   match words with 
   | [] -> "" 
   | hd :: tl -> hd           
