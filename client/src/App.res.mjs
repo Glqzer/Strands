@@ -225,13 +225,22 @@ function App(props) {
                                                                                 };
                                                                         }
                                                                       });
-                                                                  setCurrentWord(function (prev) {
-                                                                        if (Belt_List.has(selectedCells, coordinate, Caml_obj.equal)) {
-                                                                          return Js_string.slice(0, prev.length - 1 | 0, prev);
-                                                                        } else {
+                                                                  if (lastValidCell !== undefined) {
+                                                                    if (isAdjacent(lastValidCell, coordinate)) {
+                                                                      setCurrentWord(function (prev) {
+                                                                            if (Belt_List.has(selectedCells, coordinate, Caml_obj.equal)) {
+                                                                              return Js_string.slice(0, prev.length - 1 | 0, prev);
+                                                                            } else {
+                                                                              return prev + letter;
+                                                                            }
+                                                                          });
+                                                                    }
+                                                                    
+                                                                  } else {
+                                                                    setCurrentWord(function (prev) {
                                                                           return prev + letter;
-                                                                        }
-                                                                      });
+                                                                        });
+                                                                  }
                                                                   setLastValidCell(function (prev) {
                                                                         if (prev !== undefined && !isAdjacent(prev, coordinate)) {
                                                                           return prev;
