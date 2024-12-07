@@ -63,11 +63,11 @@ Right now, Coverage report is 94.16% for src/lib/grid.ml
 - Currently the front-end is "fully functional" in the sense that:
     - Words are able to be selected, cleared, validated
     - The spangram word will be highlighted yellow when submitted and correct
-    - Other valid words will be highlighted green when and correct
-    - Incorrect words will not be validate
+    - Other valid words will be highlighted green when submitted and correct
+    - Incorrect words will not be validated
     
-- Server - for the images where the full grid is displayed, we are using a sample grid with a hard coded word coordinate solution. 
-    - The server has 2 implementations of the /validate path, one using the hardcoded grid and one using the result of place-spangram. The hardcoded grid is to demonstrate our working "checker" functionality and will (hopefully) be replaced with the complete grid
+- Server - for the images where the full grid is displayed, we are using a sample grid with a hard-coded word coordinate solution. 
+    - The server has 2 implementations of the /validate path, one using the hardcoded grid and one using the result of place_spangram. The hardcoded grid is to demonstrate our working "checker" functionality and will (hopefully) be replaced with the complete grid
     - The server initializes the game_state which it then communicates to the frontend. We currently have an /initialize and /validate route:
     - The initialize route responds with game_state.board and the /validate route receives the word and coordinates from the front-end and responds with whether the word is valid or a spangram
     
@@ -79,7 +79,7 @@ Right now, Coverage report is 94.16% for src/lib/grid.ml
     - Would like to make the UI a bit nicer in general
 
 - Server
-    - Our primary issue is using the hardcoded sample_grid which is both a server and backend issue. The biggest roadblock is that currently, the functions to place words and spangrams do not create, update, and return a grid that contains the map of word coordinates which is used to verify words. Once this is implemented, the frontend and backend should be fully connnected
+    - Our primary issue is using the hardcoded sample_grid which is both a server and backend issue. The biggest roadblock is that currently, the functions to place words and spangrams do not create, update, and return a grid that contains the map of word coordinates which is used to verify words. Once this is implemented, the frontend and backend should be fully connected
     - We are doing our best to work around this issue by ensuring that individual libraries are working with the frontend
         - The game state from our Game library seems to be working as intended. We can get the board and spangram from the initialized game_state
         - /initialize and /validate are able to communicate with the front-end
