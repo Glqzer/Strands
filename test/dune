@@ -1,2 +1,8 @@
 (test
- (name test_strands))
+ (name test_strands)
+ (modules test_strands)
+ (libraries
+   core
+   ounit2
+   grid
+  ))
