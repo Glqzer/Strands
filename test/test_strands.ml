@@ -2,8 +2,6 @@ open Core
 open OUnit2
 open Grid
 
-(* bisect-ppx-report html *)
-
 module Alpha_tests = struct
   let test_make_alpha _ =
     assert_equal (Alpha.make 'T') (Ok (Alpha.Filled 'T'));

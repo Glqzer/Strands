@@ -1,9 +1,3 @@
-(library
- (name strands)  
- (modules david)
- (libraries core utils)
- (preprocess (pps ppx_deriving.show ppx_jane bisect_ppx)))
-
  (library
  (name game)
  (modules game)
