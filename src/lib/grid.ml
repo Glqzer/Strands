@@ -41,6 +41,22 @@ module Coord = struct
     coord1.x = coord2.x && coord1.y = coord2.y
 end
 
+(* TODO: continue to refactor to use normal variant instead of the code ABOVE using polymorphic variants aka the ` marks *)
+(* module Direction = struct
+  type t =
+  | Up
+  | Down
+  | Left
+  | Right
+  | UpLeft
+  | UpRight
+  | DownLeft
+  | DownRight
+  (* sometimes need to choose from all possible dirs *)
+  [@@deriving enumerate] (* derives val all : t list that contains all of the constructors in a list *)
+  
+end *)
+
 module Grid = struct
   type t = Alpha.t list list (* 2D grid with alpha letters *)
 
