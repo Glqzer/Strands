@@ -19,9 +19,6 @@ module WordCoords = struct
 
   (* Find the coordinate for a given letter in the map *)
   let find word map = M.find_opt word map
-
-  (* Iterate over all letter-coordinate pairs in the map *)
-  let iter f map = M.iter f map
 end
 
 (* Module to create a map where the key is a word (string) and the value is a record (0 or 1) *)
@@ -46,9 +43,6 @@ module WordRecord = struct
         | Some _ -> Some record
         | None -> Some record
       ) map
-
-  (* Iterate over all word-record pairs in the map *)
-  let iter f map = M.iter f map
 end
 
 let check_result (word : string) (coords : Position.t list) (word_coords_map : WordCoords.t) : bool = 
