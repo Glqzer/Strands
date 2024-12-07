@@ -89,7 +89,21 @@ let make = () => {
           };
         };
       });
-    setCurrentWord(prev => prev ++ letter);
+    switch (lastValidCell) {
+    | Some(lastValid) =>
+      if isAdjacent(lastValid, coordinate) {
+        setCurrentWord(prev => 
+          switch (selectedCells->Belt.List.has(coordinate, (a, b) => a == b)) {
+          | true => 
+              Js.String.slice(prev, ~from=0, ~to_=Js.String.length(prev) - 1)
+          | false =>
+              prev ++ letter
+          }
+        );
+      }
+    | None =>
+      setCurrentWord(prev => prev ++ letter);
+    }
     setLastValidCell(prev => 
       switch prev {
       | None => Some(coordinate)
