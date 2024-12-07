@@ -6,5 +6,6 @@
   utils
   words
   grid
+  game
  )
  (preprocess (pps ppx_deriving_yojson)))

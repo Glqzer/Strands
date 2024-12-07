@@ -4,13 +4,19 @@ import * as JsxRuntime from "react/jsx-runtime";
 
 function Cell(props) {
   var onClick = props.onClick;
+  var isFound = props.isFound;
   return JsxRuntime.jsx("div", {
               children: props.letter,
-              className: "w-12 h-12 border border-gray-300 flex items-center justify-center font-bold cursor-pointer rounded-md " + (
+              className: "w-12 h-12 border border-gray-300 flex items-center justify-center font-bold rounded-md \r\n      " + (
+                isFound ? "bg-green-300 cursor-default" : "cursor-pointer"
+              ) + " " + (
                 props.isSelected ? "bg-gray-200" : ""
               ),
               onClick: (function (param) {
-                  onClick();
+                  if (!isFound) {
+                    return onClick();
+                  }
+                  
                 })
             });
 }

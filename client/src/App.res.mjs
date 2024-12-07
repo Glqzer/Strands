@@ -40,6 +40,11 @@ function App(props) {
       });
   var setCurrentWord = match$4[1];
   var currentWord = match$4[0];
+  var match$5 = React.useState(function () {
+        return /* [] */0;
+      });
+  var setFoundCells = match$5[1];
+  var foundCells = match$5[0];
   React.useEffect((function () {
           Core__Promise.$$catch(fetch("http://localhost:8080/initialize").then(function (prim) {
                       return prim.json();
@@ -92,12 +97,15 @@ function App(props) {
       return false;
     }
   };
-  var clearSelection = function () {
+  var clearWord = function () {
     setSelectedCells(function (param) {
           return /* [] */0;
         });
     setLastValidCell(function (param) {
           
+        });
+    setCurrentWord(function (param) {
+          return "";
         });
   };
   var isCellSelected = function (rowIndex, colIndex) {
@@ -106,6 +114,13 @@ function App(props) {
       colIndex
     ];
     return Belt_List.has(selectedCells, coordinate, Caml_obj.equal);
+  };
+  var isCellFound = function (rowIndex, colIndex) {
+    var coordinate = [
+      rowIndex,
+      colIndex
+    ];
+    return Belt_List.has(foundCells, coordinate, Caml_obj.equal);
   };
   var handleSubmit = function () {
     var coordinates = Belt_List.toArray(Belt_List.map(Belt_List.reverse(selectedCells), (function (param) {
@@ -137,7 +152,13 @@ function App(props) {
                                     tl: prev
                                   };
                           });
-                      clearSelection();
+                      setFoundCells(function (prev) {
+                            return Belt_List.concatMany([
+                                        prev,
+                                        selectedCells
+                                      ]);
+                          });
+                      clearWord();
                       console.log("Valid word!");
                     } else {
                       console.log("Invalid word!");
@@ -157,17 +178,6 @@ function App(props) {
             return Promise.resolve();
           }));
   };
-  var clearSelection$1 = function () {
-    setSelectedCells(function (param) {
-          return /* [] */0;
-        });
-    setLastValidCell(function (param) {
-          
-        });
-    setCurrentWord(function (param) {
-          return "";
-        });
-  };
   return JsxRuntime.jsxs("div", {
               children: [
                 JsxRuntime.jsx("h1", {
@@ -185,6 +195,7 @@ function App(props) {
                                                   return JsxRuntime.jsx(Cell.make, {
                                                               letter: letter,
                                                               isSelected: isCellSelected(rowIndex, colIndex),
+                                                              isFound: isCellFound(rowIndex, colIndex),
                                                               onClick: (function () {
                                                                   var coordinate = [
                                                                     rowIndex,
@@ -263,7 +274,7 @@ function App(props) {
                               children: "Clear",
                               className: "px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600",
                               onClick: (function (param) {
-                                  clearSelection$1();
+                                  clearWord();
                                 })
                             })
                       ],

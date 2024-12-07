@@ -19,6 +19,8 @@ module WordCoords : sig
 
   (* Iterate over all letter-value pairs in the map *)
   val iter : (string -> Position.t list -> unit) -> t -> unit
+
+  val is_spangram : (string -> )
 end
 
 (* Module to create a map where the key is a word (string) and the value is a record (0 or 1) *)

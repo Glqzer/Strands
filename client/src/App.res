@@ -9,6 +9,8 @@ let make = () => {
   let (lastValidCell, setLastValidCell) = useState(() => None)
   let (foundWords, setFoundWords) = useState(() => list{})
   let (currentWord, setCurrentWord) = useState(() => "")
+  let (foundCells, setFoundCells) = useState(() => list{});
+
 
 
   useEffect0(() => {
@@ -121,10 +123,11 @@ let make = () => {
     );
   };
 
-  // clears the selected cells
-  let clearSelection = () => {
+  // clears the selected word
+  let clearWord = () => {
     setSelectedCells(_ => list{})
     setLastValidCell(_ => None)
+    setCurrentWord(_ => "")
   }
   
   // updates the coordinates of selected cells
@@ -132,6 +135,12 @@ let make = () => {
     let coordinate = (rowIndex, colIndex)
     selectedCells->Belt.List.has(coordinate, (a, b) => a == b)
   }
+
+  // updates the coordinates of found cells
+  let isCellFound = (rowIndex, colIndex) => {
+    let coordinate = (rowIndex, colIndex);
+    foundCells->Belt.List.has(coordinate, (a, b) => a == b);
+  };
 
   // handles submitting a word for validation
   let handleSubmit = () => {
@@ -175,7 +184,8 @@ let make = () => {
             | Some(isValid) => 
               if (isValid) {
                 setFoundWords(prev => list{currentWord, ...prev});
-                clearSelection();
+                setFoundCells(prev => list{...prev, ...selectedCells});
+                clearWord();
                 Js.Console.log("Valid word!");
               } else {
                 Js.Console.log("Invalid word!");
@@ -194,11 +204,7 @@ let make = () => {
       });
   };
   
-  let clearSelection = () => {
-    setSelectedCells(_ => list{})
-    setLastValidCell(_ => None)
-    setCurrentWord(_ => "")
-  }
+
 
   <div className="p-4">
     <h1 className="text-2xl font-bold mb-4">{React.string("FP Strands")}</h1>
@@ -212,6 +218,7 @@ let make = () => {
               key={`cell-${rowIndex->Belt.Int.toString}-${colIndex->Belt.Int.toString}`}
               letter={letter}
               isSelected={isCellSelected(rowIndex, colIndex)}
+              isFound={isCellFound(rowIndex, colIndex)}
               onClick={() => handleCellClick(rowIndex, colIndex)}
             />
           })->React.array
@@ -228,7 +235,7 @@ let make = () => {
       </button>
       <button 
         className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-        onClick={_ => clearSelection()}
+        onClick={_ => clearWord()}
       >
         {React.string("Clear")}
       </button>
