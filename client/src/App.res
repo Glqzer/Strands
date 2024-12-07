@@ -12,6 +12,8 @@ let make = () => {
 
 
   useEffect0(() => {
+    // initialize the grid by fetching the initial game board
+    // TO-DO replace this with fetching the game state instead
     let _ = Fetch.fetch("http://localhost:8080/initialize")
     ->then(Fetch.Response.json)
     ->then(json => {
@@ -57,8 +59,10 @@ let make = () => {
     rowDiff <= 1 && colDiff <= 1;
   };
 
+  // handles cell selection
   let handleCellClick = (rowIndex, colIndex) => {
     let coordinate = (rowIndex, colIndex);
+    // get the letter of the cell
     let letter = 
       switch (board->Belt.Array.get(rowIndex)) {
       | Some(row) => 
@@ -103,16 +107,19 @@ let make = () => {
     );
   };
 
+  // clears the selected cells
   let clearSelection = () => {
     setSelectedCells(_ => list{})
     setLastValidCell(_ => None)
   }
-
+  
+  // updates the coordinates of selected cells
   let isCellSelected = (rowIndex, colIndex) => {
     let coordinate = (rowIndex, colIndex)
     selectedCells->Belt.List.has(coordinate, (a, b) => a == b)
   }
 
+  // handles submitting a word for validation
   let handleSubmit = () => {
     let coordinates = 
       selectedCells
@@ -125,7 +132,7 @@ let make = () => {
       })
       ->Belt.List.toArray;
 
-
+    // make a post request to the server to validate the word
     let _ = 
       Fetch.fetchWithInit("http://localhost:8080/validate", 
         Fetch.RequestInit.make(
@@ -172,7 +179,7 @@ let make = () => {
         resolve()
       });
   };
-
+  
   let clearSelection = () => {
     setSelectedCells(_ => list{})
     setLastValidCell(_ => None)

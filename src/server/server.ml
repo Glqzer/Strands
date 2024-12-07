@@ -1,5 +1,7 @@
+open Utils
 open Words
-open Grid
+(* open Grid *)
+
 
 let solution_coords = 
   let open WordCoords in
@@ -34,8 +36,10 @@ let () =
 
     Dream.get "/initialize" 
     (fun _ ->
-      let initial_grid = Grid.create_empty_grid 8 6 in
-      let spangram = "racecar" in 
+      (* THIS SECTION IS FOR POPULATING THE FRONT-END WITH THE OUTPUT OF OUR GRID CREATION FUNCTIONS*)
+      
+      (* let initial_grid = Grid.create_empty_grid 8 6 in
+      let spangram = "blueberry" in 
       let board_with_spangram = Grid.place_spangram spangram initial_grid in
   
       let response = `Assoc [("board", `List (
@@ -45,7 +49,16 @@ let () =
             `String (String.make 1 (Alpha.show alpha))
           ) row)
         )
+      ))] *)
+
+      
+      let board = sample_grid in
+      let response = `Assoc [("board", `List (
+        List.map (fun row ->
+          `List (List.map (fun c -> `String (String.make 1 c)) row)
+        ) board
       ))]
+      
       |> Yojson.Safe.to_string
       in 
       Dream.respond ~headers:cors_headers response);
