@@ -6,6 +6,7 @@ import * as Js_dict from "rescript/lib/es6/js_dict.js";
 import * as Js_json from "rescript/lib/es6/js_json.js";
 import * as Caml_obj from "rescript/lib/es6/caml_obj.js";
 import * as Belt_List from "rescript/lib/es6/belt_List.js";
+import * as Js_string from "rescript/lib/es6/js_string.js";
 import * as Belt_Array from "rescript/lib/es6/belt_Array.js";
 import * as Belt_Option from "rescript/lib/es6/belt_Option.js";
 import * as Caml_option from "rescript/lib/es6/caml_option.js";
@@ -225,7 +226,11 @@ function App(props) {
                                                                         }
                                                                       });
                                                                   setCurrentWord(function (prev) {
-                                                                        return prev + letter;
+                                                                        if (Belt_List.has(selectedCells, coordinate, Caml_obj.equal)) {
+                                                                          return Js_string.slice(0, prev.length - 1 | 0, prev);
+                                                                        } else {
+                                                                          return prev + letter;
+                                                                        }
                                                                       });
                                                                   setLastValidCell(function (prev) {
                                                                         if (prev !== undefined && !isAdjacent(prev, coordinate)) {
