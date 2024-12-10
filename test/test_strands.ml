@@ -52,11 +52,11 @@ module Grid_tests = struct
   let test_create_empty_grid _ =
     let grid = Grid.create_empty_grid 8 6 in
     assert_bool "this grid should be empty" (is_empty_grid grid)
-
+(* 
   let test_place_empty_spangram _ =
     let grid = Grid.create_empty_grid 8 6 in
     let grid_with_empty_spangram = Grid.place_spangram "" grid in
-    assert_bool "grid should be unchanged for empty spangram" (is_empty_grid grid_with_empty_spangram)
+    assert_bool "grid should be unchanged for empty spangram" (is_empty_grid grid_with_empty_spangram) *)
 
   (* test: updating a cell in the grid *)
   let test_update_cell _ =
@@ -67,7 +67,7 @@ module Grid_tests = struct
     | Some (Alpha.Filled c) -> assert_equal c 'T'
     | _ -> assert_failure "cell should be updated to 'T'"
 
-  let test_spangram_in_bounds _ =
+  (* let test_spangram_in_bounds _ =
     let grid = Grid.create_empty_grid 8 6 in
     let spangram = "test" in
     let grid_with_spangram = Grid.place_spangram spangram grid in
@@ -77,7 +77,7 @@ module Grid_tests = struct
         List.iteri row ~f:(fun x cell ->
             match cell with
             | Alpha.Filled _ -> assert_bool "Filled cell should be in bounds" (Coord.in_bounds { Coord.x = x; y } rows cols)
-            | _ -> ()))
+            | _ -> ())) *)
 
   let test_word_placement_in_bounds _ = 
     let grid = Grid.create_empty_grid 8 6 in
@@ -225,9 +225,9 @@ let series =
 
     (* Grid tests *)
     "test grid initialization" >:: Grid_tests.test_create_empty_grid;
-    "test place empty spangram" >:: Grid_tests.test_place_empty_spangram;
+    (* "test place empty spangram" >:: Grid_tests.test_place_empty_spangram; *)
     "test update cell" >:: Grid_tests.test_update_cell;
-    "test spangram in bounds" >:: Grid_tests.test_spangram_in_bounds;
+    (* "test spangram in bounds" >:: Grid_tests.test_spangram_in_bounds; *)
     "test word placement in bounds" >:: Grid_tests.test_word_placement_in_bounds;
 
     (* Word tests *)

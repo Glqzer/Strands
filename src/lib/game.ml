@@ -21,7 +21,7 @@ module Game = struct
     
     let board = 
       Grid.create_empty_grid 8 6 
-      |> Grid.place_spangram spangram 
+      |> Grid.place_spangram spangram |> fst
     in
     
     (* TO-DO get word coords *)
