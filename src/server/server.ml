@@ -3,17 +3,6 @@ open Words
 open Game 
 open Grid
 
-
-let initial_state : Game.state = { 
-  board = Grid.create_empty_grid 8 6; 
-  word_coords = WordCoords.empty;
-  word_records = WordRecord.empty; 
-  spangram = ""
-}
-let game_state = Game.initialize_game initial_state
-
-
-
 (* this is the static example *)
 let static_state : Game.state = {
   board = static_grid;
@@ -77,6 +66,9 @@ let validate_word ~(state: Game.state) request =
         {|{"error": "Invalid request"}|}
   )
 
+(* mutable reference to store the dynamic game state *)
+let dynamic_game_state = ref None
+
 let () =
   Dream.run
   @@ Dream.logger
@@ -95,6 +87,17 @@ let () =
     Dream.get "/initialize" 
     (fun request ->
       let mode = Dream.query request "mode" |> Option.value ~default:"static" in
+      let initial_state : Game.state = { 
+        board = Grid.create_empty_grid 8 6; 
+        word_coords = WordCoords.empty;
+        word_records = WordRecord.empty; 
+        spangram = ""
+      } in
+      let game_state = Game.initialize_game initial_state in
+      
+      (* Store the dynamically created game state *)
+      dynamic_game_state := Some game_state;
+      
       let state = 
         match mode with
         | "static" -> static_state
@@ -110,7 +113,11 @@ let () =
         let state = 
           match mode with
           | "static" -> static_state
-          | "dynamic" -> game_state
+          | "dynamic" -> (
+              match !dynamic_game_state with
+              | Some state -> state
+              | None -> static_state
+            )
           | _ -> static_state 
         in
         validate_word ~state request
