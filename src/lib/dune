@@ -19,5 +19,5 @@
  (library
  (name utils)
  (modules utils)
- (libraries core grid)
+ (libraries core grid words)
  (preprocess (pps ppx_deriving.show ppx_jane bisect_ppx)))

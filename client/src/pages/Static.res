@@ -38,7 +38,8 @@ let make = () => {
       resolve()
     };
 
-    let _ = Fetch.fetch("http://localhost:8080/initialize-static")
+    let _ = Fetch.fetch("http://localhost:8080/initialize?mode=static
+")
       ->then(Fetch.Response.json)
       ->then(handleBoardInitialization)
       ->catch(err => {

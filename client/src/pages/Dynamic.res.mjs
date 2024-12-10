@@ -75,7 +75,7 @@ function Dynamic(props) {
             }
             return Promise.resolve();
           };
-          Core__Promise.$$catch(fetch("http://localhost:8080/initialize-dynamic").then(function (prim) {
+          Core__Promise.$$catch(fetch("http://localhost:8080/initialize?mode=dynamic").then(function (prim) {
                       return prim.json();
                     }).then(handleBoardInitialization), (function (err) {
                   console.error("Error", err);
