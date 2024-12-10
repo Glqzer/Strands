@@ -38,7 +38,7 @@ let make = () => {
       resolve()
     };
 
-    let _ = Fetch.fetch("http://localhost:8080/initialize")
+    let _ = Fetch.fetch("http://localhost:8080/initialize-dynamic")
       ->then(Fetch.Response.json)
       ->then(handleBoardInitialization)
       ->catch(err => {

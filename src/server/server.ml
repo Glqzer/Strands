@@ -16,6 +16,19 @@ let initial_state : Game.state = {
   spangram = ""
 }
 
+(* this is the static example *)
+let static_state : Game.state = {
+  board = static_grid;
+  word_coords = (
+    let open WordCoords in
+    empty
+    |> add "apple" [(6, 0); (7, 0); (7, 1); (7, 2); (6, 2)]
+    |> add "blueberry" [(0, 1); (0, 2); (1, 3); (2, 3); (3, 2); (4, 3); (5, 3); (6, 3); (7, 3)]
+  ); 
+  word_records = WordRecord.empty; 
+  spangram = "functional"
+}
+
 let game_state = Game.initialize_game initial_state
 
 let cors_headers = [
@@ -32,7 +45,8 @@ let () =
   @@ Dream.logger
     
   @@ Dream.router [
-    Dream.options "/initialize" handle_options;
+    Dream.options "/initialize-static" handle_options;
+    Dream.options "/initialize-dynamic" handle_options;
     Dream.options "/validate" handle_options;
 
     Dream.get "/"
@@ -43,11 +57,9 @@ let () =
         in
         Dream.respond ~headers:cors_headers response);
 
-    Dream.get "/initialize" 
+    Dream.get "/initialize-static" 
     (fun _ ->
-      (* THIS SECTION IS FOR POPULATING THE FRONT-END WITH THE OUTPUT OF OUR GRID CREATION FUNCTIONS*)
-      
-      (* let board = game_state.board in  
+      let board = static_state.board in
       let response = `Assoc [("board", `List (
         board 
         |> List.map (fun row ->
@@ -55,19 +67,31 @@ let () =
             `String (String.make 1 (Alpha.show alpha))
           ) row)
         )
-      ))] *)
-
-      
-      let board = sample_grid in
-      let response = `Assoc [("board", `List (
-        List.map (fun row ->
-          `List (List.map (fun c -> `String (String.make 1 c)) row)
-        ) board
       ))]
       
       |> Yojson.Safe.to_string
       in 
       Dream.respond ~headers:cors_headers response);
+
+      Dream.get "/initialize-dynamic" 
+      (fun _ ->
+        
+        let board = 
+          Grid.create_empty_grid 8 6 |>
+          Grid.place_spangram "banana"
+         in  
+        let response = `Assoc [("board", `List (
+          board 
+          |> List.map (fun row ->
+            `List (List.map (fun alpha ->
+              `String (String.make 1 (Alpha.show alpha))
+            ) row)
+          )
+        ))]
+        
+        |> Yojson.Safe.to_string
+        in 
+        Dream.respond ~headers:cors_headers response);
 
     Dream.post "/validate"
       (fun request ->
