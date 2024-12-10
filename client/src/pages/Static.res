@@ -38,7 +38,8 @@ let make = () => {
       resolve()
     };
 
-    let _ = Fetch.fetch("http://localhost:8080/initialize")
+    let _ = Fetch.fetch("http://localhost:8080/initialize?mode=static
+")
       ->then(Fetch.Response.json)
       ->then(handleBoardInitialization)
       ->catch(err => {
@@ -105,21 +106,7 @@ let make = () => {
     setLastValidCell(_ => None)
     setCurrentWord(_ => "")
   }
-  
-  let isCellSelected = (rowIndex, colIndex) => {
-    let coordinate = (rowIndex, colIndex)
-    selectedCells->Belt.List.has(coordinate, (a, b) => a == b)
-  }
 
-  let isCellFound = (rowIndex, colIndex) => {
-    let coordinate = (rowIndex, colIndex);
-    foundCells->Belt.List.has(coordinate, (a, b) => a == b);
-  };
-
-  let isCellSpangram = (rowIndex, colIndex) => {
-    let coordinate = (rowIndex, colIndex);
-    spangramCells->Belt.List.has(coordinate, (a, b) => a == b);
-  };
 
   let handleSubmit = () => {
     let coordinates = 
@@ -204,24 +191,15 @@ let make = () => {
   <div className="p-4 content">
     <h1 className="text-2xl font-bold mb-4">{React.string("FP Strands - Static")}</h1>
     <p className="text-center h-[30px]">{string(currentWord)}</p>
-    <div className="flex justify-center">
-      <div className="grid grid-cols-6 gap-1">
-        {board
-        ->Belt.Array.mapWithIndex((rowIndex, row) => {
-          row->Belt.Array.mapWithIndex((colIndex, letter) => {
-            <Cell
-              key={`cell-${rowIndex->Belt.Int.toString}-${colIndex->Belt.Int.toString}`}
-              letter={letter}
-              isSelected={isCellSelected(rowIndex, colIndex)}
-              isFound={isCellFound(rowIndex, colIndex)}
-              isSpangram={isCellSpangram(rowIndex, colIndex)}
-              onClick={() => handleCellClick(rowIndex, colIndex)}
-            />
-          })->React.array
-        })
-        ->React.array}
-      </div>
-    </div>
+    
+    <Grid 
+      board={board}
+      selectedCells={selectedCells}
+      foundCells={foundCells}
+      spangramCells={spangramCells}
+      onCellClick={handleCellClick}
+    />
+
     <div className="mt-4 flex gap-2 justify-center">
       <button 
         className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"

@@ -7,12 +7,16 @@ let make = () => {
         <h1>{React.string("Welcome to FP Strands!")}</h1>
         <p>{React.string("A project by Mia Choi, Emma Levitsky, Tam Nguyen, and David Wang.")}</p>
         <div className="flex mt-5 gap-3">
-        <Button type_="static">
-            <Link href="/static">{"Static Example" |> React.string}</Link>
-        </Button>
-        <Button type_="dynamic">
-            <Link href="/dynamic">{"Dynamic Example" |> React.string}</Link>
-        </Button>
+        <Link href="/static">
+          <Button type_="static">
+              {"Static Example" |> React.string}
+          </Button>
+        </Link>
+        <Link href="/dynamic">
+          <Button type_="dynamic">
+              {"Dynamic Example" |> React.string}
+          </Button>
+        </Link>
         </div>
     </div>
   </div>
