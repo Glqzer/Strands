@@ -189,7 +189,7 @@ let make = () => {
   };
 
   <div className="p-4 content">
-    <h1 className="text-2xl font-bold mb-4">{React.string("FP Strands - Static")}</h1>
+    <h1 className="text-2xl font-bold mb-4">{React.string("FP Strands - Dynamic")}</h1>
     <p className="text-center h-[30px]">{string(currentWord)}</p>
     
     <Grid 
