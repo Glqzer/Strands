@@ -8,6 +8,7 @@ module Game = struct
     word_coords: WordCoords.t;
     word_records: WordRecord.t;
     spangram: string;
+    theme: string
   }
 
   let initialize_game initial_state =
