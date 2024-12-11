@@ -82,7 +82,7 @@ module Grid_tests = struct
   let test_word_placement_in_bounds _ = 
     let grid = Grid.create_empty_grid 8 6 in
     let words = ["apple"; "mango"; "banana"; "lime"; "lemon"; "kiwi"; "peach"; "grape"; "plum"; "cherry"; "orange"] in
-    let grid_with_words = Grid.place_all_words words grid in
+    let (grid_with_words, _) = Grid.place_all_words words grid WordCoords.empty in
     let rows = List.length grid in
     let cols = List.length (List.hd_exn grid) in
     List.iteri grid_with_words ~f:(fun y row ->

@@ -10,7 +10,7 @@ module WordCoords = struct
 
   [@@deriving bindings]
 
-  (* The map type is now (int * int) (coordinates) M.t *)
+
   type t = Position.t list M.t
 
   (* Create an empty map *)
@@ -18,11 +18,20 @@ module WordCoords = struct
   let bindings map = M.bindings map  (* Expose bindings explicitly *)
 
 
-  (* Add a letter-coordinate pair to the map *)
+  (* Add a word-coordinate list pair to the map *)
   let add word coord map = M.add word coord map
 
-  (* Find the coordinate for a given letter in the map *)
+  (* Find the coordinates for a given word in the map *)
   let find word map = M.find_opt word map
+
+  let iter = M.iter
+
+  let print_all_coords (map : t) =
+    iter (fun word coords ->
+      Printf.printf "%s: " word;
+      List.iter (fun (x, y) -> Printf.printf "(%d, %d) " x y) coords;
+      print_endline "") map
+
 end
 
 (* Module to create a map where the key is a word (string) and the value is a record (0 or 1) *)
@@ -47,6 +56,7 @@ module WordRecord = struct
         | Some _ -> Some record
         | None -> Some record
       ) map
+
 end
 
 let check_result (word : string) (coords : Position.t list) (word_coords_map : WordCoords.t) : bool = 
@@ -66,10 +76,9 @@ let is_found (word : string) (word_record_map : WordRecord.t) : bool =
   | Some 1 -> true 
   (* SHOULD NEVER GET TO THIS POINT *)
   | Some _ -> false 
-  
 
 let initialize_word_record (words : string list) : WordRecord.t = 
   List.fold_left (fun acc word -> WordRecord.add word 0 acc) WordRecord.empty words
 
-
+let () = WordCoords.print_all_coords WordCoords.empty
 
