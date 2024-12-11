@@ -3,7 +3,7 @@ open Grid
 open Words
 
 module Game = struct
-  type state = {
+  type config = {
     board: Grid.t;
     word_coords: WordCoords.t;
     word_records: WordRecord.t;

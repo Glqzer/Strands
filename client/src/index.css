@@ -4,7 +4,7 @@
 
 
 h1 {
-    @apply font-bold text-center text-2xl
+    @apply font-bold text-center text-3xl
 }
 
 nav {
@@ -12,6 +12,21 @@ nav {
 }
 
 .content {
-    @apply h-screen bg-stone-50 items-center justify-center pt-20
+    @apply bg-stone-50 items-center justify-center pt-20 h-screen
 }
 
+.game-content {
+    @apply flex justify-center gap-10 min-w-[500px] px-10
+}
+
+.side-panel {
+    @apply w-full
+}
+
+.theme {
+    @apply h-fit border-2 border-black rounded-lg mx-auto w-fit
+}
+
+.words {
+    @apply bg-gray-200 rounded-lg px-4 py-1 h-[300px] max-w-fit min-w-[200px]
+}

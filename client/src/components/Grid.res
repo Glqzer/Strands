@@ -22,7 +22,7 @@ let make = (
   };
 
   <div className="flex justify-center">
-    <div className="grid grid-cols-6 gap-1">
+    <div className="grid grid-cols-6 gap-1 w-[300px]">
       {board
       ->Belt.Array.mapWithIndex((rowIndex, row) => {
         row->Belt.Array.mapWithIndex((colIndex, letter) => {

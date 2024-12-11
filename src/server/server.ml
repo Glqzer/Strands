@@ -4,7 +4,7 @@ open Game
 open Grid
 
 (* this is the static example *)
-let static_state : Game.state = {
+let static_config : Game.config = {
   board = static_grid;
   word_coords = static_coords;
   word_records = WordRecord.empty; 
@@ -20,9 +20,9 @@ let cors_headers = [
 let handle_options (_ : Dream.request) =
     Dream.respond ~status:`OK ~headers:cors_headers ""
 
-let create_board_response (state: Game.state) =
+let create_board_response (config: Game.config) =
   `Assoc [("board", `List (
-    state.board 
+    config.board 
     |> List.map (fun row ->
       `List (List.map (fun alpha ->
         `String (String.make 1 (Alpha.show alpha))
@@ -31,7 +31,7 @@ let create_board_response (state: Game.state) =
   ))]
   |> Yojson.Safe.to_string
 
-let validate_word ~(state: Game.state) request =
+let validate_word ~(config: Game.config) request =
   Lwt.bind (Dream.body request) (fun body ->
     try 
       let json = Yojson.Safe.from_string body in
@@ -47,8 +47,8 @@ let validate_word ~(state: Game.state) request =
           (row, col)
         )
       in
-      let is_valid = check_result word coords state.word_coords in
-      let is_spangram = (word = state.spangram) in
+      let is_valid = check_result word coords config.word_coords in
+      let is_spangram = (word = config.spangram) in
       let response = 
         `Assoc [
           ("word", `String word);
@@ -87,22 +87,22 @@ let () =
     Dream.get "/initialize" 
     (fun request ->
       let mode = Dream.query request "mode" |> Option.value ~default:"static" in
-      let initial_state : Game.state = { 
+      let config : Game.config = { 
         board = Grid.create_empty_grid 8 6; 
         word_coords = WordCoords.empty;
         word_records = WordRecord.empty; 
         spangram = ""
       } in
-      let game_state = Game.initialize_game initial_state in
+      let game_state = Game.initialize_game config in
       
       (* Store the dynamically created game state *)
       dynamic_game_state := Some game_state;
       
       let state = 
         match mode with
-        | "static" -> static_state
+        | "static" -> static_config
         | "dynamic" -> game_state
-        | _ -> static_state 
+        | _ -> static_config 
       in
       let response = create_board_response state in
       Dream.respond ~headers:cors_headers response);
@@ -110,16 +110,16 @@ let () =
     Dream.post "/validate"
       (fun request ->
         let mode = Dream.query request "mode" |> Option.value ~default:"static" in
-        let state = 
+        let config = 
           match mode with
-          | "static" -> static_state
+          | "static" -> static_config
           | "dynamic" -> (
               match !dynamic_game_state with
               | Some state -> state
-              | None -> static_state
+              | None -> static_config
             )
-          | _ -> static_state 
+          | _ -> static_config 
         in
-        validate_word ~state request
+        validate_word ~config request
       );
 ]

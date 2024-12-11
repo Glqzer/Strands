@@ -3,7 +3,7 @@ let make = (~letter: string, ~isSelected: bool, ~isFound: bool, ~isSpangram: boo
   <div 
     className={`w-12 h-12 border border-gray-300 flex items-center justify-center font-bold rounded-md 
       ${isFound 
-        ? (isSpangram ? "bg-yellow-300 cursor-default" : "bg-green-300 cursor-default") 
+        ? (isSpangram ? "bg-amber-300 cursor-default" : "bg-emerald-300 cursor-default") 
         : "cursor-pointer"} 
       ${isSelected ? "bg-gray-200" : ""}`}
     onClick={_ => if (!isFound) { onClick(); }}

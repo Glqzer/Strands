@@ -38,8 +38,7 @@ let make = () => {
       resolve()
     };
 
-    let _ = Fetch.fetch("http://localhost:8080/initialize?mode=static
-")
+    let _ = Fetch.fetch("http://localhost:8080/initialize?mode=static")
       ->then(Fetch.Response.json)
       ->then(handleBoardInitialization)
       ->catch(err => {
@@ -188,42 +187,40 @@ let make = () => {
       });
   };
 
-  <div className="p-4 content">
+  <div className="content">
     <h1 className="text-2xl font-bold mb-4">{React.string("FP Strands - Static")}</h1>
     <p className="text-center h-[30px]">{string(currentWord)}</p>
-    
-    <Grid 
-      board={board}
-      selectedCells={selectedCells}
-      foundCells={foundCells}
-      spangramCells={spangramCells}
-      onCellClick={handleCellClick}
-    />
+    <div className="game-content">
+      <div className="side-panel content-center">
+        <Theme theme="Let's strand"/>
+      </div>
+      <div className="grid-w-controls">
+        <Grid 
+          board={board}
+          selectedCells={selectedCells}
+          foundCells={foundCells}
+          spangramCells={spangramCells}
+          onCellClick={handleCellClick}
+        />
 
-    <div className="mt-4 flex gap-2 justify-center">
-      <button 
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        onClick={_ => handleSubmit()}
-      >
-        {React.string("Submit")}
-      </button>
-      <button 
-        className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-        onClick={_ => clearWord()}
-      >
-        {React.string("Clear")}
-      </button>
-    </div>
-    <div className="mt-4">
-      <h2 className="text-xl font-semibold">{React.string("Found words:")}</h2>
-      <ul>
-        {foundWords
-        ->Belt.List.toArray
-        ->Belt.Array.map(word => 
-          <li key={word}>{React.string(word)}</li>
-        )
-        ->React.array}
-      </ul>
+        <div className="mt-4 flex gap-2 justify-center">
+          <Button 
+            type_="clear"
+            onClick={_ => clearWord()}
+          >
+            {React.string("Clear")}
+          </Button>
+                    <Button 
+            type_="submit"
+            onClick={_ => handleSubmit()}
+          >
+            {React.string("Submit")}
+          </Button>
+        </div>
+      </div>
+      <div className="side-panel">
+        <Words foundWords={foundWords} />
+      </div>
     </div>
   </div>
 }

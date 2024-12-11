@@ -47,7 +47,7 @@ function Grid(props) {
                                                     }, "cell-" + String(rowIndex) + "-" + String(colIndex));
                                         }));
                           })),
-                    className: "grid grid-cols-6 gap-1"
+                    className: "grid grid-cols-6 gap-1 w-[300px]"
                   }),
               className: "flex justify-center"
             });
