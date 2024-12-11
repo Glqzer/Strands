@@ -18,7 +18,8 @@ function Words(props) {
                                         }, word);
                             }))
                     })
-              ]
+              ],
+              className: "words"
             });
 }
 

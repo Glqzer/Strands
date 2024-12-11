@@ -2,7 +2,7 @@
 let make = (
   ~foundWords: list<(string)>, 
 ) => {
-    <div>
+    <div className="words">
       <h2 className="text-xl font-semibold">{React.string("Found words:")}</h2>
       <ul>
         {foundWords

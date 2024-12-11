@@ -26,3 +26,7 @@ nav {
 .theme {
     @apply h-fit border-2 border-black rounded-lg mx-auto w-fit
 }
+
+.words {
+    @apply bg-gray-200 rounded-lg px-4 py-1 h-[300px] max-w-fit min-w-[200px]
+}
