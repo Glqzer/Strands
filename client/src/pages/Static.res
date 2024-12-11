@@ -191,7 +191,7 @@ let make = () => {
     <h1 className="text-2xl font-bold mb-4">{React.string("FP Strands - Static")}</h1>
     <p className="text-center h-[30px]">{string(currentWord)}</p>
     <div className="game-content">
-      <div className="side-panel">
+      <div className="side-panel content-center">
         <Theme theme="Let's strand"/>
       </div>
       <div className="grid-w-controls">

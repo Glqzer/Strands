@@ -16,9 +16,13 @@ nav {
 }
 
 .game-content {
-    @apply flex justify-center gap-10 min-w-[500px]
+    @apply flex justify-center gap-10 min-w-[500px] px-10
 }
 
 .side-panel {
     @apply w-full
+}
+
+.theme {
+    @apply h-fit border-2 border-black rounded-lg mx-auto w-fit
 }

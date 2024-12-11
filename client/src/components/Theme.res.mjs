@@ -7,10 +7,11 @@ function Theme(props) {
               children: [
                 JsxRuntime.jsx("h2", {
                       children: "Theme:",
-                      className: "text-xl font-semibold"
+                      className: "text-xl font-semibold text-center bg-sky-200 rounded-t-lg py-1"
                     }),
                 JsxRuntime.jsx("h1", {
-                      children: props.theme
+                      children: props.theme,
+                      className: "px-5 py-4"
                     })
               ],
               className: "theme"
