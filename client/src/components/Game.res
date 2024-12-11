@@ -12,6 +12,8 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
   let (currentWord, setCurrentWord) = useState(() => "")
   let (foundCells, setFoundCells) = useState(() => list{})
   let (spangramCells, setSpangramCells) = useState(() => list{})
+  let (errorMessage, setErrorMessage) = useState(() => "")
+
   
   // playground mode states
   let (playgroundTheme, setPlaygroundTheme) = useState(() => "")
@@ -114,7 +116,7 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
       )
     | Some(lastValid) when isAdjacent(lastValid, coordinate) && !(selectedCells->Belt.List.has(coordinate, (a, b) => a == b)) =>
       setCurrentWord(prev => prev ++ letter)
-    | Some(lastValid) =>
+    | Some(_,_) =>
       setCurrentWord(prev => prev)
     | _ => 
       setCurrentWord(prev => prev ++ letter)
@@ -144,6 +146,11 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
     setCurrentWord(_ => "")
   }
 
+  let handleClear = () => {
+    clearWord()
+    setErrorMessage(_=>"")
+  }
+
   let handleSubmit = () => {
     let coordinates = 
       selectedCells
@@ -167,6 +174,7 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
 
       switch validationResult {
       | Some(true) => 
+        setErrorMessage(_ => "")
         let isSpangram = 
           json
           ->Js.Json.decodeObject
@@ -191,6 +199,8 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
 
       | Some(false) => 
         Js.Console.log("Invalid word!")
+        setErrorMessage(_ => "Not a valid word. Try again!")
+        clearWord()
       | None => 
         Js.Console.error("Invalid validation response")
       };
@@ -287,6 +297,12 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
 
   <div className="content">
     <h1 className="text-2xl font-bold mb-4">{React.string(pageTitle)}</h1>
+    {errorMessage !== "" && currentWord == ""
+      ? <div className="text-center text-red-500 h-[30px] mb-2">
+          {React.string(errorMessage)}
+        </div>
+      : <p className="text-center h-[30px]">{React.string(currentWord)}</p>
+    }
     
     {switch mode {
     | #playground => 
@@ -324,8 +340,6 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
     | #dynamic => React.null
     }}
 
-    <p className="text-center h-[30px]">{React.string(currentWord)}</p>
-
     <div className="game-content">
       {switch mode {
       | #playground when !isPlaygroundInitialized => React.null
@@ -348,7 +362,7 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
             <div className="mt-4 flex gap-2 justify-center">
               <Button 
                 type_="clear"
-                onClick={_ => clearWord()}
+                onClick={_ => handleClear()}
               >
                 {React.string("Clear")}
               </Button>
