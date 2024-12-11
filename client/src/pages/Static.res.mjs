@@ -255,7 +255,7 @@ function Static(props) {
                       children: [
                         JsxRuntime.jsx("div", {
                               children: JsxRuntime.jsx(Theme.make, {
-                                    theme: "Let's strand"
+                                    theme: "let('s) strand"
                                   }),
                               className: "side-panel content-center"
                             }),

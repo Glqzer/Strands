@@ -37,6 +37,13 @@ function Home(props) {
                                           children: "Slides"
                                         }),
                                     href: "https://docs.google.com/presentation/d/1xT0PUwfyjzmyGQCqzjY8QlT6CK9bhEygvlbUAsKF6L4/edit?usp=sharing"
+                                  }),
+                              JsxRuntime.jsx(ReactRouterDOM$RescriptReactRouterDom.Link.make, {
+                                    children: JsxRuntime.jsx(Button.make, {
+                                          type_: "github",
+                                          children: "Github"
+                                        }),
+                                    href: "https://github.com/Glqzer/Strands"
                                   })
                             ],
                             className: "flex mt-8 gap-3 pb-20"
