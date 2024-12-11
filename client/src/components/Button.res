@@ -5,6 +5,7 @@ let make = (~type_: string, ~onClick: option<ReactEvent.Mouse.t => unit>=?, ~chi
     | "clear" => "bg-rose-600 hover:bg-rose-700"
     | "static" => "bg-cyan-600 hover:bg-cyan-700"
     | "dynamic" => "bg-emerald-600 hover:bg-emerald-700" 
+    | "playground" => "bg-rose-600 hover:bg-rose-700" 
     | "slides" => "bg-amber-500 hover:bg-amber-600" 
     | "github" => "bg-slate-800 hover:bg-slate-900" 
     | _ => "bg-gray-600 hover:bg-gray-700"

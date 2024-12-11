@@ -6,14 +6,15 @@ function Button(props) {
   var onClick = props.onClick;
   var buttonClassName;
   switch (props.type_) {
-    case "clear" :
-        buttonClassName = "bg-rose-600 hover:bg-rose-700";
-        break;
     case "dynamic" :
         buttonClassName = "bg-emerald-600 hover:bg-emerald-700";
         break;
     case "github" :
         buttonClassName = "bg-slate-800 hover:bg-slate-900";
+        break;
+    case "clear" :
+    case "playground" :
+        buttonClassName = "bg-rose-600 hover:bg-rose-700";
         break;
     case "slides" :
         buttonClassName = "bg-amber-500 hover:bg-amber-600";

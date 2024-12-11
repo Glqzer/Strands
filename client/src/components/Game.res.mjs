@@ -56,42 +56,59 @@ function Game(props) {
         return /* [] */0;
       });
   var setSpangramCells = match$7[1];
+  var match$8 = React.useState(function () {
+        return "";
+      });
+  var setPlaygroundTheme = match$8[1];
+  var playgroundTheme = match$8[0];
+  var match$9 = React.useState(function () {
+        return "";
+      });
+  var setPlaygroundSpangram = match$9[1];
+  var playgroundSpangram = match$9[0];
+  var match$10 = React.useState(function () {
+        return false;
+      });
+  var setIsPlaygroundInitialized = match$10[1];
+  var isPlaygroundInitialized = match$10[0];
+  var gameInitialization = function (json) {
+    var boardResult = Belt_Option.map(Belt_Option.flatMap(Belt_Option.flatMap(Js_json.decodeObject(json), (function (obj) {
+                    return Js_dict.get(obj, "board");
+                  })), Js_json.decodeArray), (function (rows) {
+            return rows.map(function (row) {
+                        var cells = Js_json.decodeArray(row);
+                        if (cells !== undefined) {
+                          return cells.map(function (cell) {
+                                      return Belt_Option.getWithDefault(Js_json.decodeString(cell), "");
+                                    });
+                        } else {
+                          return [];
+                        }
+                      });
+          }));
+    var themeResult = Belt_Option.flatMap(Belt_Option.flatMap(Js_json.decodeObject(json), (function (obj) {
+                return Js_dict.get(obj, "theme");
+              })), Js_json.decodeString);
+    if (boardResult !== undefined) {
+      setBoard(function (param) {
+            return boardResult;
+          });
+    } else {
+      console.error("Failed to initialize board");
+    }
+    if (themeResult !== undefined) {
+      setTheme(function (param) {
+            return themeResult;
+          });
+    } else {
+      console.error("Failed to retrieve theme");
+    }
+    return Promise.resolve();
+  };
   React.useEffect((function () {
-          var gameInitialization = function (json) {
-            var boardResult = Belt_Option.map(Belt_Option.flatMap(Belt_Option.flatMap(Js_json.decodeObject(json), (function (obj) {
-                            return Js_dict.get(obj, "board");
-                          })), Js_json.decodeArray), (function (rows) {
-                    return rows.map(function (row) {
-                                var cells = Js_json.decodeArray(row);
-                                if (cells !== undefined) {
-                                  return cells.map(function (cell) {
-                                              return Belt_Option.getWithDefault(Js_json.decodeString(cell), "");
-                                            });
-                                } else {
-                                  return [];
-                                }
-                              });
-                  }));
-            var themeResult = Belt_Option.flatMap(Belt_Option.flatMap(Js_json.decodeObject(json), (function (obj) {
-                        return Js_dict.get(obj, "theme");
-                      })), Js_json.decodeString);
-            if (boardResult !== undefined) {
-              setBoard(function (param) {
-                    return boardResult;
-                  });
-            } else {
-              console.error("Failed to initialize board");
-            }
-            if (themeResult !== undefined) {
-              setTheme(function (param) {
-                    return themeResult;
-                  });
-            } else {
-              console.error("Failed to retrieve theme");
-            }
-            return Promise.resolve();
-          };
-          var modeString = mode === "dynamic" ? "dynamic" : "static";
+          var modeString = mode === "playground" ? "playground" : (
+              mode === "dynamic" ? "dynamic" : "static"
+            );
           Core__Promise.$$catch(fetch("http://localhost:8080/initialize?mode=" + modeString).then(function (prim) {
                       return prim.json();
                     }).then(gameInitialization), (function (err) {
@@ -266,7 +283,10 @@ function Game(props) {
       }
       return Promise.resolve();
     };
-    Core__Promise.$$catch(fetch("http://localhost:8080/validate", Webapi__Fetch.RequestInit.make("Post", {
+    var modeString = mode === "playground" ? "playground" : (
+        mode === "dynamic" ? "dynamic" : "static"
+      );
+    Core__Promise.$$catch(fetch("http://localhost:8080/validate?mode=" + modeString, Webapi__Fetch.RequestInit.make("Post", {
                       "Content-Type": "application/json",
                       "Access-Control-Allow-Methods": "POST",
                       "Access-Control-Allow-Origin": "http://127.0.0.1:5173"
@@ -280,63 +300,156 @@ function Game(props) {
             return Promise.resolve();
           }));
   };
-  var pageTitle = mode === "dynamic" ? "FP Strands - Dynamic" : "FP Strands - Static";
+  var handlePlaygroundInitialize = function () {
+    var playgroundData = {
+      theme: playgroundTheme,
+      spangram: playgroundSpangram
+    };
+    Core__Promise.$$catch(fetch("http://localhost:8080/initialize-playground", Webapi__Fetch.RequestInit.make("Post", {
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Methods": "POST",
+                        "Access-Control-Allow-Origin": "http://127.0.0.1:5173"
+                      }, Caml_option.some(Belt_Option.getWithDefault(JSON.stringify(playgroundData), "{}")), undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined)).then(function (prim) {
+                  return prim.json();
+                }).then(gameInitialization).then(function () {
+              setIsPlaygroundInitialized(function (param) {
+                    return true;
+                  });
+              return Promise.resolve();
+            }), (function (err) {
+            console.error("Error initializing playground", err);
+            return Promise.resolve();
+          }));
+  };
+  var pageTitle = mode === "playground" ? "FP Strands - Playground" : (
+      mode === "dynamic" ? "FP Strands - Dynamic" : "FP Strands - Static"
+    );
+  var handleThemeChange = function ($$event) {
+    var value = $$event.currentTarget.value;
+    setPlaygroundTheme(function (param) {
+          return value;
+        });
+  };
+  var handleSpangramChange = function ($$event) {
+    var value = $$event.currentTarget.value;
+    setPlaygroundSpangram(function (param) {
+          return value;
+        });
+  };
+  var themeText = mode === "playground" && !isPlaygroundInitialized ? playgroundTheme : match$1[0];
+  var tmp;
+  var exit = 0;
+  if (mode === "playground" && !isPlaygroundInitialized) {
+    tmp = null;
+  } else {
+    exit = 1;
+  }
+  if (exit === 1) {
+    tmp = JsxRuntime.jsxs(JsxRuntime.Fragment, {
+          children: [
+            JsxRuntime.jsx("div", {
+                  children: JsxRuntime.jsx(Theme.make, {
+                        theme: themeText
+                      }),
+                  className: "side-panel content-center"
+                }),
+            JsxRuntime.jsxs("div", {
+                  children: [
+                    JsxRuntime.jsx(Grid.make, {
+                          board: board,
+                          selectedCells: selectedCells,
+                          foundCells: match$6[0],
+                          spangramCells: match$7[0],
+                          onCellClick: handleCellClick
+                        }),
+                    JsxRuntime.jsxs("div", {
+                          children: [
+                            JsxRuntime.jsx(Button.make, {
+                                  type_: "clear",
+                                  onClick: (function (param) {
+                                      clearWord();
+                                    }),
+                                  children: "Clear"
+                                }),
+                            JsxRuntime.jsx(Button.make, {
+                                  type_: "submit",
+                                  onClick: (function (param) {
+                                      handleSubmit();
+                                    }),
+                                  children: "Submit"
+                                })
+                          ],
+                          className: "mt-4 flex gap-2 justify-center"
+                        })
+                  ],
+                  className: "grid-w-controls"
+                }),
+            JsxRuntime.jsx("div", {
+                  children: JsxRuntime.jsx(Words.make, {
+                        foundWords: match$4[0]
+                      }),
+                  className: "side-panel"
+                })
+          ]
+        });
+  }
   return JsxRuntime.jsxs("div", {
               children: [
                 JsxRuntime.jsx("h1", {
                       children: pageTitle,
                       className: "text-2xl font-bold mb-4"
                     }),
+                mode === "playground" ? JsxRuntime.jsxs("div", {
+                        children: [
+                          JsxRuntime.jsxs("div", {
+                                children: [
+                                  JsxRuntime.jsx("label", {
+                                        children: "Theme",
+                                        className: "block mb-2"
+                                      }),
+                                  JsxRuntime.jsx("input", {
+                                        className: "border p-2 w-full",
+                                        placeholder: "Enter Theme",
+                                        type: "text",
+                                        value: playgroundTheme,
+                                        onChange: handleThemeChange
+                                      })
+                                ]
+                              }),
+                          JsxRuntime.jsxs("div", {
+                                children: [
+                                  JsxRuntime.jsx("label", {
+                                        children: "Spangram",
+                                        className: "block mb-2"
+                                      }),
+                                  JsxRuntime.jsx("input", {
+                                        className: "border p-2 w-full",
+                                        placeholder: "Enter Spangram",
+                                        type: "text",
+                                        value: playgroundSpangram,
+                                        onChange: handleSpangramChange
+                                      })
+                                ]
+                              }),
+                          JsxRuntime.jsx("div", {
+                                children: JsxRuntime.jsx(Button.make, {
+                                      type_: "submit",
+                                      onClick: (function (param) {
+                                          handlePlaygroundInitialize();
+                                        }),
+                                      children: "Initialize Game"
+                                    }),
+                                className: "flex items-end"
+                              })
+                        ],
+                        className: "playground-setup flex justify-center gap-4 mb-4"
+                      }) : null,
                 JsxRuntime.jsx("p", {
                       children: currentWord,
                       className: "text-center h-[30px]"
                     }),
-                JsxRuntime.jsxs("div", {
-                      children: [
-                        JsxRuntime.jsx("div", {
-                              children: JsxRuntime.jsx(Theme.make, {
-                                    theme: match$1[0]
-                                  }),
-                              className: "side-panel content-center"
-                            }),
-                        JsxRuntime.jsxs("div", {
-                              children: [
-                                JsxRuntime.jsx(Grid.make, {
-                                      board: board,
-                                      selectedCells: selectedCells,
-                                      foundCells: match$6[0],
-                                      spangramCells: match$7[0],
-                                      onCellClick: handleCellClick
-                                    }),
-                                JsxRuntime.jsxs("div", {
-                                      children: [
-                                        JsxRuntime.jsx(Button.make, {
-                                              type_: "clear",
-                                              onClick: (function (param) {
-                                                  clearWord();
-                                                }),
-                                              children: "Clear"
-                                            }),
-                                        JsxRuntime.jsx(Button.make, {
-                                              type_: "submit",
-                                              onClick: (function (param) {
-                                                  handleSubmit();
-                                                }),
-                                              children: "Submit"
-                                            })
-                                      ],
-                                      className: "mt-4 flex gap-2 justify-center"
-                                    })
-                              ],
-                              className: "grid-w-controls"
-                            }),
-                        JsxRuntime.jsx("div", {
-                              children: JsxRuntime.jsx(Words.make, {
-                                    foundWords: match$4[0]
-                                  }),
-                              className: "side-panel"
-                            })
-                      ],
+                JsxRuntime.jsx("div", {
+                      children: tmp,
                       className: "game-content"
                     })
               ],
