@@ -4,6 +4,7 @@ import * as Grid from "../components/Grid.res.mjs";
 import * as Theme from "../components/Theme.res.mjs";
 import * as Words from "../components/Words.res.mjs";
 import * as React from "react";
+import * as Button from "../components/Button.res.mjs";
 import * as Js_dict from "rescript/lib/es6/js_dict.js";
 import * as Js_json from "rescript/lib/es6/js_json.js";
 import * as Caml_obj from "rescript/lib/es6/caml_obj.js";
@@ -269,19 +270,19 @@ function Static(props) {
                                     }),
                                 JsxRuntime.jsxs("div", {
                                       children: [
-                                        JsxRuntime.jsx("button", {
-                                              children: "Submit",
-                                              className: "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600",
-                                              onClick: (function (param) {
-                                                  handleSubmit();
-                                                })
-                                            }),
-                                        JsxRuntime.jsx("button", {
-                                              children: "Clear",
-                                              className: "px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600",
+                                        JsxRuntime.jsx(Button.make, {
+                                              type_: "clear",
                                               onClick: (function (param) {
                                                   clearWord();
-                                                })
+                                                }),
+                                              children: "Clear"
+                                            }),
+                                        JsxRuntime.jsx(Button.make, {
+                                              type_: "submit",
+                                              onClick: (function (param) {
+                                                  handleSubmit();
+                                                }),
+                                              children: "Submit"
                                             })
                                       ],
                                       className: "mt-4 flex gap-2 justify-center"

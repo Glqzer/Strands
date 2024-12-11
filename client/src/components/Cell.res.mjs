@@ -11,7 +11,7 @@ function Cell(props) {
               children: props.letter,
               className: "w-12 h-12 border border-gray-300 flex items-center justify-center font-bold rounded-md \r\n      " + (
                 isFound ? (
-                    isSpangram ? "bg-yellow-300 cursor-default" : "bg-green-300 cursor-default"
+                    isSpangram ? "bg-amber-300 cursor-default" : "bg-emerald-300 cursor-default"
                   ) : "cursor-pointer"
               ) + " \r\n      " + (
                 props.isSelected ? "bg-gray-200" : ""
