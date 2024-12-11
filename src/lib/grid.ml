@@ -261,7 +261,7 @@ let check_no_orphans grid rows cols =
                 let next_directions = if List.is_empty valid_directions then all_directions else valid_directions in
                 let direction = List.random_element_exn next_directions in
                 let new_coord = Coord.move coord direction in
-                attempt_place_word updated_grid new_coord rest rows cols next_directions retries (((coord.x, coord.y) : Position.t) :: placed_positions)
+                attempt_place_word updated_grid new_coord rest rows cols next_directions retries (((coord.y, coord.x) : Position.t) :: placed_positions)
               else
                 (* If placing the letter creates orphan regions, try a different direction *)
                 let fallback_coord = Coord.move coord (List.random_element_exn all_directions) in
@@ -290,7 +290,7 @@ let check_no_orphans grid rows cols =
               let next_directions = if List.is_empty valid_directions then all_directions else valid_directions in
               let direction = List.random_element_exn next_directions in
               let new_coord = Coord.move coord direction in
-              attempt_place_word_no_orphans updated_grid new_coord rest rows cols next_directions retries (((coord.x, coord.y) : Position.t) :: placed_positions)
+              attempt_place_word_no_orphans updated_grid new_coord rest rows cols next_directions retries (((coord.y, coord.x) : Position.t) :: placed_positions)
             | Error _ -> (grid, false, List.rev placed_positions)
           else          
             let fallback_coord = Coord.move coord (List.random_element_exn all_directions) in
@@ -363,8 +363,8 @@ let check_no_orphans grid rows cols =
     let place_all_words words grid (word_coords : WordCoords.t) = 
       let rows = List.length grid in
       let cols = List.length (List.hd_exn grid) in
-      let (left, right) = split_at 6 words in
-      let (right, final) = split_at 6 right in
+      let (left, right) = split_at 8 words in
+      let (right, final) = split_at 8 right in
       let (grid, word_coords) = place_words_from_list_vertical_search grid left rows cols word_coords in
       let (grid, word_coords) = place_words_from_list_horizontal_search grid right rows cols word_coords in
       place_final_words grid final rows cols word_coords
@@ -406,7 +406,7 @@ let check_no_orphans grid rows cols =
          "IIIIIII"; "JJJJ"; "KKKKK"; "LLLLLLL"; "MMMM"; "NNNNN"; "OOOOOO"; "PPPPPPP";
          "QQQQ"; "RRRRR"; "SSSSS"]
         grid_with_spangram
-        10
+        30
         WordCoords.empty
     in
   
