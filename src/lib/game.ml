@@ -20,16 +20,29 @@ module Game = struct
       | _ -> failwith "Could not parse spangram from file"
     in
     
-    let (board, word_coords) = 
-      Grid.create_empty_grid 8 6 
-      |> Grid.place_spangram spangram in
-    
-    
+    let empty_grid = Grid.create_empty_grid 8 6 in
+    let (spangram_board, spangram_coords) = 
+       Grid.place_spangram spangram empty_grid
+    in
+  
+    let (board, word_coords) =
+      Grid.retry_place_all_words
+        ["1111"; "2222"; "33333"; "44444"; "555555"; "6666"; "77777"; "88888"; "999999";
+         "AAAA"; "BBBBB"; "CCCCCC"; "DDDDDD"; "EEEEEEEE"; "FFFF"; "GGGGG"; "HHHHHH";
+         "IIIIIII"; "JJJJ"; "KKKKK"; "LLLLLLL"; "MMMM"; "NNNNN"; "OOOOOO"; "PPPPPPP";
+         "QQQQ"; "RRRRR"; "SSSSS"]
+        spangram_board
+        30
+        spangram_coords
+    in
+  
     { initial_state with 
       board; 
-      word_coords;
-      spangram;
+      word_coords; 
+      spangram; 
     }
+  
+  
 
   let check_word word coords state =
     check_result word coords state.word_coords
