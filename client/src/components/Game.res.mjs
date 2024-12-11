@@ -62,20 +62,43 @@ function Game(props) {
   var setErrorMessage = match$8[1];
   var errorMessage = match$8[0];
   var match$9 = React.useState(function () {
-        return "";
+        return 0;
       });
-  var setPlaygroundTheme = match$9[1];
-  var playgroundTheme = match$9[0];
+  var setTotalFoundChars = match$9[1];
+  var totalFoundChars = match$9[0];
   var match$10 = React.useState(function () {
-        return "";
-      });
-  var setPlaygroundSpangram = match$10[1];
-  var playgroundSpangram = match$10[0];
-  var match$11 = React.useState(function () {
         return false;
       });
-  var setIsPlaygroundInitialized = match$11[1];
-  var isPlaygroundInitialized = match$11[0];
+  var setShowWinScreen = match$10[1];
+  var closeWinScreen = function (_event) {
+    setShowWinScreen(function (param) {
+          return false;
+        });
+  };
+  React.useEffect((function () {
+          if (totalFoundChars === 48) {
+            console.log("added");
+            setShowWinScreen(function (param) {
+                  return true;
+                });
+          }
+          
+        }), [totalFoundChars]);
+  var match$11 = React.useState(function () {
+        return "";
+      });
+  var setPlaygroundTheme = match$11[1];
+  var playgroundTheme = match$11[0];
+  var match$12 = React.useState(function () {
+        return "";
+      });
+  var setPlaygroundSpangram = match$12[1];
+  var playgroundSpangram = match$12[0];
+  var match$13 = React.useState(function () {
+        return false;
+      });
+  var setIsPlaygroundInitialized = match$13[1];
+  var isPlaygroundInitialized = match$13[0];
   var gameInitialization = function (json) {
     var boardResult = Belt_Option.map(Belt_Option.flatMap(Belt_Option.flatMap(Js_json.decodeObject(json), (function (obj) {
                     return Js_dict.get(obj, "board");
@@ -268,6 +291,9 @@ function Game(props) {
                               selectedCells
                             ]);
                 });
+            setTotalFoundChars(function (prev) {
+                  return prev + currentWord.length | 0;
+                });
             clearWord();
           } else {
             exit = 1;
@@ -285,6 +311,9 @@ function Game(props) {
                               prev,
                               selectedCells
                             ]);
+                });
+            setTotalFoundChars(function (prev) {
+                  return prev + currentWord.length | 0;
                 });
             clearWord();
           }
@@ -407,7 +436,26 @@ function Game(props) {
                         foundWords: match$4[0]
                       }),
                   className: "side-panel"
-                })
+                }),
+            match$10[0] ? JsxRuntime.jsx("div", {
+                    children: JsxRuntime.jsxs("div", {
+                          children: [
+                            JsxRuntime.jsx("button", {
+                                  children: "X",
+                                  className: "close-btn",
+                                  onClick: closeWinScreen
+                                }),
+                            JsxRuntime.jsx("h2", {
+                                  children: "You Win!"
+                                }),
+                            JsxRuntime.jsx("p", {
+                                  children: "Congratulations on finding all the words!"
+                                })
+                          ],
+                          className: "win-screen-content"
+                        }),
+                    className: "win-screen"
+                  }) : null
           ]
         });
   }

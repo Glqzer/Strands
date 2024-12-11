@@ -13,8 +13,21 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
   let (foundCells, setFoundCells) = useState(() => list{})
   let (spangramCells, setSpangramCells) = useState(() => list{})
   let (errorMessage, setErrorMessage) = useState(() => "")
+  let (totalFoundChars, setTotalFoundChars) = useState(() => 0);
+  let (showWinScreen, setShowWinScreen) = useState(() => false);
 
-  
+  let closeWinScreen = (_event: JsxEventU.Mouse.t) => {
+    setShowWinScreen(_ => false);
+  };
+
+  useEffect1(() => {
+    if (totalFoundChars === 48) {
+      Js.Console.log("added");
+      setShowWinScreen(_ => true);
+    }
+    None;
+  }, [totalFoundChars]);
+
   // playground mode states
   let (playgroundTheme, setPlaygroundTheme) = useState(() => "")
   let (playgroundSpangram, setPlaygroundSpangram) = useState(() => "")
@@ -198,11 +211,13 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
           setFoundWords(prev => list{currentWord, ...prev});
           setFoundCells(prev => list{...prev, ...selectedCells});
           setSpangramCells(prev => list{...prev, ...selectedCells});
+          setTotalFoundChars(prev => prev + Js.String.length(currentWord));
           clearWord();
         | _ => 
           Js.Console.log("Valid word!");
           setFoundWords(prev => list{currentWord, ...prev});
           setFoundCells(prev => list{...prev, ...selectedCells});
+          setTotalFoundChars(prev => prev + Js.String.length(currentWord));
           clearWord();
         };
 
@@ -388,6 +403,17 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
           <div className="side-panel">
             <Words foundWords={foundWords} />
           </div>
+          {showWinScreen ? (
+            <div className="win-screen">
+              <div className="win-screen-content">
+                <button className="close-btn" onClick={closeWinScreen}>
+                  {React.string("X")}
+                </button>
+                <h2>{React.string("You Win!")}</h2>
+                <p>{React.string("Congratulations on finding all the words!")}</p>
+              </div>
+            </div>
+          ) : null}
         </>
       }}
     </div>
