@@ -16,6 +16,9 @@ module WordCoords : sig
 
   (* Find the value for a given letter in the map *)
   val find : string -> t -> Position.t list option
+
+  val print_all_coords : t -> unit
+
 end
 
 (* Module to create a map where the key is a word (string) and the value is a record (0 or 1) *)
@@ -33,6 +36,7 @@ module WordRecord : sig
 
   (* Update the value for a given key in the map *)
   val update : string -> int -> t -> t
+
 end
 
 (* Validate function signature *)
