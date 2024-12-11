@@ -121,10 +121,19 @@ function Game(props) {
     ];
     var letter = getLetterAt(rowIndex, colIndex);
     setSelectedCells(function (prev) {
-          if (prev) {
-            if (lastValidCell !== undefined && isAdjacent(lastValidCell, coordinate)) {
+          if (!prev) {
+            return {
+                    hd: coordinate,
+                    tl: /* [] */0
+                  };
+          }
+          var rest = prev.tl;
+          if (lastValidCell !== undefined) {
+            if (Caml_obj.equal(lastValidCell, coordinate)) {
+              return rest;
+            } else if (isAdjacent(lastValidCell, coordinate) && !Belt_List.has(selectedCells, coordinate, Caml_obj.equal)) {
               if (Caml_obj.equal(prev.hd, coordinate)) {
-                return prev.tl;
+                return rest;
               } else {
                 return {
                         hd: coordinate,
@@ -135,32 +144,46 @@ function Game(props) {
               return prev;
             }
           } else {
-            return {
-                    hd: coordinate,
-                    tl: /* [] */0
-                  };
+            return prev;
           }
         });
-    var exit = 0;
-    if (lastValidCell !== undefined && isAdjacent(lastValidCell, coordinate)) {
-      setCurrentWord(function (prev) {
-            if (Belt_List.has(selectedCells, coordinate, Caml_obj.equal)) {
-              return Js_string.slice(0, prev.length - 1 | 0, prev);
-            } else {
+    if (lastValidCell !== undefined) {
+      if (Caml_obj.equal(lastValidCell, coordinate)) {
+        setCurrentWord(function (prev) {
+              if (Belt_List.has(selectedCells, coordinate, Caml_obj.equal)) {
+                return Js_string.slice(0, prev.length - 1 | 0, prev);
+              } else {
+                return prev + letter;
+              }
+            });
+      } else if (isAdjacent(lastValidCell, coordinate) && !Belt_List.has(selectedCells, coordinate, Caml_obj.equal)) {
+        setCurrentWord(function (prev) {
               return prev + letter;
-            }
-          });
+            });
+      } else {
+        setCurrentWord(function (prev) {
+              return prev;
+            });
+      }
     } else {
-      exit = 1;
-    }
-    if (exit === 1) {
       setCurrentWord(function (prev) {
             return prev + letter;
           });
     }
+    var secondToLast = Belt_List.get(selectedCells, 1);
     setLastValidCell(function (prev) {
-          if (prev !== undefined && !isAdjacent(prev, coordinate)) {
-            return prev;
+          if (prev !== undefined) {
+            if (Caml_obj.equal(prev, coordinate)) {
+              if (secondToLast !== undefined) {
+                return secondToLast;
+              } else {
+                return ;
+              }
+            } else if (isAdjacent(prev, coordinate) && !Belt_List.has(selectedCells, coordinate, Caml_obj.equal)) {
+              return coordinate;
+            } else {
+              return prev;
+            }
           } else {
             return coordinate;
           }
