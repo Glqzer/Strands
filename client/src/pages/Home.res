@@ -17,6 +17,11 @@ let make = () => {
               {"Dynamic Example" |> React.string}
           </Button>
         </Link>
+        <Link href="https://docs.google.com/presentation/d/1xT0PUwfyjzmyGQCqzjY8QlT6CK9bhEygvlbUAsKF6L4/edit?usp=sharing">
+          <Button type_="slides">
+              {"Slides" |> React.string}
+          </Button>
+        </Link>
         </div>
     </div>
   </div>

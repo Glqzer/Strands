@@ -6,19 +6,22 @@ function Button(props) {
   var buttonClassName;
   switch (props.type_) {
     case "clear" :
-        buttonClassName = "bg-red-600 hover:bg-red-700 focus:bg-red-700";
+        buttonClassName = "bg-red-600 hover:bg-red-700";
         break;
     case "dynamic" :
-        buttonClassName = "bg-emerald-600 hover:bg-emerald-700 focus:bg-emerald-700";
+        buttonClassName = "bg-emerald-600 hover:bg-emerald-700";
+        break;
+    case "slides" :
+        buttonClassName = "bg-amber-500 hover:bg-amber-600";
         break;
     case "static" :
-        buttonClassName = "bg-cyan-600 hover:bg-cyan-700 focus:bg-cyan-700";
+        buttonClassName = "bg-cyan-600 hover:bg-cyan-700";
         break;
     case "submit" :
-        buttonClassName = "bg-blue-600 hover:bg-blue-700 focus:bg-blue-700";
+        buttonClassName = "bg-blue-600 hover:bg-blue-700";
         break;
     default:
-      buttonClassName = "bg-gray-600 hover:bg-gray-700 focus:bg-gray-700";
+      buttonClassName = "bg-gray-600 hover:bg-gray-700";
   }
   return JsxRuntime.jsx("button", {
               children: props.children,

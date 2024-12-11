@@ -30,6 +30,13 @@ function Home(props) {
                                           children: "Dynamic Example"
                                         }),
                                     href: "/dynamic"
+                                  }),
+                              JsxRuntime.jsx(ReactRouterDOM$RescriptReactRouterDom.Link.make, {
+                                    children: JsxRuntime.jsx(Button.make, {
+                                          type_: "slides",
+                                          children: "Slides"
+                                        }),
+                                    href: "https://docs.google.com/presentation/d/1xT0PUwfyjzmyGQCqzjY8QlT6CK9bhEygvlbUAsKF6L4/edit?usp=sharing"
                                   })
                             ],
                             className: "flex mt-8 gap-3 pb-20"
