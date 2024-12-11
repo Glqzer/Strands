@@ -4,7 +4,7 @@
 
 
 h1 {
-    @apply font-bold text-center text-2xl
+    @apply font-bold text-center text-3xl
 }
 
 nav {
@@ -12,6 +12,13 @@ nav {
 }
 
 .content {
-    @apply h-screen bg-stone-50 items-center justify-center pt-20
+    @apply bg-stone-50 items-center justify-center pt-20
 }
 
+.game-content {
+    @apply flex justify-center gap-10 min-w-[500px]
+}
+
+.side-panel {
+    @apply w-full
+}

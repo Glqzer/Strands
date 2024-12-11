@@ -188,7 +188,7 @@ let make = () => {
       });
   };
 
-  <div className="p-4 content">
+  <div className="content">
     <h1 className="text-2xl font-bold mb-4">{React.string("FP Strands - Dynamic")}</h1>
     <p className="text-center h-[30px]">{string(currentWord)}</p>
     
@@ -214,16 +214,6 @@ let make = () => {
         {React.string("Clear")}
       </button>
     </div>
-    <div className="mt-4">
-      <h2 className="text-xl font-semibold">{React.string("Found words:")}</h2>
-      <ul>
-        {foundWords
-        ->Belt.List.toArray
-        ->Belt.Array.map(word => 
-          <li key={word}>{React.string(word)}</li>
-        )
-        ->React.array}
-      </ul>
-    </div>
+    <Words foundWords={foundWords} />
   </div>
 }

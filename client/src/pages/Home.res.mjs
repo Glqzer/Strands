@@ -9,7 +9,8 @@ function Home(props) {
               children: JsxRuntime.jsxs("div", {
                     children: [
                       JsxRuntime.jsx("h1", {
-                            children: "Welcome to FP Strands!"
+                            children: "Welcome to FP Strands!",
+                            className: "mb-2"
                           }),
                       JsxRuntime.jsx("p", {
                             children: "A project by Mia Choi, Emma Levitsky, Tam Nguyen, and David Wang."
@@ -31,12 +32,12 @@ function Home(props) {
                                     href: "/dynamic"
                                   })
                             ],
-                            className: "flex mt-5 gap-3"
+                            className: "flex mt-8 gap-3 pb-20"
                           })
                     ],
-                    className: "items-center justify-center flex flex-col mb-10 h-full"
+                    className: "items-center justify-center flex flex-col h-full"
                   }),
-              className: "content"
+              className: "content h-screen"
             });
 }
 
