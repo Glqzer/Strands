@@ -45,6 +45,16 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
       ->Belt.Option.flatMap(obj => obj->Js.Dict.get("theme"))
       ->Belt.Option.flatMap(Js.Json.decodeString);
 
+    switch boardResult {
+      | Some(initialBoard) => setBoard(_ => initialBoard)
+      | None => Js.Console.error("Failed to initialize board")
+      };
+
+  switch themeResult {
+      | Some(initialTheme) => setTheme(_ => initialTheme)
+      | None => Js.Console.error("Failed to retrieve theme")
+      };
+
     resolve()
   };
 
