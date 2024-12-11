@@ -3,7 +3,7 @@ open Promise
 open Webapi
 
 @react.component
-let make = (~mode: [#static | #dynamic]) => {
+let make = (~mode: [#static | #dynamic | #playground]) => {
   let (board, setBoard) = useState(() => []) 
   let (theme, setTheme) = useState(() => "")
   let (selectedCells, setSelectedCells) = useState(() => list{}) 
@@ -12,49 +12,54 @@ let make = (~mode: [#static | #dynamic]) => {
   let (currentWord, setCurrentWord) = useState(() => "")
   let (foundCells, setFoundCells) = useState(() => list{})
   let (spangramCells, setSpangramCells) = useState(() => list{})
+  
+  // playground mode states
+  let (playgroundTheme, setPlaygroundTheme) = useState(() => "")
+  let (playgroundSpangram, setPlaygroundSpangram) = useState(() => "")
+  let (isPlaygroundInitialized, setIsPlaygroundInitialized) = useState(() => false)
+
+  let gameInitialization = json => {
+  let boardResult = 
+    json
+    ->Js.Json.decodeObject
+    ->Belt.Option.flatMap(obj => obj->Js.Dict.get("board"))
+    ->Belt.Option.flatMap(Js.Json.decodeArray)
+    ->Belt.Option.map(rows => 
+      rows->Array.map(row => 
+        switch Js.Json.decodeArray(row) {
+        | Some(cells) => 
+          cells->Array.map(cell => 
+            cell->Js.Json.decodeString->Belt.Option.getWithDefault("")
+          )
+        | None => []
+        }
+      )
+    );
+
+  let themeResult = 
+    json
+    ->Js.Json.decodeObject
+    ->Belt.Option.flatMap(obj => obj->Js.Dict.get("theme"))
+    ->Belt.Option.flatMap(Js.Json.decodeString);
+  
+  switch boardResult {
+  | Some(initialBoard) => setBoard(_ => initialBoard)
+  | None => Js.Console.error("Failed to initialize board")
+  };
+
+  switch themeResult {
+  | Some(initialTheme) => setTheme(_ => initialTheme)
+  | None => Js.Console.error("Failed to retrieve theme")
+  };
+
+  resolve()
+};
 
   useEffect0(() => {
-    let gameInitialization = json => {
-      let boardResult = 
-        json
-        ->Js.Json.decodeObject
-        ->Belt.Option.flatMap(obj => obj->Js.Dict.get("board"))
-        ->Belt.Option.flatMap(Js.Json.decodeArray)
-        ->Belt.Option.map(rows => 
-          rows->Array.map(row => 
-            switch Js.Json.decodeArray(row) {
-            | Some(cells) => 
-              cells->Array.map(cell => 
-                cell->Js.Json.decodeString->Belt.Option.getWithDefault("")
-              )
-            | None => []
-            }
-          )
-        );
-
-      let themeResult = 
-        json
-        ->Js.Json.decodeObject
-        ->Belt.Option.flatMap(obj => obj->Js.Dict.get("theme"))
-        ->Belt.Option.flatMap(Js.Json.decodeString);
-      
-
-      switch boardResult {
-      | Some(initialBoard) => setBoard(_ => initialBoard)
-      | None => Js.Console.error("Failed to initialize board")
-      };
-
-      switch themeResult {
-      | Some(initialTheme) => setTheme(_ => initialTheme)
-      | None => Js.Console.error("Failed to retrieve theme")
-      };
-
-      resolve()
-    };
-
     let modeString = switch mode {
     | #static => "static"
     | #dynamic => "dynamic"
+    | #playground => "playground"
     };
 
     let _ = Fetch.fetch(`http://localhost:8080/initialize?mode=${modeString}`)
@@ -182,6 +187,7 @@ let make = (~mode: [#static | #dynamic]) => {
     let modeString = switch mode {
     | #static => "static"
     | #dynamic => "dynamic"
+    | #playground => "playground"
     };
 
     let _ = 
@@ -210,47 +216,141 @@ let make = (~mode: [#static | #dynamic]) => {
       });
   };
 
+  // playground initialization
+  let handlePlaygroundInitialize = () => {
+
+    let playgroundData = {
+      "theme": playgroundTheme,
+      "spangram": playgroundSpangram
+    };
+
+    let _ = 
+      Fetch.fetchWithInit(`http://localhost:8080/initialize-playground`, 
+        Fetch.RequestInit.make(
+          ~method_=Post, 
+          ~body=Fetch.BodyInit.make(
+            Js.Json.stringifyAny(playgroundData)->Belt.Option.getWithDefault("{}")
+          ), 
+          ~headers=Fetch.HeadersInit.make({
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Methods":"POST",
+            "Access-Control-Allow-Origin": "http://127.0.0.1:5173"
+          }),
+          ()
+        )
+      )
+      ->then(Fetch.Response.json)
+      ->then(gameInitialization)
+      ->then(_ => {
+        setIsPlaygroundInitialized(_ => true)
+        resolve()
+      })
+      ->catch(err => {
+        Js.Console.error2("Error initializing playground", err)
+        resolve()
+      });
+  };
+
   let pageTitle = switch mode {
   | #static => "FP Strands - Static"
   | #dynamic => "FP Strands - Dynamic"
+  | #playground => "FP Strands - Playground"
   };
 
-  let themeText = theme
+  let handleThemeChange = event => {
+    let value = ReactEvent.Form.currentTarget(event)["value"]
+    setPlaygroundTheme(_ => value)
+  }
+
+  let handleSpangramChange = event => {
+    let value = ReactEvent.Form.currentTarget(event)["value"]
+    setPlaygroundSpangram(_ => value)
+  }
+
+  let themeText = mode == #playground && !isPlaygroundInitialized 
+    ? playgroundTheme 
+    : theme;
 
   <div className="content">
     <h1 className="text-2xl font-bold mb-4">{React.string(pageTitle)}</h1>
-    <p className="text-center h-[30px]">{string(currentWord)}</p>
-    <div className="game-content">
-      <div className="side-panel content-center">
-        <Theme theme={themeText}/>
-      </div>
-      <div className="grid-w-controls">
-        <Grid 
-          board={board}
-          selectedCells={selectedCells}
-          foundCells={foundCells}
-          spangramCells={spangramCells}
-          onCellClick={handleCellClick}
-        />
-
-        <div className="mt-4 flex gap-2 justify-center">
-          <Button 
-            type_="clear"
-            onClick={_ => clearWord()}
-          >
-            {React.string("Clear")}
-          </Button>
+    
+    {switch mode {
+    | #playground => 
+      <div className="playground-setup flex justify-center gap-4 mb-4">
+        <div>
+          <label className="block mb-2">{React.string("Theme")}</label>
+          <input 
+            type_="text"
+            placeholder="Enter Theme"
+            value={playgroundTheme}
+            onChange={handleThemeChange}
+            className="border p-2 w-full"
+          />
+        </div>
+        <div>
+          <label className="block mb-2">{React.string("Spangram")}</label>
+          <input 
+            type_="text"
+            placeholder="Enter Spangram"
+            value={playgroundSpangram}
+            onChange={handleSpangramChange}
+            className="border p-2 w-full"
+          />
+        </div>
+        <div className="flex items-end">
           <Button 
             type_="submit"
-            onClick={_ => handleSubmit()}
+            onClick={_ => handlePlaygroundInitialize()}
           >
-            {React.string("Submit")}
+            {React.string("Initialize Game")}
           </Button>
         </div>
       </div>
-      <div className="side-panel">
-        <Words foundWords={foundWords} />
-      </div>
+    | #static 
+    | #dynamic => React.null
+    }}
+
+    <p className="text-center h-[30px]">{React.string(currentWord)}</p>
+
+    <div className="game-content">
+      {switch mode {
+      | #playground when !isPlaygroundInitialized => React.null
+      | #playground 
+      | #static 
+      | #dynamic => 
+        <> 
+          <div className="side-panel content-center">
+            <Theme theme={themeText}/>
+          </div>
+          <div className="grid-w-controls">
+            <Grid 
+              board={board}
+              selectedCells={selectedCells}
+              foundCells={foundCells}
+              spangramCells={spangramCells}
+              onCellClick={handleCellClick}
+            />
+
+            <div className="mt-4 flex gap-2 justify-center">
+              <Button 
+                type_="clear"
+                onClick={_ => clearWord()}
+              >
+                {React.string("Clear")}
+              </Button>
+              <Button 
+                type_="submit"
+                onClick={_ => handleSubmit()}
+              >
+                {React.string("Submit")}
+              </Button>
+            </div>
+          </div>
+          <div className="side-panel">
+            <Words foundWords={foundWords} />
+          </div>
+        </>
+      }}
     </div>
   </div>
 }

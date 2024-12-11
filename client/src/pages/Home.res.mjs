@@ -33,6 +33,18 @@ function Home(props) {
                                   }),
                               JsxRuntime.jsx(ReactRouterDOM$RescriptReactRouterDom.Link.make, {
                                     children: JsxRuntime.jsx(Button.make, {
+                                          type_: "playground",
+                                          children: "Playground (WIP)"
+                                        }),
+                                    href: "/playground"
+                                  })
+                            ],
+                            className: "flex mt-8 gap-3 pb-3"
+                          }),
+                      JsxRuntime.jsxs("div", {
+                            children: [
+                              JsxRuntime.jsx(ReactRouterDOM$RescriptReactRouterDom.Link.make, {
+                                    children: JsxRuntime.jsx(Button.make, {
                                           type_: "slides",
                                           children: "Slides"
                                         }),
@@ -46,7 +58,7 @@ function Home(props) {
                                     href: "https://github.com/Glqzer/Strands"
                                   })
                             ],
-                            className: "flex mt-8 gap-3 pb-20"
+                            className: "flex mt-2 gap-3"
                           })
                     ],
                     className: "items-center justify-center flex flex-col h-full"

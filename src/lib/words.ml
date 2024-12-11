@@ -15,7 +15,7 @@ module WordCoords = struct
 
   (* Create an empty map *)
   let empty = M.empty
-  let bindings map = M.bindings map  (* Expose bindings explicitly *)
+  let bindings map = M.bindings map 
 
 
   (* Add a word-coordinate list pair to the map *)

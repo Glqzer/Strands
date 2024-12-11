@@ -3,6 +3,7 @@
 import * as Home from "./pages/Home.res.mjs";
 import * as Static from "./pages/Static.res.mjs";
 import * as Dynamic from "./pages/Dynamic.res.mjs";
+import * as Playground from "./pages/Playground.res.mjs";
 import * as ReactRouterDom from "react-router-dom";
 import * as JsxRuntime from "react/jsx-runtime";
 import * as ReactRouterDOM$RescriptReactRouterDom from "rescript-react-router-dom/src/ReactRouterDOM.res.mjs";
@@ -24,6 +25,10 @@ function App(props) {
                               JsxRuntime.jsx(ReactRouterDOM$RescriptReactRouterDom.Link.make, {
                                     children: "Dynamic",
                                     href: "/dynamic"
+                                  }),
+                              JsxRuntime.jsx(ReactRouterDOM$RescriptReactRouterDom.Link.make, {
+                                    children: "Playground",
+                                    href: "/playground"
                                   })
                             ]
                           }),
@@ -40,6 +45,10 @@ function App(props) {
                               JsxRuntime.jsx(ReactRouterDom.Route, {
                                     path: "/dynamic",
                                     element: JsxRuntime.jsx(Dynamic.make, {})
+                                  }),
+                              JsxRuntime.jsx(ReactRouterDom.Route, {
+                                    path: "/playground",
+                                    element: JsxRuntime.jsx(Playground.make, {})
                                   })
                             ]
                           })
