@@ -12,6 +12,9 @@ function Button(props) {
     case "dynamic" :
         buttonClassName = "bg-emerald-600 hover:bg-emerald-700";
         break;
+    case "github" :
+        buttonClassName = "bg-slate-800 hover:bg-slate-900";
+        break;
     case "slides" :
         buttonClassName = "bg-amber-500 hover:bg-amber-600";
         break;

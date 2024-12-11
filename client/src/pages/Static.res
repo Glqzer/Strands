@@ -192,7 +192,7 @@ let make = () => {
     <p className="text-center h-[30px]">{string(currentWord)}</p>
     <div className="game-content">
       <div className="side-panel content-center">
-        <Theme theme="Let's strand"/>
+        <Theme theme="let('s) strand"/>
       </div>
       <div className="grid-w-controls">
         <Grid 

@@ -22,6 +22,11 @@ let make = () => {
               {"Slides" |> React.string}
           </Button>
         </Link>
+        <Link href="https://github.com/Glqzer/Strands">
+          <Button type_="github">
+              {"Github" |> React.string}
+          </Button>
+        </Link>
         </div>
     </div>
   </div>
