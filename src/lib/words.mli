@@ -16,6 +16,8 @@ module WordCoords : sig
 
   (* Find the value for a given letter in the map *)
   val find : string -> t -> Position.t list option
+
+  val bindings : t -> (string * Position.t list) list
 end
 
 (* Module to create a map where the key is a word (string) and the value is a record (0 or 1) *)

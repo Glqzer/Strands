@@ -243,7 +243,8 @@ function Game(props) {
       }
       return Promise.resolve();
     };
-    Core__Promise.$$catch(fetch("http://localhost:8080/validate", Webapi__Fetch.RequestInit.make("Post", {
+    var modeString = mode === "dynamic" ? "dynamic" : "static";
+    Core__Promise.$$catch(fetch("http://localhost:8080/validate?mode=" + modeString, Webapi__Fetch.RequestInit.make("Post", {
                       "Content-Type": "application/json",
                       "Access-Control-Allow-Methods": "POST",
                       "Access-Control-Allow-Origin": "http://127.0.0.1:5173"

@@ -179,8 +179,13 @@ let make = (~mode: [#static | #dynamic]) => {
       resolve()
     };
 
+    let modeString = switch mode {
+    | #static => "static"
+    | #dynamic => "dynamic"
+    };
+
     let _ = 
-      Fetch.fetchWithInit("http://localhost:8080/validate", 
+      Fetch.fetchWithInit(`http://localhost:8080/validate?mode=${modeString}`, 
         Fetch.RequestInit.make(
           ~method_=Post, 
           ~body=Fetch.BodyInit.make(

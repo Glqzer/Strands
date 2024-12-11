@@ -8,11 +8,15 @@ module WordCoords = struct
   (* Create a map with a string key and (int * int) value using Map.Make *)
   module M = Map.Make(String)
 
+  [@@deriving bindings]
+
   (* The map type is now (int * int) (coordinates) M.t *)
   type t = Position.t list M.t
 
   (* Create an empty map *)
   let empty = M.empty
+  let bindings map = M.bindings map  (* Expose bindings explicitly *)
+
 
   (* Add a letter-coordinate pair to the map *)
   let add word coord map = M.add word coord map

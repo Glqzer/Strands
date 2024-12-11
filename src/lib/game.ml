@@ -20,15 +20,14 @@ module Game = struct
       | _ -> failwith "Could not parse spangram from file"
     in
     
-    let board = 
+    let (board, word_coords) = 
       Grid.create_empty_grid 8 6 
-      |> Grid.place_spangram spangram |> fst
-    in
+      |> Grid.place_spangram spangram in
     
-    (* TO-DO get word coords *)
     
     { initial_state with 
       board; 
+      word_coords;
       spangram;
     }
 
