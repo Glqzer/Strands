@@ -157,8 +157,8 @@ let check_no_orphans grid rows cols =
                | Some direction ->
                  let new_coord = Coord.move coord direction in
   
-                 (* prepend the current coordinate in reversed order to spangram_coords *)
-                 let updated_spangram_coords = (coord.x, coord.y) :: spangram_coords in
+                 (* collects all of the spangram coords*)
+                 let updated_spangram_coords = (coord.y, coord.x) :: spangram_coords in
   
                  (* TODO: clean this up a bit but due to errors i had to convert Coord.t to Position.t and update the WordCoords map from there  *)
                  let updated_map =
@@ -168,7 +168,7 @@ let check_no_orphans grid rows cols =
                      | None -> []  (* if the word is not found in the map, start with an empty list *)
                    in
                    let position = (coord.y, coord.x) in  (* converting Coord.t to Position.t *)
-                    WordCoords.add word (position :: existing_coords) map  (* IMPORTANT FOR FRONTEND - add the new position to the list *)
+                    WordCoords.add word (existing_coords @ [position]) map  (* IMPORTANT FOR FRONTEND - add the new position to the list *)
                  in
   
                  (* recursively place the next letter with the updated map *)
@@ -413,7 +413,7 @@ let check_no_orphans grid rows cols =
     Printf.printf "Spangram Placement:\n";
     Grid.print_grid grid_with_spangram;
   
-    Printf.printf "Spangram Coordinates (Reversed and (y, x)):\n";
+    Printf.printf "Spangram Coordinates (y, x)):\n";
     WordCoords.print_all_coords spangram_coords;
   
     Printf.printf "Word Placement:\n";
