@@ -96,7 +96,9 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
       | list{} => list{coordinate}
       | list{head, ...rest} => 
         switch lastValidCell {
-        | Some(lastValid) when isAdjacent(lastValid, coordinate) =>
+        | Some(lastValid) when lastValid == coordinate =>
+          rest
+        | Some(lastValid) when isAdjacent(lastValid, coordinate) && !(selectedCells->Belt.List.has(coordinate, (a, b) => a == b)) =>
           head == coordinate ? rest : list{coordinate, ...prev}
         | _ => prev
         }
@@ -104,20 +106,32 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
     });
 
     switch lastValidCell {
-    | Some(lastValid) when isAdjacent(lastValid, coordinate) =>
+    | Some(lastValid) when lastValid == coordinate =>
       setCurrentWord(prev => 
         selectedCells->Belt.List.has(coordinate, (a, b) => a == b)
           ? Js.String.slice(prev, ~from=0, ~to_=Js.String.length(prev) - 1)
           : prev ++ letter
       )
+    | Some(lastValid) when isAdjacent(lastValid, coordinate) && !(selectedCells->Belt.List.has(coordinate, (a, b) => a == b)) =>
+      setCurrentWord(prev => prev ++ letter)
+    | Some(lastValid) =>
+      setCurrentWord(prev => prev)
     | _ => 
       setCurrentWord(prev => prev ++ letter)
     };
 
+    let secondToLast = selectedCells
+      ->Belt.List.get(1);
+
     setLastValidCell(prev => 
       switch prev {
       | None => Some(coordinate)
-      | Some(lastValid) when isAdjacent(lastValid, coordinate) => 
+      | Some(lastValid) when lastValid == coordinate =>
+        switch secondToLast {
+        | None => None
+        | Some(validCell) => Some(validCell)
+        }
+      | Some(lastValid) when isAdjacent(lastValid, coordinate) && !(selectedCells->Belt.List.has(coordinate, (a, b) => a == b)) => 
         Some(coordinate)
       | _ => prev
       }

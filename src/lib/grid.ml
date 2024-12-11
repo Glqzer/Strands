@@ -338,7 +338,7 @@ let check_no_orphans grid rows cols =
       match words with
       | [] -> (grid, word_coords)
       | word :: rest ->
-        match find_next_placement_horizontal grid rows cols with
+        match find_next_placement_vertical grid rows cols with
         | None -> (grid, word_coords)
         | Some coord ->
           let (letters : char list) = String.to_list word in
@@ -406,7 +406,7 @@ let check_no_orphans grid rows cols =
          "IIIIIII"; "JJJJ"; "KKKKK"; "LLLLLLL"; "MMMM"; "NNNNN"; "OOOOOO"; "PPPPPPP";
          "QQQQ"; "RRRRR"; "SSSSS"]
         grid_with_spangram
-        30
+        100
         WordCoords.empty
     in
   
