@@ -7,7 +7,6 @@ open Grid
 let static_config : Game.config = {
   board = static_grid;
   word_coords = static_coords;
-  word_records = WordRecord.empty; 
   spangram = "functional";
   theme = "let('s) strand"
 }
@@ -97,7 +96,7 @@ let print_coords (config : Game.config) =
         )
 
 
-(* Mutable reference to store the dynamic game state *)
+(* Mutable reference to store the dynamic game config *)
 let dynamic_config = ref (Some static_config)
 
 let () =
@@ -129,7 +128,6 @@ let () =
             let config : Game.config = { 
               board = Grid.create_empty_grid 8 6; 
               word_coords = WordCoords.empty;
-              word_records = WordRecord.empty; 
               spangram = "";
               theme = "test"
             } in

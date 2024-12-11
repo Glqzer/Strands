@@ -6,7 +6,6 @@ module Game = struct
   type config = {
     board: Grid.t;
     word_coords: WordCoords.t;
-    word_records: WordRecord.t;
     spangram: string;
     theme: string
   }
@@ -43,12 +42,7 @@ module Game = struct
     }
   
   
-
   let check_word word coords state =
     check_result word coords state.word_coords
-
-  let set_found word state =
-    let updated_word_records = Words.set_found word state.word_records in
-    { state with word_records = updated_word_records }
 
 end

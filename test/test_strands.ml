@@ -107,35 +107,6 @@ module Word_tests = struct
     assert_equal (find "world" map) (Some [(3, 3); (4, 4)]);
     assert_equal (find "missing" map) None
 
-  let test_word_record _ =
-    let open WordRecord in
-    let map = 
-      empty 
-      |> add "hello" 0 
-      |> add "world" 1
-    in
-    (* Test find *)
-    assert_equal (find "hello" map) (Some 0);
-    assert_equal (find "world" map) (Some 1);
-    assert_equal (find "missing" map) None;
-    (* Test update *)
-    let updated_map = update "hello" 1 map in
-    assert_equal (find "hello" updated_map) (Some 1)
-
-  let test_update _ =
-    let open WordRecord in
-    let map = empty |> add "hello" 0 |> add "world" 1 in
-
-    (* Test updating an existing word *)
-    let updated_map = update "hello" 2 map in
-    assert_equal (find "hello" updated_map) (Some 2);
-    assert_equal (find "world" updated_map) (Some 1);
-
-    (* Test updating a word not in the map *)
-    let new_map = update "new_word" 3 map in
-    assert_equal (find "new_word" new_map) (Some 3);
-    assert_equal (find "hello" new_map) (Some 0);
-    assert_equal (find "world" new_map) (Some 1)
 
   let test_check_result _ =
     let open WordCoords in
@@ -148,35 +119,6 @@ module Word_tests = struct
     (* Word not in map *)
     assert_bool "Word not in map" (not (check_result "missing" coords map))
 
-  let test_set_found _ =
-    let open WordRecord in
-    let map = empty |> add "hello" 0 |> add "world" 1 in
-
-    (* Test updating an existing word *)
-    let updated_map = set_found "hello" map in
-    assert_equal (find "hello" updated_map) (Some 1);
-    assert_equal (find "world" updated_map) (Some 1);
-
-    (* Test updating a word not in the map *)
-    let map_unchanged = set_found "missing" map in
-    assert_equal (find "missing" map_unchanged) None;
-    assert_equal (find "hello" map_unchanged) (Some 0);
-    assert_equal (find "world" map_unchanged) (Some 1)
-
-  let test_is_found _ =
-    let open WordRecord in
-    let map = empty |> add "hello" 0 |> add "world" 1 in
-    assert_bool "Word not found" (not (is_found "hello" map));
-    assert_bool "Word found" (is_found "world" map);
-    assert_bool "Missing word" (not (is_found "missing" map))
-
-  let test_initialize_word_record _ =
-    let open WordRecord in
-    let words = ["hello"; "world"] in
-    let map = initialize_word_record words in
-    assert_equal (find "hello" map) (Some 0);
-    assert_equal (find "world" map) (Some 0);
-    assert_equal (find "missing" map) None
 end
 
 module Utils_tests = struct
@@ -233,12 +175,7 @@ let series =
     (* Word tests *)
 
     "test_word_coords" >:: Word_tests.test_word_coords;
-    "test_word_record" >:: Word_tests.test_word_record;
-    "test_update" >:: Word_tests.test_update;
     "test_check_result" >:: Word_tests.test_check_result;
-    "test_set_found" >:: Word_tests.test_set_found;
-    "test_is_found" >:: Word_tests.test_is_found;
-    "test_initialize_word_record" >:: Word_tests.test_initialize_word_record;
 
     (* Utils tests *)
     "test_get_spangram" >:: Utils_tests.test_get_spangram;
