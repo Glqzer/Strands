@@ -3,12 +3,13 @@ open Words
 open Game 
 open Grid
 
-(* this is the static example *)
+(* this is the hard-coded static example *)
 let static_config : Game.config = {
   board = static_grid;
   word_coords = static_coords;
   word_records = WordRecord.empty; 
-  spangram = "functional"
+  spangram = "functional";
+  theme = "let('s) strand"
 }
 
 let cors_headers = [
@@ -28,7 +29,8 @@ let create_board_response (config: Game.config) =
         `String (String.make 1 (Alpha.show alpha))
       ) row)
     )
-  ))]
+  ));
+  ("theme", `String config.theme)]
   |> Yojson.Safe.to_string
 
 let validate_word ~(config: Game.config) request =
@@ -67,7 +69,7 @@ let validate_word ~(config: Game.config) request =
   )
 
 (* mutable reference to store the dynamic game state *)
-let dynamic_game_state = ref None
+let dynamic_config = ref None
 
 let () =
   Dream.run
@@ -79,7 +81,7 @@ let () =
     Dream.get "/"
       (fun _ ->
         let response = 
-          `Assoc [("message", `String "Good morning, world")]
+          `Assoc [("message", `String "Hello, world")]
           |> Yojson.Safe.to_string
         in
         Dream.respond ~headers:cors_headers response);
@@ -91,17 +93,18 @@ let () =
         board = Grid.create_empty_grid 8 6; 
         word_coords = WordCoords.empty;
         word_records = WordRecord.empty; 
-        spangram = ""
+        spangram = "";
+        theme = ""
       } in
-      let game_state = Game.initialize_game config in
+      let game_config = Game.initialize_game config in
       
-      (* Store the dynamically created game state *)
-      dynamic_game_state := Some game_state;
+      (* store the dynamically created game config *)
+      dynamic_config := Some game_config;
       
       let state = 
         match mode with
         | "static" -> static_config
-        | "dynamic" -> game_state
+        | "dynamic" -> game_config
         | _ -> static_config 
       in
       let response = create_board_response state in
@@ -114,7 +117,7 @@ let () =
           match mode with
           | "static" -> static_config
           | "dynamic" -> (
-              match !dynamic_game_state with
+              match !dynamic_config with
               | Some state -> state
               | None -> static_config
             )
