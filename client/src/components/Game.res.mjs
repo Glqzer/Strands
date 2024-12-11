@@ -59,18 +59,23 @@ function Game(props) {
   var match$8 = React.useState(function () {
         return "";
       });
-  var setPlaygroundTheme = match$8[1];
-  var playgroundTheme = match$8[0];
+  var setErrorMessage = match$8[1];
+  var errorMessage = match$8[0];
   var match$9 = React.useState(function () {
         return "";
       });
-  var setPlaygroundSpangram = match$9[1];
-  var playgroundSpangram = match$9[0];
+  var setPlaygroundTheme = match$9[1];
+  var playgroundTheme = match$9[0];
   var match$10 = React.useState(function () {
+        return "";
+      });
+  var setPlaygroundSpangram = match$10[1];
+  var playgroundSpangram = match$10[0];
+  var match$11 = React.useState(function () {
         return false;
       });
-  var setIsPlaygroundInitialized = match$10[1];
-  var isPlaygroundInitialized = match$10[0];
+  var setIsPlaygroundInitialized = match$11[1];
+  var isPlaygroundInitialized = match$11[0];
   var gameInitialization = function (json) {
     var boardResult = Belt_Option.map(Belt_Option.flatMap(Belt_Option.flatMap(Js_json.decodeObject(json), (function (obj) {
                     return Js_dict.get(obj, "board");
@@ -217,6 +222,12 @@ function Game(props) {
           return "";
         });
   };
+  var handleClear = function () {
+    clearWord();
+    setErrorMessage(function (param) {
+          return "";
+        });
+  };
   var handleSubmit = function () {
     var coordinates = Belt_List.toArray(Belt_List.map(Belt_List.reverse(selectedCells), (function (param) {
                 return {
@@ -230,6 +241,9 @@ function Game(props) {
             }));
       if (validationResult !== undefined) {
         if (validationResult) {
+          setErrorMessage(function (param) {
+                return "";
+              });
           var isSpangram = Belt_Option.flatMap(Js_json.decodeObject(json), (function (obj) {
                   return Belt_Option.flatMap(Js_dict.get(obj, "isSpangram"), Js_json.decodeBoolean);
                 }));
@@ -277,6 +291,10 @@ function Game(props) {
           
         } else {
           console.log("Invalid word!");
+          setErrorMessage(function (param) {
+                return "Not a valid word. Try again!";
+              });
+          clearWord();
         }
       } else {
         console.error("Invalid validation response");
@@ -367,7 +385,7 @@ function Game(props) {
                             JsxRuntime.jsx(Button.make, {
                                   type_: "clear",
                                   onClick: (function (param) {
-                                      clearWord();
+                                      handleClear();
                                     }),
                                   children: "Clear"
                                 }),
@@ -399,6 +417,13 @@ function Game(props) {
                       children: pageTitle,
                       className: "text-2xl font-bold mb-4"
                     }),
+                errorMessage !== "" && currentWord === "" ? JsxRuntime.jsx("div", {
+                        children: errorMessage,
+                        className: "text-center text-red-500 h-[30px] mb-2"
+                      }) : JsxRuntime.jsx("p", {
+                        children: currentWord,
+                        className: "text-center h-[30px]"
+                      }),
                 mode === "playground" ? JsxRuntime.jsxs("div", {
                         children: [
                           JsxRuntime.jsxs("div", {
@@ -444,10 +469,6 @@ function Game(props) {
                         ],
                         className: "playground-setup flex justify-center gap-4 mb-4"
                       }) : null,
-                JsxRuntime.jsx("p", {
-                      children: currentWord,
-                      className: "text-center h-[30px]"
-                    }),
                 JsxRuntime.jsx("div", {
                       children: tmp,
                       className: "game-content"

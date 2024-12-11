@@ -20,42 +20,33 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
   let (playgroundSpangram, setPlaygroundSpangram) = useState(() => "")
   let (isPlaygroundInitialized, setIsPlaygroundInitialized) = useState(() => false)
 
+  // initializes the game by retrieving the board and theme
   let gameInitialization = json => {
-  let boardResult = 
-    json
-    ->Js.Json.decodeObject
-    ->Belt.Option.flatMap(obj => obj->Js.Dict.get("board"))
-    ->Belt.Option.flatMap(Js.Json.decodeArray)
-    ->Belt.Option.map(rows => 
-      rows->Array.map(row => 
-        switch Js.Json.decodeArray(row) {
-        | Some(cells) => 
-          cells->Array.map(cell => 
-            cell->Js.Json.decodeString->Belt.Option.getWithDefault("")
-          )
-        | None => []
-        }
-      )
-    );
+    let boardResult = 
+      json
+      ->Js.Json.decodeObject
+      ->Belt.Option.flatMap(obj => obj->Js.Dict.get("board"))
+      ->Belt.Option.flatMap(Js.Json.decodeArray)
+      ->Belt.Option.map(rows => 
+        rows->Array.map(row => 
+          switch Js.Json.decodeArray(row) {
+          | Some(cells) => 
+            cells->Array.map(cell => 
+              cell->Js.Json.decodeString->Belt.Option.getWithDefault("")
+            )
+          | None => []
+          }
+        )
+      );
 
-  let themeResult = 
-    json
-    ->Js.Json.decodeObject
-    ->Belt.Option.flatMap(obj => obj->Js.Dict.get("theme"))
-    ->Belt.Option.flatMap(Js.Json.decodeString);
-  
-  switch boardResult {
-  | Some(initialBoard) => setBoard(_ => initialBoard)
-  | None => Js.Console.error("Failed to initialize board")
+    let themeResult = 
+      json
+      ->Js.Json.decodeObject
+      ->Belt.Option.flatMap(obj => obj->Js.Dict.get("theme"))
+      ->Belt.Option.flatMap(Js.Json.decodeString);
+
+    resolve()
   };
-
-  switch themeResult {
-  | Some(initialTheme) => setTheme(_ => initialTheme)
-  | None => Js.Console.error("Failed to retrieve theme")
-  };
-
-  resolve()
-};
 
   useEffect0(() => {
     let modeString = switch mode {
@@ -64,6 +55,7 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
     | #playground => "playground"
     };
 
+    //  GET: fetch the initial config based on mode
     let _ = Fetch.fetch(`http://localhost:8080/initialize?mode=${modeString}`)
       ->then(Fetch.Response.json)
       ->then(gameInitialization)
@@ -75,6 +67,7 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
     None
   });
 
+  // checks whether a cell is adjacent
   let isAdjacent = ((prevRow, prevCol), (currentRow, currentCol)) => {
     let rowDiff = abs(prevRow - currentRow);
     let colDiff = abs(prevCol - currentCol);
@@ -89,6 +82,7 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
     ->getArrayValue(rowIndex, [])
     ->getArrayValue(colIndex, "");
 
+  // handles cell selection
   let handleCellClick = (rowIndex, colIndex) => {
     let coordinate = (rowIndex, colIndex);
     let letter = getLetterAt(rowIndex, colIndex);
@@ -140,17 +134,20 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
     );
   };
 
+  // clears selected cells and current word
   let clearWord = () => {
     setSelectedCells(_ => list{})
     setLastValidCell(_ => None)
     setCurrentWord(_ => "")
   }
 
+  // clears the whole board
   let handleClear = () => {
     clearWord()
     setErrorMessage(_=>"")
   }
 
+  // handle submit
   let handleSubmit = () => {
     let coordinates = 
       selectedCells
@@ -163,6 +160,8 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
       })
       ->Belt.List.toArray;
 
+
+    // parse the validation response, check for spangram and validity
     let handleValidationResponse = json => {
       let validationResult = 
         json
@@ -214,6 +213,7 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
     | #playground => "playground"
     };
 
+    // POST : check whether a word is valid/spangram
     let _ = 
       Fetch.fetchWithInit(`http://localhost:8080/validate?mode=${modeString}`, 
         Fetch.RequestInit.make(
@@ -248,6 +248,7 @@ let make = (~mode: [#static | #dynamic | #playground]) => {
       "spangram": playgroundSpangram
     };
 
+    // POST : initialize the board for the playground state
     let _ = 
       Fetch.fetchWithInit(`http://localhost:8080/initialize-playground`, 
         Fetch.RequestInit.make(
