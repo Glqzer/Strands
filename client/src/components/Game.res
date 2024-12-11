@@ -5,6 +5,7 @@ open Webapi
 @react.component
 let make = (~mode: [#static | #dynamic]) => {
   let (board, setBoard) = useState(() => []) 
+  let (theme, setTheme) = useState(() => "")
   let (selectedCells, setSelectedCells) = useState(() => list{}) 
   let (lastValidCell, setLastValidCell) = useState(() => None)
   let (foundWords, setFoundWords) = useState(() => list{})
@@ -13,7 +14,7 @@ let make = (~mode: [#static | #dynamic]) => {
   let (spangramCells, setSpangramCells) = useState(() => list{})
 
   useEffect0(() => {
-    let boardInitialization = json => {
+    let gameInitialization = json => {
       let boardResult = 
         json
         ->Js.Json.decodeObject
@@ -31,10 +32,23 @@ let make = (~mode: [#static | #dynamic]) => {
           )
         );
 
+      let themeResult = 
+        json
+        ->Js.Json.decodeObject
+        ->Belt.Option.flatMap(obj => obj->Js.Dict.get("theme"))
+        ->Belt.Option.flatMap(Js.Json.decodeString);
+      
+
       switch boardResult {
       | Some(initialBoard) => setBoard(_ => initialBoard)
       | None => Js.Console.error("Failed to initialize board")
       };
+
+      switch themeResult {
+      | Some(initialTheme) => setTheme(_ => initialTheme)
+      | None => Js.Console.error("Failed to retrieve theme")
+      };
+
       resolve()
     };
 
@@ -45,7 +59,7 @@ let make = (~mode: [#static | #dynamic]) => {
 
     let _ = Fetch.fetch(`http://localhost:8080/initialize?mode=${modeString}`)
       ->then(Fetch.Response.json)
-      ->then(boardInitialization)
+      ->then(gameInitialization)
       ->catch(err => {
         Js.Console.error2("Error", err)
         resolve()
@@ -196,10 +210,7 @@ let make = (~mode: [#static | #dynamic]) => {
   | #dynamic => "FP Strands - Dynamic"
   };
 
-  let themeText = switch mode {
-  | #static => "let('s) strand"
-  | #dynamic => "Let's strand"
-  };
+  let themeText = theme
 
   <div className="content">
     <h1 className="text-2xl font-bold mb-4">{React.string(pageTitle)}</h1>

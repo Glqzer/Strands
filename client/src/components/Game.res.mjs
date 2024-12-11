@@ -26,34 +26,38 @@ function Game(props) {
   var setBoard = match[1];
   var board = match[0];
   var match$1 = React.useState(function () {
-        return /* [] */0;
-      });
-  var setSelectedCells = match$1[1];
-  var selectedCells = match$1[0];
-  var match$2 = React.useState(function () {
-        
-      });
-  var setLastValidCell = match$2[1];
-  var lastValidCell = match$2[0];
-  var match$3 = React.useState(function () {
-        return /* [] */0;
-      });
-  var setFoundWords = match$3[1];
-  var match$4 = React.useState(function () {
         return "";
       });
-  var setCurrentWord = match$4[1];
-  var currentWord = match$4[0];
-  var match$5 = React.useState(function () {
+  var setTheme = match$1[1];
+  var match$2 = React.useState(function () {
         return /* [] */0;
       });
-  var setFoundCells = match$5[1];
+  var setSelectedCells = match$2[1];
+  var selectedCells = match$2[0];
+  var match$3 = React.useState(function () {
+        
+      });
+  var setLastValidCell = match$3[1];
+  var lastValidCell = match$3[0];
+  var match$4 = React.useState(function () {
+        return /* [] */0;
+      });
+  var setFoundWords = match$4[1];
+  var match$5 = React.useState(function () {
+        return "";
+      });
+  var setCurrentWord = match$5[1];
+  var currentWord = match$5[0];
   var match$6 = React.useState(function () {
         return /* [] */0;
       });
-  var setSpangramCells = match$6[1];
+  var setFoundCells = match$6[1];
+  var match$7 = React.useState(function () {
+        return /* [] */0;
+      });
+  var setSpangramCells = match$7[1];
   React.useEffect((function () {
-          var boardInitialization = function (json) {
+          var gameInitialization = function (json) {
             var boardResult = Belt_Option.map(Belt_Option.flatMap(Belt_Option.flatMap(Js_json.decodeObject(json), (function (obj) {
                             return Js_dict.get(obj, "board");
                           })), Js_json.decodeArray), (function (rows) {
@@ -68,6 +72,9 @@ function Game(props) {
                                 }
                               });
                   }));
+            var themeResult = Belt_Option.flatMap(Belt_Option.flatMap(Js_json.decodeObject(json), (function (obj) {
+                        return Js_dict.get(obj, "theme");
+                      })), Js_json.decodeString);
             if (boardResult !== undefined) {
               setBoard(function (param) {
                     return boardResult;
@@ -75,12 +82,19 @@ function Game(props) {
             } else {
               console.error("Failed to initialize board");
             }
+            if (themeResult !== undefined) {
+              setTheme(function (param) {
+                    return themeResult;
+                  });
+            } else {
+              console.error("Failed to retrieve theme");
+            }
             return Promise.resolve();
           };
           var modeString = mode === "dynamic" ? "dynamic" : "static";
           Core__Promise.$$catch(fetch("http://localhost:8080/initialize?mode=" + modeString).then(function (prim) {
                       return prim.json();
-                    }).then(boardInitialization), (function (err) {
+                    }).then(gameInitialization), (function (err) {
                   console.error("Error", err);
                   return Promise.resolve();
                 }));
@@ -244,7 +258,6 @@ function Game(props) {
           }));
   };
   var pageTitle = mode === "dynamic" ? "FP Strands - Dynamic" : "FP Strands - Static";
-  var themeText = mode === "dynamic" ? "Let's strand" : "let('s) strand";
   return JsxRuntime.jsxs("div", {
               children: [
                 JsxRuntime.jsx("h1", {
@@ -259,7 +272,7 @@ function Game(props) {
                       children: [
                         JsxRuntime.jsx("div", {
                               children: JsxRuntime.jsx(Theme.make, {
-                                    theme: themeText
+                                    theme: match$1[0]
                                   }),
                               className: "side-panel content-center"
                             }),
@@ -268,8 +281,8 @@ function Game(props) {
                                 JsxRuntime.jsx(Grid.make, {
                                       board: board,
                                       selectedCells: selectedCells,
-                                      foundCells: match$5[0],
-                                      spangramCells: match$6[0],
+                                      foundCells: match$6[0],
+                                      spangramCells: match$7[0],
                                       onCellClick: handleCellClick
                                     }),
                                 JsxRuntime.jsxs("div", {
@@ -296,7 +309,7 @@ function Game(props) {
                             }),
                         JsxRuntime.jsx("div", {
                               children: JsxRuntime.jsx(Words.make, {
-                                    foundWords: match$3[0]
+                                    foundWords: match$4[0]
                                   }),
                               className: "side-panel"
                             })

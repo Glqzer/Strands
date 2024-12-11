@@ -7,6 +7,7 @@ module Game : sig
   word_coords: WordCoords.t;  
   word_records: WordRecord.t; 
   spangram : string;
+  theme: string
  }
 
   (** [initialize_game config] initializes the game config *)
