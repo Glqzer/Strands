@@ -1,5 +1,5 @@
 open Core
-(* open Words *)
+open Words
 
 (* each cell has an alpha that is either filled or empty *)
 module Alpha = struct
@@ -133,14 +133,14 @@ let check_no_orphans grid rows cols =
   |> not  (* return true if no orphan region is found *)
 
   (* recursive call to place each letter of the spangram, after checking it meets ALL conditions, else choose another direction *)
-  let rec place_letters grid coord letters rows cols directions retries spangram_coords =
+  let rec place_letters grid coord letters rows cols directions retries spangram_coords map word =
     if retries <= 0 then
       (* restart placement from a new random position if retries are exhausted *)
       let start_coord = { Coord.x = Random.int cols; y = Random.int rows } in
-      place_letters grid start_coord letters rows cols directions 100 spangram_coords
+      place_letters grid start_coord letters rows cols directions 100 spangram_coords map word
     else
       match letters with
-      | [] -> (grid, spangram_coords)  (* return the final grid and spangram coordinates *)
+      | [] -> (grid, map)  (* return the final grid and WordCoords map *)
       | letter :: rest ->  (* place each letter of the spangram *)
         if Coord.in_bounds coord rows cols && is_free coord grid then
           match Alpha.make letter with
@@ -149,24 +149,36 @@ let check_no_orphans grid rows cols =
             if check_no_orphans updated_grid rows cols then
               let valid_directions =
                 List.filter directions ~f:(fun dir ->
-                    let new_coord = Coord.move coord dir in
-                    Coord.in_bounds new_coord rows cols && is_free new_coord grid)
+                  let new_coord = Coord.move coord dir in
+                  Coord.in_bounds new_coord rows cols && is_free new_coord grid)
               in
               let next_directions = if List.is_empty valid_directions then all_directions else valid_directions in
               (match List.random_element next_directions with
                | Some direction ->
                  let new_coord = Coord.move coord direction in
-
-                 (* prepend  the current coordinate in reversed order to spangram_coords *)
-                 let updated_spangram_coords = (coord.y, coord.x) :: spangram_coords in
-                  place_letters updated_grid new_coord rest rows cols next_directions retries updated_spangram_coords
-               | None -> (grid, spangram_coords))
-            else
-              place_letters grid coord letters rows cols directions (retries - 1) spangram_coords
-          | Error _ -> (grid, spangram_coords)
-        else
-          place_letters grid coord letters rows cols directions (retries - 1) spangram_coords
   
+                 (* prepend the current coordinate in reversed order to spangram_coords *)
+                 let updated_spangram_coords = (coord.x, coord.y) :: spangram_coords in
+  
+                 (* TODO: clean this up a bit but due to errors i had to convert Coord.t to Position.t and update the WordCoords map from there  *)
+                 let updated_map =
+                   let existing_coords =
+                     match WordCoords.find word map with
+                     | Some coords -> coords
+                     | None -> []  (* if the word is not found in the map, start with an empty list *)
+                   in
+                   let position = (coord.y, coord.x) in  (* converting Coord.t to Position.t *)
+                    WordCoords.add word (position :: existing_coords) map  (* IMPORTANT FOR FRONTEND - add the new position to the list *)
+                 in
+  
+                 (* recursively place the next letter with the updated map *)
+                 place_letters updated_grid new_coord rest rows cols next_directions retries updated_spangram_coords updated_map word
+               | None -> (grid, map))  (* if no valid direction, return current grid and map *)
+            else
+              place_letters grid coord letters rows cols directions (retries - 1) spangram_coords map word
+          | Error _ -> (grid, map)  (* error in creating alpha value *)
+        else
+          place_letters grid coord letters rows cols directions (retries - 1) spangram_coords map word
   
   let fits_vertically word_length = word_length > 7 
   let fits_horizontally word_length = word_length <= 7 
@@ -177,23 +189,27 @@ let check_no_orphans grid rows cols =
     let cols = List.length (List.hd_exn grid) in
     let letters = String.to_list spangram in
     let word_length = String.length spangram in
-
-    (* chooses orientation based on spangram length *)
+  
+    (* creates an empty map to track word coordinates *)
+    let map = WordCoords.empty in
+  
+    (* chooses at random an orientation, based on spangram length *)
     let orientation =
       if fits_vertically word_length && fits_horizontally word_length then
         if Random.bool () then `Vertical else `Horizontal
       else if fits_horizontally word_length then `Horizontal
       else `Vertical
     in
-
-    (* depending on the orientation, *)
+  
+    (* depending on the orientation v or h, place the letters at random col or row respectively *)
     match orientation with
     | `Vertical ->
       let start_coord = { Coord.x = Random.int cols; y = 0 } in
-      place_letters grid start_coord letters rows cols vertical_directions 100 []
+      place_letters grid start_coord letters rows cols vertical_directions 100 [] map spangram
     | `Horizontal ->
       let start_coord = { Coord.x = 0; y = Random.int rows } in
-      place_letters grid start_coord letters rows cols horizontal_directions 100 []
+      place_letters grid start_coord letters rows cols horizontal_directions 100 [] map spangram
+  
 
   (* prints the grid to the console -- mainly for visual checking *)
   let print_grid grid =
@@ -381,9 +397,9 @@ let check_no_orphans grid rows cols =
   let grid_with_words =
     Grid.retry_place_all_words
       ["1111"; "2222"; "33333"; "44444"; "555555"; "6666"; "77777"; "88888"; "999999";
-      "AAAA"; "BBBBB"; "CCCCCC"; "DDDDDD"; "EEEEEEEE"; "FFFF"; "GGGGG"; "HHHHHH";
-      "IIIIIII"; "JJJJ"; "KKKKK"; "LLLLLLL"; "MMMM"; "NNNNN"; "OOOOOO"; "PPPPPPP";
-      "QQQQ"; "RRRRR"; "SSSSS"]
+       "AAAA"; "BBBBB"; "CCCCCC"; "DDDDDD"; "EEEEEEEE"; "FFFF"; "GGGGG"; "HHHHHH";
+       "IIIIIII"; "JJJJ"; "KKKKK"; "LLLLLLL"; "MMMM"; "NNNNN"; "OOOOOO"; "PPPPPPP";
+       "QQQQ"; "RRRRR"; "SSSSS"]
       grid_with_spangram
       10
   in
@@ -393,8 +409,11 @@ let check_no_orphans grid rows cols =
 
   Printf.printf "Spangram Coordinates (Reversed and (y, x)):\n";
   List.iter
-    ~f:(fun coord -> Printf.printf "(%d, %d)\n" (fst coord) (snd coord))  (* print in (y, x) order *)
-    (List.rev spangram_coords);  (* print in reverse order *)
+    ~f:(fun coord -> Printf.printf "(%d, %d)\n" (fst coord) (snd coord))  (* prints in (y, x) order *)
+    (List.rev (
+      match WordCoords.find "BANANA" spangram_coords with 
+      | Some coords -> coords
+      | None -> []));  (* print in reverse order *)
 
   Printf.printf "Word Placement:\n";
   Grid.print_grid grid_with_words

@@ -1,4 +1,5 @@
 open Core
+open Words
 
 module Alpha : sig
   type t =
@@ -26,7 +27,7 @@ module Grid : sig
   val update_cell : t -> Coord.t -> Alpha.t -> t
   val get_neighbors : Coord.t -> int -> int -> t -> Coord.t list
   val check_no_orphans : t -> int -> int -> bool
-  val place_spangram : string -> Alpha.t list list -> Alpha.t list list * (int * int) list
+  val place_spangram : string -> Alpha.t list list -> Alpha.t list list * WordCoords.t
   val print_grid : t -> unit
   val find_next_placement_vertical : t -> int -> int -> Coord.t option
   val find_next_placement_horizontal : t -> int -> int -> Coord.t option
