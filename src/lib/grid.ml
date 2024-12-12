@@ -19,7 +19,7 @@ end
 
 (* coords to be a record of x and y *)
 module Coord = struct
-  type t = { x : int; y : int }
+  type t = { x : int; y : int } [@@deriving compare, sexp]
 
   (* checks if a coord is in bounds, returns a bool *)
   let in_bounds { x; y } rows cols =
@@ -51,7 +51,7 @@ module Grid = struct
   let horizontal_directions = [`Right; `UpRight; `DownRight] 
   let all_directions = [`Up; `Down; `Left; `Right; `UpLeft; `DownLeft; `UpRight; `DownRight] (* sometimes need to choose from all possible dirs *)
 
-  let word_placement_directions = [`Down; `DownRight; `Right; `UpRight; `Down; `Right]
+  let word_placement_directions = [`Down; `Right]
 
   (* creates empty grid with Empty chars *)
   let create_empty_grid rows cols : t =
@@ -77,60 +77,60 @@ module Grid = struct
     let is_direction_blocked coord dir =
       match Coord.move coord dir with
       | new_coord -> (match get_cell grid new_coord with
-                      | Some Alpha.Filled _ -> true
-                      | _ -> false)
+          | Some Alpha.Filled _ -> true
+          | _ -> false)
     in
 
     (* list of valid neighbors based on direction and whether diagonal moves are blocked by adjacent filled cells *)
     List.fold_left all_directions ~init:[] ~f:(fun acc dir ->
-      let new_coord = Coord.move coord dir in
-      if Coord.in_bounds new_coord rows cols then
-        (* trying to avoid crossing over diagonals unto another word *)
-        match dir with
-        | `UpLeft -> if not (is_direction_blocked coord `Up || is_direction_blocked coord `Left) then new_coord :: acc else acc
-        | `UpRight -> if not (is_direction_blocked coord `Up || is_direction_blocked coord `Right) then new_coord :: acc else acc
-        | `DownLeft -> if not (is_direction_blocked coord `Down || is_direction_blocked coord `Left) then new_coord :: acc else acc
-        | `DownRight -> if not (is_direction_blocked coord `Down || is_direction_blocked coord `Right) then new_coord :: acc else acc
-        | _ -> new_coord :: acc  (* non-diagonal directions don't need to be blocked *)
-      else
-        acc  (* if  the neighbor is out of bounds, skip it *)
-    )
+        let new_coord = Coord.move coord dir in
+        if Coord.in_bounds new_coord rows cols then
+          (* trying to avoid crossing over diagonals unto another word *)
+          match dir with
+          | `UpLeft -> if not (is_direction_blocked coord `Up || is_direction_blocked coord `Left) then new_coord :: acc else acc
+          | `UpRight -> if not (is_direction_blocked coord `Up || is_direction_blocked coord `Right) then new_coord :: acc else acc
+          | `DownLeft -> if not (is_direction_blocked coord `Down || is_direction_blocked coord `Left) then new_coord :: acc else acc
+          | `DownRight -> if not (is_direction_blocked coord `Down || is_direction_blocked coord `Right) then new_coord :: acc else acc
+          | _ -> new_coord :: acc  (* non-diagonal directions don't need to be blocked *)
+        else
+          acc  (* if  the neighbor is out of bounds, skip it *)
+      )
     |> List.rev  (* reversing to maintain original order of directions *)
 
-(* checks for orphan regions in the grid *)
-let check_no_orphans grid rows cols =
-  (* helper -- BFS to explore the connected empty cells and accumulate visited cells *)
-  let rec bfs visited queue =
-    match queue with
-    | [] -> visited
-    | coord :: rest -> (* pattern match on all the coords in queue *)
-      if List.mem visited coord ~equal:Coord.equal then
-        bfs visited rest
-      else
-        match get_cell grid coord with
-        | Some Alpha.Empty ->
-          let visited = coord :: visited in
-          let neighbors = get_neighbors coord rows cols grid in  (* pass grid here *)
-          bfs visited (rest @ neighbors)
-        | _ -> bfs visited rest
-  in
+  (* checks for orphan regions in the grid *)
+  let check_no_orphans grid rows cols =
+    (* helper -- BFS to explore the connected empty cells and accumulate visited cells *)
+    let rec bfs visited queue =
+      match queue with
+      | [] -> visited
+      | coord :: rest -> (* pattern match on all the coords in queue *)
+        if List.mem visited coord ~equal:Coord.equal then
+          bfs visited rest
+        else
+          match get_cell grid coord with
+          | Some Alpha.Empty ->
+            let visited = coord :: visited in
+            let neighbors = get_neighbors coord rows cols grid in  (* pass grid here *)
+            bfs visited (rest @ neighbors)
+          | _ -> bfs visited rest
+    in
 
-  (* checks all empty cells, and if they form an orphan region (3 or fewer cells), return false *)
-  let check_cell visited { Coord.x; y } =
-    match get_cell grid { Coord.x = x; y = y } with
-    | Some Alpha.Empty when not (List.mem visited { Coord.x = x; y } ~equal:Coord.equal) ->
-      let visited = bfs visited [{ Coord.x = x; y }] in
-      List.length visited <= 3  (* found an orphan region with 3 or fewer connected empty cells *)
-    | _ -> false
-  in
+    (* checks all empty cells, and if they form an orphan region (3 or fewer cells), return false *)
+    let check_cell visited { Coord.x; y } =
+      match get_cell grid { Coord.x = x; y = y } with
+      | Some Alpha.Empty when not (List.mem visited { Coord.x = x; y } ~equal:Coord.equal) ->
+        let visited = bfs visited [{ Coord.x = x; y }] in
+        List.length visited <= 3  (* found an orphan region with 3 or fewer connected empty cells *)
+      | _ -> false
+    in
 
-  (* iterating through all rows and columns *)
-  List.existsi grid ~f:(fun y row ->
-    List.existsi row ~f:(fun x cell ->
-      match cell with
-      | Alpha.Empty -> check_cell [] { Coord.x = x; y }  (* call check_cell with an empty visited list initially *)
-      | _ -> false))
-  |> not  (* return true if no orphan region is found *)
+    (* iterating through all rows and columns *)
+    List.existsi grid ~f:(fun y row ->
+        List.existsi row ~f:(fun x cell ->
+            match cell with
+            | Alpha.Empty -> check_cell [] { Coord.x = x; y }  (* call check_cell with an empty visited list initially *)
+            | _ -> false))
+    |> not  (* return true if no orphan region is found *)
 
   (* recursive call to place each letter of the spangram, after checking it meets ALL conditions, else choose another direction *)
   let rec place_letters grid coord letters rows cols directions retries spangram_coords map word =
@@ -149,17 +149,17 @@ let check_no_orphans grid rows cols =
             if check_no_orphans updated_grid rows cols then
               let valid_directions =
                 List.filter directions ~f:(fun dir ->
-                  let new_coord = Coord.move coord dir in
-                  Coord.in_bounds new_coord rows cols && is_free new_coord grid)
+                    let new_coord = Coord.move coord dir in
+                    Coord.in_bounds new_coord rows cols && is_free new_coord grid)
               in
               let next_directions = if List.is_empty valid_directions then all_directions else valid_directions in
               (match List.random_element next_directions with
                | Some direction ->
                  let new_coord = Coord.move coord direction in
-  
+
                  (* collects all of the spangram coords*)
                  let updated_spangram_coords = (coord.y, coord.x) :: spangram_coords in
-  
+
                  (* TODO: clean this up a bit but due to errors i had to convert Coord.t to Position.t and update the WordCoords map from there  *)
                  let updated_map =
                    let existing_coords =
@@ -168,9 +168,9 @@ let check_no_orphans grid rows cols =
                      | None -> []  (* if the word is not found in the map, start with an empty list *)
                    in
                    let position = (coord.y, coord.x) in  (* converting Coord.t to Position.t *)
-                    WordCoords.add word (existing_coords @ [position]) map  (* IMPORTANT FOR FRONTEND - add the new position to the list *)
+                   WordCoords.add word (existing_coords @ [position]) map  (* IMPORTANT FOR FRONTEND - add the new position to the list *)
                  in
-  
+
                  (* recursively place the next letter with the updated map *)
                  place_letters updated_grid new_coord rest rows cols next_directions retries updated_spangram_coords updated_map word
                | None -> (grid, map))  (* if no valid direction, return current grid and map *)
@@ -179,7 +179,7 @@ let check_no_orphans grid rows cols =
           | Error _ -> (grid, map)  (* error in creating alpha value *)
         else
           place_letters grid coord letters rows cols directions (retries - 1) spangram_coords map word
-  
+
   let fits_vertically word_length = word_length > 7 
   let fits_horizontally word_length = word_length <= 7 
 
@@ -189,10 +189,10 @@ let check_no_orphans grid rows cols =
     let cols = List.length (List.hd_exn grid) in
     let letters = String.to_list spangram in
     let word_length = String.length spangram in
-  
+
     (* creates an empty map to track word coordinates *)
     let map = WordCoords.empty in
-  
+
     (* chooses at random an orientation, based on spangram length *)
     let orientation =
       if fits_vertically word_length && fits_horizontally word_length then
@@ -200,7 +200,7 @@ let check_no_orphans grid rows cols =
       else if fits_horizontally word_length then `Horizontal
       else `Vertical
     in
-  
+
     (* depending on the orientation v or h, place the letters at random col or row respectively *)
     match orientation with
     | `Vertical ->
@@ -209,7 +209,7 @@ let check_no_orphans grid rows cols =
     | `Horizontal ->
       let start_coord = { Coord.x = 0; y = Random.int rows } in
       place_letters grid start_coord letters rows cols horizontal_directions 100 [] map spangram
-  
+
 
   (* prints the grid to the console -- mainly for visual checking *)
   let print_grid grid =
@@ -218,7 +218,8 @@ let check_no_orphans grid rows cols =
         Printf.printf "\n")
 
     (* DAVID'S WORDS BELOW *)
-    let find_next_placement_vertical grid rows cols =
+    let find_next_placement grid rows cols (is_vertical : bool) =
+     if is_vertical then
       let rec search x y =
         if x >= cols then None (* No free slot found *)
         else if y >= rows then search (x + 1) 0 (* Move to the next column *)
@@ -228,8 +229,7 @@ let check_no_orphans grid rows cols =
           else search x (y + 1)
       in
       search 0 0
-  
-    let find_next_placement_horizontal grid rows cols =
+    else 
       let rec search x y =
         if y >= rows then None (* No free slot found *)
         else if x >= cols then search 0 (y + 1) (* Move to the next row *)
@@ -239,69 +239,76 @@ let check_no_orphans grid rows cols =
           else search (x + 1) y
       in
       search 0 0
-  
-    let rec attempt_place_word grid coord letters rows cols directions retries (placed_positions : Position.t list) =
-      if retries <= 0 then (grid, false, List.rev placed_positions) (* Return placed positions in order *)
-      else
-        match letters with
-        | [] -> (grid, true, List.rev placed_positions) (* All letters placed successfully *)
-        | letter :: rest ->
-          if Coord.in_bounds coord rows cols && is_free coord grid then
-            match Alpha.make letter with (* Ensure letter is valid *)
-            | Ok alpha_value ->
-              (* Place the letter and check for orphan regions *)
-              let updated_grid = update_cell grid coord alpha_value in
-              if check_no_orphans updated_grid rows cols then
-                let valid_directions =
-                  List.filter directions ~f:(fun dir ->
-                      let new_coord = Coord.move coord dir in
-                      Coord.in_bounds new_coord rows cols && is_free new_coord grid)
-                in
-                (* Choose a direction or fallback to all directions if none are valid *)
-                let next_directions = if List.is_empty valid_directions then all_directions else valid_directions in
-                let direction = List.random_element_exn next_directions in
-                let new_coord = Coord.move coord direction in
-                attempt_place_word updated_grid new_coord rest rows cols next_directions retries (((coord.y, coord.x) : Position.t) :: placed_positions)
-              else
-                (* If placing the letter creates orphan regions, try a different direction *)
-                let fallback_coord = Coord.move coord (List.random_element_exn all_directions) in
-                attempt_place_word grid fallback_coord letters rows cols directions (retries - 1) placed_positions
-            | Error _ -> (grid, false, List.rev placed_positions) (* Skip invalid letters *)
-          else
-            (* If the current position is invalid, try a random new direction *)
-            let fallback_coord = Coord.move coord (List.random_element_exn all_directions) in
-            attempt_place_word grid fallback_coord letters rows cols directions (retries - 1) placed_positions
-  
-    let rec attempt_place_word_no_orphans grid coord letters rows cols directions retries (placed_positions : Position.t list) =
-      if retries <= 0 then (grid, false, List.rev placed_positions)
-      else
-        match letters with
-        | [] -> (grid, true, List.rev placed_positions)
-        | letter :: rest ->
-          if Coord.in_bounds coord rows cols && is_free coord grid then
-            match Alpha.make letter with
-            | Ok alpha_value ->
-              let updated_grid = update_cell grid coord alpha_value in
+
+  let rec attempt_place_word grid coord letters rows cols directions retries (placed_positions : Position.t list) =
+    if retries <= 0 then (grid, false, List.rev placed_positions) (* Return placed positions in order *)
+    else
+      match letters with
+      | [] -> (grid, true, List.rev placed_positions) (* All letters placed successfully *)
+      | letter :: rest ->
+        if Coord.in_bounds coord rows cols && is_free coord grid then
+          match Alpha.make letter with (* Ensure letter is valid *)
+          | Ok alpha_value ->
+            (* Place the letter and check for orphan regions *)
+            let updated_grid = update_cell grid coord alpha_value in
+            if check_no_orphans updated_grid rows cols then
               let valid_directions =
                 List.filter directions ~f:(fun dir ->
                     let new_coord = Coord.move coord dir in
                     Coord.in_bounds new_coord rows cols && is_free new_coord grid)
               in
+              (* Choose a direction or fallback to all directions if none are valid *)
               let next_directions = if List.is_empty valid_directions then all_directions else valid_directions in
               let direction = List.random_element_exn next_directions in
               let new_coord = Coord.move coord direction in
-              attempt_place_word_no_orphans updated_grid new_coord rest rows cols next_directions retries (((coord.y, coord.x) : Position.t) :: placed_positions)
-            | Error _ -> (grid, false, List.rev placed_positions)
-          else          
-            let fallback_coord = Coord.move coord (List.random_element_exn all_directions) in
-            attempt_place_word_no_orphans grid fallback_coord letters rows cols directions (retries - 1) placed_positions
-  
-  
-    let rec place_words_from_list_vertical_search grid words rows cols (word_coords : WordCoords.t) =
+              attempt_place_word updated_grid new_coord rest rows cols next_directions retries (((coord.y, coord.x) : Position.t) :: placed_positions)
+            else
+              (* If placing the letter creates orphan regions, try a fallback coordinate from the head of placed_positions *)
+              (match placed_positions with
+               | [] -> (grid, false, List.rev placed_positions)  (* No placed positions, exit the attempt *)
+               | (prev_y, prev_x) :: _ ->
+                 let fallback_coord = Coord.move { Coord.x = prev_x; Coord.y = prev_y } (List.random_element_exn all_directions) in
+                 attempt_place_word grid fallback_coord letters rows cols directions (retries - 1) placed_positions
+              )
+          | Error _ -> (grid, false, List.rev placed_positions) (* Skip invalid letters *)
+        else
+          (grid, false, List.rev placed_positions)
+  (* If the current position is invalid, try a random new direction *)
+  (* let fallback_coord = Coord.move coord (List.random_element_exn all_directions) in
+     attempt_place_word grid fallback_coord letters rows cols directions (retries - 1) placed_positions *)
+
+  let rec attempt_place_word_no_orphans grid coord letters rows cols directions retries (placed_positions : Position.t list) =
+    if retries <= 0 then (grid, false, List.rev placed_positions)
+    else
+      match letters with
+      | [] -> (grid, true, List.rev placed_positions)
+      | letter :: rest ->
+        if Coord.in_bounds coord rows cols && is_free coord grid then
+          match Alpha.make letter with
+          | Ok alpha_value ->
+            let updated_grid = update_cell grid coord alpha_value in
+            let valid_directions =
+              List.filter directions ~f:(fun dir ->
+                  let new_coord = Coord.move coord dir in
+                  Coord.in_bounds new_coord rows cols && is_free new_coord grid)
+            in
+            let next_directions = if List.is_empty valid_directions then all_directions else valid_directions in
+            let direction = List.random_element_exn next_directions in
+            let new_coord = Coord.move coord direction in
+            attempt_place_word_no_orphans updated_grid new_coord rest rows cols next_directions retries (((coord.y, coord.x) : Position.t) :: placed_positions)
+          | Error _ -> (grid, false, List.rev placed_positions)
+        else          
+          (grid, false, List.rev placed_positions)
+  (* If the current position is invalid, try a random new direction *)
+  (* let fallback_coord = Coord.move coord (List.random_element_exn all_directions) in
+     attempt_place_word grid fallback_coord letters rows cols directions (retries - 1) placed_positions *)
+
+
+  let rec place_words_from_list grid words rows cols (word_coords : WordCoords.t) (is_vertical : bool) =
       match words with
       | [] -> (grid, word_coords) (* No more words to place, return the final grid *)
       | word :: rest ->
-        match find_next_placement_vertical grid rows cols with
+        match find_next_placement grid rows cols is_vertical with
         | None -> (grid, word_coords) (* No more open positions, return the current grid *)
         | Some coord ->
           (* Try to place the current word *)
@@ -312,110 +319,96 @@ let check_no_orphans grid rows cols =
           if success then
             (* Word placed successfully, move to the next word *)
             let word_coords = WordCoords.add word position_list word_coords in
-            place_words_from_list_vertical_search updated_grid rest rows cols word_coords
+            place_words_from_list updated_grid rest rows cols word_coords is_vertical
           else
             (* Failed to place the word, skip to the next one *)
-            place_words_from_list_vertical_search grid rest rows cols word_coords
-  
-    let rec place_words_from_list_horizontal_search grid words rows cols (word_coords : WordCoords.t)=
-      match words with
-      | [] -> (grid, word_coords)
-      | word :: rest ->
-        match find_next_placement_horizontal grid rows cols with
-        | None -> (grid, word_coords)
-        | Some coord ->
-          let (letters : char list) = String.to_list word in
-          let (updated_grid, success, position_list) =
-            attempt_place_word grid coord (letters : char list) rows cols word_placement_directions 50 []
-          in
-          if success then
-            let word_coords = WordCoords.add word position_list word_coords in
-            place_words_from_list_horizontal_search updated_grid rest rows cols word_coords
-          else
-            place_words_from_list_horizontal_search grid rest rows cols word_coords
-  
-    let rec place_final_words grid words rows cols (word_coords : WordCoords.t) = 
-      match words with
-      | [] -> (grid, word_coords)
-      | word :: rest ->
-        match find_next_placement_vertical grid rows cols with
-        | None -> (grid, word_coords)
-        | Some coord ->
-          let (letters : char list) = String.to_list word in
-          let (updated_grid, success, position_list) =
-            attempt_place_word_no_orphans grid coord (letters : char list) rows cols word_placement_directions 50 []
-          in
-          if success then
-            let word_coords = WordCoords.add word position_list word_coords in
-            place_final_words updated_grid rest rows cols word_coords
-          else
-            place_final_words grid rest rows cols word_coords
-  
-    let split_at n lst =
-      let rec aux i acc rest =
-        match i, rest with
-        | 0, _ -> (List.rev acc, rest)
-        | _, [] -> (List.rev acc, [])
-        | _, x :: xs -> aux (i - 1) (x :: acc) xs
-      in
-      aux n [] lst
-  
+            place_words_from_list grid rest rows cols word_coords is_vertical
+
+  let rec place_words_no_orphans grid words rows cols (word_coords : WordCoords.t) =
+    match words with
+    | [] -> (grid, word_coords) (* No more words to place, return the final grid *)
+    | word :: rest ->
+      match find_next_placement grid rows cols true with
+      | None -> (grid, word_coords) (* No more open positions, return the current grid *)
+      | Some coord ->
+        (* Try to place the current word *)
+        let (letters : char list) = String.to_list word in
+        let (updated_grid, success, position_list) =
+          attempt_place_word_no_orphans grid coord (letters : char list) rows cols word_placement_directions 50 []
+        in
+        if success then
+          (* Word placed successfully, move to the next word *)
+          let word_coords = WordCoords.add word position_list word_coords in
+          place_words_no_orphans updated_grid rest rows cols word_coords
+        else
+          (* Failed to place the word, skip to the next one *)
+          place_words_no_orphans grid rest rows cols word_coords
+
+  let split_at n lst =
+    let rec aux i acc rest =
+      match i, rest with
+      | 0, _ -> (List.rev acc, rest)
+      | _, [] -> (List.rev acc, [])
+      | _, x :: xs -> aux (i - 1) (x :: acc) xs
+    in
+    aux n [] lst
+
     let place_all_words words grid (word_coords : WordCoords.t) = 
       let rows = List.length grid in
       let cols = List.length (List.hd_exn grid) in
-      let (left, right) = split_at 8 words in
-      let (right, final) = split_at 8 right in
-      let (grid, word_coords) = place_words_from_list_vertical_search grid left rows cols word_coords in
-      let (grid, word_coords) = place_words_from_list_horizontal_search grid right rows cols word_coords in
-      place_final_words grid final rows cols word_coords
-  
-    let is_grid_full grid rows cols =
-      let rec check x y =
-        if x >= cols then true (* Checked all columns, grid is full *)
-        else if y >= rows then check (x + 1) 0 (* Move to the next column *)
-        else
-          let coord = { Coord.x = x; Coord.y = y } in
-          if Coord.in_bounds coord rows cols && is_free coord grid then false
-          else check x (y + 1)
-      in
-      check 0 0
-  
-    let retry_place_all_words words grid max_retries (word_coords : WordCoords.t) =
-      let rows = List.length grid in
-      let cols = List.length (List.hd_exn grid) in
-      let rec attempt retries remaining_grid word_coords =
-        if retries <= 0 then (remaining_grid, word_coords) (* Stop if retries are exhausted *)
-        else
-          let (updated_grid, word_coords) = place_all_words words remaining_grid word_coords in
-          if is_grid_full updated_grid rows cols then (updated_grid, word_coords)
-          else attempt (retries - 1) updated_grid word_coords
-      in
-      attempt max_retries grid word_coords
-      
-  end
-  
-  (* Word placement notes: Must be given a list of at least 15 words of varying lengths of at least 4 *)
-  let () =
-    let grid = Grid.create_empty_grid 8 6 in
-    (* BANANA APRICOT MANDARIN BLUEBERRY *)
-    let (grid_with_spangram, spangram_coords) = Grid.place_spangram "BANANA" grid in
-    let (grid_with_words, word_coords) =
-      Grid.retry_place_all_words
-        ["1111"; "2222"; "33333"; "44444"; "555555"; "6666"; "77777"; "88888"; "999999";
-         "AAAA"; "BBBBB"; "CCCCCC"; "DDDDDD"; "EEEEEEEE"; "FFFF"; "GGGGG"; "HHHHHH";
-         "IIIIIII"; "JJJJ"; "KKKKK"; "LLLLLLL"; "MMMM"; "NNNNN"; "OOOOOO"; "PPPPPPP";
-         "QQQQ"; "RRRRR"; "SSSSS"]
-        grid_with_spangram
-        100
-        WordCoords.empty
+      let (left, right) = split_at 10 words in
+      let (right, final) = split_at 10 right in
+      let (grid, word_coords) = place_words_from_list grid left rows cols word_coords true in
+      let (grid, word_coords) = place_words_from_list grid right rows cols word_coords false in
+      place_words_no_orphans grid final rows cols word_coords
+
+  let is_grid_full grid rows cols =
+    let rec check x y =
+      if x >= cols then true (* Checked all columns, grid is full *)
+      else if y >= rows then check (x + 1) 0 (* Move to the next column *)
+      else
+        let coord = { Coord.x = x; Coord.y = y } in
+        if Coord.in_bounds coord rows cols && is_free coord grid then false
+        else check x (y + 1)
     in
-  
-    Printf.printf "Spangram Placement:\n";
-    Grid.print_grid grid_with_spangram;
-  
-    Printf.printf "Spangram Coordinates (y, x)):\n";
-    WordCoords.print_all_coords spangram_coords;
-  
-    Printf.printf "Word Placement:\n";
-    Grid.print_grid grid_with_words;
-    WordCoords.print_all_coords word_coords
+    check 0 0
+
+  let retry_place_all_words words grid max_retries (word_coords : WordCoords.t) =
+    let rows = List.length grid in
+    let cols = List.length (List.hd_exn grid) in
+    let rec attempt retries remaining_grid word_coords =
+      if retries <= 0 then (remaining_grid, word_coords) (* Stop if retries are exhausted *)
+      else
+        let (updated_grid, word_coords) = place_all_words words remaining_grid word_coords in
+
+          Printf.printf "\nTrial Word Placement:\n";
+          print_grid updated_grid;
+
+        if is_grid_full updated_grid rows cols then (updated_grid, word_coords)
+        else attempt (retries - 1) grid word_coords
+    in
+    attempt max_retries grid word_coords
+
+end
+
+(* Word placement notes: Must be given a list of at least 15 words of varying lengths of at least 4 *)
+let () =
+  let grid = Grid.create_empty_grid 8 6 in
+  (* BANANA APRICOT MANDARIN BLUEBERRY *)
+  let (grid_with_spangram, spangram_coords) = Grid.place_spangram "BANANA" grid in
+  let (_, _) =
+    Grid.retry_place_all_words
+      ["1111"; "2222"; "33333"; "44444"; "555555"; "6666"; "77777"; "88888"; "999999";
+       "AAAA"; "BBBBB"; "CCCCCC"; "DDDDDD"; "EEEEEEEE"; "FFFF"; "GGGGG"; "HHHHHH";
+       "IIIIIII"; "JJJJ"; "KKKKK"; "LLLLLLL"; "MMMM"; "NNNNN"; "OOOOOO"; "PPPPPPP";
+       "QQQQ"; "RRRRR"; "SSSSS"]
+      grid_with_spangram
+      10
+      WordCoords.empty
+  in
+
+  Printf.printf "Spangram Placement:\n";
+  Grid.print_grid grid_with_spangram;
+
+  Printf.printf "Spangram Coordinates (y, x)):\n";
+  WordCoords.print_all_coords spangram_coords;
