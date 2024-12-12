@@ -29,8 +29,7 @@ module Grid : sig
   val check_no_orphans : t -> int -> int -> bool
   val place_spangram : string -> Alpha.t list list -> Alpha.t list list * WordCoords.t
   val print_grid : t -> unit
-  val attempt_place_word : t -> Coord.t -> char list -> int -> int -> [ `Up | `Down | `Left | `Right | `UpLeft | `UpRight | `DownLeft | `DownRight ] list -> int -> Position.t list -> t * bool * Position.t list
-  val attempt_place_word_no_orphans : t -> Coord.t -> char list -> int -> int -> [ `Up | `Down | `Left | `Right | `UpLeft | `UpRight | `DownLeft | `DownRight ] list -> int -> Position.t list -> t * bool * Position.t list
+  val attempt_place_word : t -> Coord.t -> char list -> int -> int -> [ `Up | `Down | `Left | `Right | `UpLeft | `UpRight | `DownLeft | `DownRight ] list -> int -> Position.t list -> bool -> t * bool * Position.t list
   val place_all_words : string list -> t -> WordCoords.t -> t * WordCoords.t
   val split_at : int -> 'a list -> 'a list * 'a list
   val is_grid_full: t -> int -> int -> bool
