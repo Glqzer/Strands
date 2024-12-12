@@ -324,11 +324,11 @@ module Grid = struct
             (* Failed to place the word, skip to the next one *)
             place_words_from_list grid rest rows cols word_coords is_vertical
 
-  let rec place_words_no_orphans grid words rows cols (word_coords : WordCoords.t) =
+  let rec place_words_no_orphans grid words rows cols (word_coords : WordCoords.t) flip =
     match words with
     | [] -> (grid, word_coords) (* No more words to place, return the final grid *)
     | word :: rest ->
-      match find_next_placement grid rows cols true with
+      match find_next_placement grid rows cols flip with
       | None -> (grid, word_coords) (* No more open positions, return the current grid *)
       | Some coord ->
         (* Try to place the current word *)
@@ -339,10 +339,10 @@ module Grid = struct
         if success then
           (* Word placed successfully, move to the next word *)
           let word_coords = WordCoords.add word position_list word_coords in
-          place_words_no_orphans updated_grid rest rows cols word_coords
+          place_words_no_orphans updated_grid rest rows cols word_coords (flip)
         else
           (* Failed to place the word, skip to the next one *)
-          place_words_no_orphans grid rest rows cols word_coords
+          place_words_no_orphans grid rest rows cols word_coords (not flip)
 
   let split_at n lst =
     let rec aux i acc rest =
@@ -356,11 +356,11 @@ module Grid = struct
     let place_all_words words grid (word_coords : WordCoords.t) = 
       let rows = List.length grid in
       let cols = List.length (List.hd_exn grid) in
-      let (left, right) = split_at 10 words in
-      let (right, final) = split_at 10 right in
+      let (left, right) = split_at 20 words in
+      let (right, final) = split_at 20 right in
       let (grid, word_coords) = place_words_from_list grid left rows cols word_coords true in
       let (grid, word_coords) = place_words_from_list grid right rows cols word_coords false in
-      place_words_no_orphans grid final rows cols word_coords
+      place_words_no_orphans grid final rows cols word_coords true
 
   let is_grid_full grid rows cols =
     let rec check x y =
@@ -373,21 +373,27 @@ module Grid = struct
     in
     check 0 0
 
-  let retry_place_all_words words grid max_retries (word_coords : WordCoords.t) =
+  let retry_place_all_words words grid max_retries (original_word_coords : WordCoords.t) =
     let rows = List.length grid in
     let cols = List.length (List.hd_exn grid) in
-    let rec attempt retries remaining_grid word_coords =
-      if retries <= 0 then (remaining_grid, word_coords) (* Stop if retries are exhausted *)
-      else
-        let (updated_grid, word_coords) = place_all_words words remaining_grid word_coords in
 
-          Printf.printf "\nTrial Word Placement:\n";
+    let rec attempt retries original_grid word_coords =
+        let (updated_grid, updated_word_coords) = place_all_words words original_grid word_coords in
+
+          Printf.printf "Trial Placement:\n";
           print_grid updated_grid;
 
-        if is_grid_full updated_grid rows cols then (updated_grid, word_coords)
-        else attempt (retries - 1) grid word_coords
+          if is_grid_full updated_grid rows cols then 
+            (updated_grid, updated_word_coords)
+          else if retries <= 1 then 
+            (* If retries are exhausted, return the current grid and word coordinates *)
+            (updated_grid, updated_word_coords)
+          else
+            (* Otherwise, recursively try again with decreased retries *)
+            attempt (retries - 1) original_grid original_word_coords
     in
-    attempt max_retries grid word_coords
+
+    attempt max_retries grid original_word_coords
 
 end
 
@@ -396,15 +402,18 @@ let () =
   let grid = Grid.create_empty_grid 8 6 in
   (* BANANA APRICOT MANDARIN BLUEBERRY *)
   let (grid_with_spangram, spangram_coords) = Grid.place_spangram "BANANA" grid in
-  let (_, _) =
+  let (grid_with_words, word_coords) =
     Grid.retry_place_all_words
       ["1111"; "2222"; "33333"; "44444"; "555555"; "6666"; "77777"; "88888"; "999999";
        "AAAA"; "BBBBB"; "CCCCCC"; "DDDDDD"; "EEEEEEEE"; "FFFF"; "GGGGG"; "HHHHHH";
        "IIIIIII"; "JJJJ"; "KKKKK"; "LLLLLLL"; "MMMM"; "NNNNN"; "OOOOOO"; "PPPPPPP";
+       "QQQQ"; "RRRRR"; "SSSSS"; "1111"; "2222"; "33333"; "44444"; "555555"; "6666"; "77777"; "88888"; "999999";
+       "AAAA"; "BBBBB"; "CCCCCC"; "DDDDDD"; "EEEEEEEE"; "FFFF"; "GGGGG"; "HHHHHH";
+       "IIIIIII"; "JJJJ"; "KKKKK"; "LLLLLLL"; "MMMM"; "NNNNN"; "OOOOOO"; "PPPPPPP";
        "QQQQ"; "RRRRR"; "SSSSS"]
       grid_with_spangram
-      10
-      WordCoords.empty
+      25
+      spangram_coords
   in
 
   Printf.printf "Spangram Placement:\n";
@@ -412,3 +421,7 @@ let () =
 
   Printf.printf "Spangram Coordinates (y, x)):\n";
   WordCoords.print_all_coords spangram_coords;
+
+  Printf.printf "Word Placement:\n";
+  Grid.print_grid grid_with_words;
+  WordCoords.print_all_coords word_coords
