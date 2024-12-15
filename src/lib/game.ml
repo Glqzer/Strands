@@ -31,7 +31,6 @@ module Game = struct
          "IIIIIII"; "JJJJ"; "KKKKK"; "LLLLLLL"; "MMMM"; "NNNNN"; "OOOOOO"; "PPPPPPP";
          "QQQQ"; "RRRRR"; "SSSSS"]
         spangram_board
-        30
         spangram_coords
     in
   
