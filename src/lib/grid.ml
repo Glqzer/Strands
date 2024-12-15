@@ -373,7 +373,7 @@ module Grid = struct
     
       let rec attempt original_grid word_coords retries =
         (* Ensure we don't run out of retries *)
-          let (updated_grid, updated_word_coords, _) = place_all_words words original_grid word_coords retries in
+          let (updated_grid, updated_word_coords, _) = place_all_words words original_grid word_coords 10 in
     
           (* Uncomment for debugging output *)
           (* Printf.printf "Trial Placement:\n";
