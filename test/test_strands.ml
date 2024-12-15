@@ -52,7 +52,7 @@ module Grid_tests = struct
   let test_create_empty_grid _ =
     let grid = Grid.create_empty_grid 8 6 in
     assert_bool "this grid should be empty" (is_empty_grid grid)
-(* 
+  (* 
   let test_place_empty_spangram _ =
     let grid = Grid.create_empty_grid 8 6 in
     let grid_with_empty_spangram = Grid.place_spangram "" grid in
@@ -68,12 +68,12 @@ module Grid_tests = struct
     | _ -> assert_failure "cell should be updated to 'T'"
 
   (* let test_spangram_in_bounds _ =
-    let grid = Grid.create_empty_grid 8 6 in
-    let spangram = "test" in
-    let grid_with_spangram = Grid.place_spangram spangram grid in
-    let rows = List.length grid in
-    let cols = List.length (List.hd_exn grid) in
-    List.iteri grid_with_spangram ~f:(fun y row ->
+     let grid = Grid.create_empty_grid 8 6 in
+     let spangram = "test" in
+     let grid_with_spangram = Grid.place_spangram spangram grid in
+     let rows = List.length grid in
+     let cols = List.length (List.hd_exn grid) in
+     List.iteri grid_with_spangram ~f:(fun y row ->
         List.iteri row ~f:(fun x cell ->
             match cell with
             | Alpha.Filled _ -> assert_bool "Filled cell should be in bounds" (Coord.in_bounds { Coord.x = x; y } rows cols)
@@ -81,8 +81,10 @@ module Grid_tests = struct
 
   let test_word_placement_in_bounds _ = 
     let grid = Grid.create_empty_grid 8 6 in
-    let words = ["apple"; "mango"; "banana"; "lime"; "lemon"; "kiwi"; "peach"; "grape"; "plum"; "cherry"; "orange"] in
-    let (grid_with_words, _) = Grid.place_all_words words grid WordCoords.empty in
+    let words = ["1111"; "2222"; "33333"; "44444"; "555555"; "6666"; "77777"; "88888"; "999999";
+                 "XXXX"; "YYYYY"; "CCCCCC"; "DDDDDD"; "EEEEEEEE"; "FFFF"; "GGGGG"; "HHHHHH";
+                 "IIIIIII"; "JJJJ"; "KKKKK"; "LLLLLLL"; "MMMM"; "ZZZZZ"] in
+    let (grid_with_words, _) = Grid.retry_place_all_words words grid WordCoords.empty in
     let rows = List.length grid in
     let cols = List.length (List.hd_exn grid) in
     List.iteri grid_with_words ~f:(fun y row ->
@@ -90,6 +92,54 @@ module Grid_tests = struct
             match cell with
             | Alpha.Filled _ -> assert_bool "Filled cell should be in bounds" (Coord.in_bounds { Coord.x = x; y } rows cols)
             | _ -> ()))
+
+  let test_final_placement_full_grid _ = 
+    let grid = Grid.create_empty_grid 8 6 in
+    let words = ["1111"; "2222"; "33333"; "44444"; "555555"; "6666"; "77777"; "88888"; "999999";
+                 "XXXX"; "YYYYY"; "CCCCCC"; "DDDDDD"; "EEEEEEEE"; "FFFF"; "GGGGG"; "HHHHHH";
+                 "IIIIIII"; "JJJJ"; "KKKKK"; "LLLLLLL"; "MMMM"; "ZZZZZ"] in
+    let (grid_with_words, _) = Grid.retry_place_all_words words grid WordCoords.empty in
+    let rows = List.length grid in
+    let cols = List.length (List.hd_exn grid) in
+    assert_bool "Grid must be full" (Grid.is_grid_full grid_with_words rows cols)
+
+  (* Check if all letters in the given list of coordinates are adjacent *)
+  let validate_word_adjacency (word_coords : WordCoords.t) =
+    (* Check adjacency for all coordinates of each word *)
+    let rec are_letters_adjacent coords =
+      match coords with
+      | [] | [_] -> true (* Single or no coordinate is valid *)
+      | (x1, y1) :: (x2, y2) :: rest ->
+        let dx = abs (x2 - x1) in
+        let dy = abs (y2 - y1) in
+        if dx <= 1 && dy <= 1 then are_letters_adjacent ((x2, y2) :: rest)
+        else false
+    in
+    (* Iterate over all bindings in the map *)
+    let validate_all bindings =
+      List.for_all ~f:(fun (_word, coords) -> are_letters_adjacent coords) bindings
+    in
+    validate_all (WordCoords.bindings word_coords)
+
+  let test_validate_word_adjacency _ =
+    let open WordCoords in
+    let map =
+      WordCoords.empty
+      |> add "word1" [(0, 0); (0, 1); (0, 2)]  (* Adjacent horizontally *)
+      |> add "word2" [(1, 0); (2, 0); (3, 0)]  (* Adjacent vertically *)
+      |> add "word3" [(3, 3); (4, 4); (5, 5)]  (* Adjacent diagonally *)
+      |> add "word4" [(0, 0); (2, 0); (4, 0)]  (* Not adjacent *)
+    in
+    assert_bool "Should not validate unadjacent words" (not (validate_word_adjacency map)) (* Should return false *)
+
+  let test_word_coords_adjacent _ =
+    let grid = Grid.create_empty_grid 8 6 in
+    let words = ["1111"; "2222"; "33333"; "44444"; "555555"; "6666"; "77777"; "88888"; "999999";
+                 "XXXX"; "YYYYY"; "CCCCCC"; "DDDDDD"; "EEEEEEEE"; "FFFF"; "GGGGG"; "HHHHHH";
+                 "IIIIIII"; "JJJJ"; "KKKKK"; "LLLLLLL"; "MMMM"; "ZZZZZ"] in
+    let (_, word_coords) = Grid.retry_place_all_words words grid WordCoords.empty in
+    assert (validate_word_adjacency word_coords)
+
 end
 
 module Word_tests = struct
@@ -171,9 +221,11 @@ let series =
     "test update cell" >:: Grid_tests.test_update_cell;
     (* "test spangram in bounds" >:: Grid_tests.test_spangram_in_bounds; *)
     "test word placement in bounds" >:: Grid_tests.test_word_placement_in_bounds;
+    "test word placement fills grid" >:: Grid_tests.test_final_placement_full_grid;
+    "test word adjacency validation" >:: Grid_tests.test_validate_word_adjacency;
+    "test word adjacency in grid" >:: Grid_tests.test_word_coords_adjacent;
 
     (* Word tests *)
-
     "test_word_coords" >:: Word_tests.test_word_coords;
     "test_check_result" >:: Word_tests.test_check_result;
 

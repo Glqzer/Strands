@@ -367,29 +367,29 @@ module Grid = struct
     attempt max_retries grid word_coords words
 
 
-    let retry_place_all_words words grid (original_word_coords : WordCoords.t) =
-      let rows = List.length grid in
-      let cols = List.length (List.hd_exn grid) in
-    
-      let rec attempt original_grid word_coords retries =
-        (* Ensure we don't run out of retries *)
-          let (updated_grid, updated_word_coords, _) = place_all_words words original_grid word_coords 10 in
-    
-          (* Uncomment for debugging output *)
-          (* Printf.printf "Trial Placement:\n";
-             print_grid updated_grid; *)
-    
-          if is_grid_full updated_grid rows cols then 
-            (updated_grid, updated_word_coords)
-          else if retries = 0 then
-            (updated_grid, word_coords)
-          else
-            (* Keep trying until the grid is full or retries are exhausted *)
-            attempt original_grid word_coords (retries - 1)
-      in
-    
-      (* Start the attempt with a set number of retries *)
-      attempt grid original_word_coords 100
+  let retry_place_all_words words grid (original_word_coords : WordCoords.t) =
+    let rows = List.length grid in
+    let cols = List.length (List.hd_exn grid) in
+
+    let rec attempt original_grid word_coords retries =
+      (* Ensure we don't run out of retries *)
+      let (updated_grid, updated_word_coords, _) = place_all_words words original_grid word_coords 10 in
+
+      (* Uncomment for debugging output *)
+      (* Printf.printf "Trial Placement:\n";
+         print_grid updated_grid; *)
+
+      if is_grid_full updated_grid rows cols then 
+        (updated_grid, updated_word_coords)
+      else if retries = 0 then
+        (updated_grid, word_coords)
+      else
+        (* Keep trying until the grid is full or retries are exhausted *)
+        attempt original_grid word_coords (retries - 1)
+    in
+
+    (* Start the attempt with a set number of retries *)
+    attempt grid original_word_coords 100
 end
 
 (* Word placement notes: Must be given a list of at least 15 words of varying lengths of at least 4 *)

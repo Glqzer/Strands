@@ -32,4 +32,7 @@ module Grid : sig
   val attempt_place_word : t -> Coord.t -> char list -> int -> int -> [ `Up | `Down | `Left | `Right | `UpLeft | `UpRight | `DownLeft | `DownRight ] list -> int -> Position.t list -> t * bool * Position.t list
   val is_grid_full: t -> int -> int -> bool
   val retry_place_all_words : string list -> t -> WordCoords.t -> t * WordCoords.t
+  val find_next_placement : Alpha.t list list -> int -> int -> bool -> Coord.t option
+  val place_words_from_list : Alpha.t list list -> string list -> int -> int -> WordCoords.t -> bool -> bool -> string list -> Alpha.t list list * WordCoords.t * string list
+  val place_all_words : string list -> Alpha.t list list -> WordCoords.t -> int -> Alpha.t list list * WordCoords.t * string list
 end
