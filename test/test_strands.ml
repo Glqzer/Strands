@@ -32,11 +32,18 @@ module Coord_tests = struct
 
   let test_move_coord _ =
     let coord = { Coord.x = 2; y = 2 } in
+    (* basic movements *)
     assert_equal (Coord.move coord `Up) { Coord.x = 2; y = 1 };
     assert_equal (Coord.move coord `Down) { Coord.x = 2; y = 3 };
     assert_equal (Coord.move coord `Left) { Coord.x = 1; y = 2 };
-    assert_equal (Coord.move coord `Right) { Coord.x = 3; y = 2 }
-    (* TODO: put assert equals for diagonal movements *)
+    assert_equal (Coord.move coord `Right) { Coord.x = 3; y = 2 };
+
+    (* diagonal movements *)
+    assert_equal (Coord.move coord `UpLeft) { Coord.x = 1; y = 1 };
+    assert_equal (Coord.move coord `UpRight) { Coord.x = 3; y = 1 };
+    assert_equal (Coord.move coord `DownLeft) { Coord.x = 1; y = 3 };
+    assert_equal (Coord.move coord `DownRight) { Coord.x = 3; y = 3 }
+
 end
 
 module Grid_tests = struct
@@ -52,13 +59,21 @@ module Grid_tests = struct
   let test_create_empty_grid _ =
     let grid = Grid.create_empty_grid 8 6 in
     assert_bool "this grid should be empty" (is_empty_grid grid)
-  (* 
-  let test_place_empty_spangram _ =
-    let grid = Grid.create_empty_grid 8 6 in
-    let grid_with_empty_spangram = Grid.place_spangram "" grid in
-    assert_bool "grid should be unchanged for empty spangram" (is_empty_grid grid_with_empty_spangram) *)
 
-  (* test: updating a cell in the grid *)
+  let test_get_empty_cell _ =
+    let grid = Grid.create_empty_grid 8 6 in
+    let coord = { Coord.x = 5; y = 5 } in
+      match Grid.get_cell grid coord with
+      | Some Alpha.Empty -> ()  
+      | _ -> assert_failure "expected cell to be empty"
+  
+  let test_is_free _ = 
+    let grid = Grid.create_empty_grid 8 6 in 
+    let coord = { Coord.x = 5; y = 5 } in 
+      match Grid.is_free coord grid with 
+      | true -> ()
+      | _ -> assert_failure "expected any coord here to be free"
+
   let test_update_cell _ =
     let grid = Grid.create_empty_grid 8 6 in
     let coord = { Coord.x = 2; y = 3 } in
@@ -66,18 +81,6 @@ module Grid_tests = struct
     match Grid.get_cell updated_grid coord with
     | Some (Alpha.Filled c) -> assert_equal c 'T'
     | _ -> assert_failure "cell should be updated to 'T'"
-
-  (* let test_spangram_in_bounds _ =
-     let grid = Grid.create_empty_grid 8 6 in
-     let spangram = "test" in
-     let grid_with_spangram = Grid.place_spangram spangram grid in
-     let rows = List.length grid in
-     let cols = List.length (List.hd_exn grid) in
-     List.iteri grid_with_spangram ~f:(fun y row ->
-        List.iteri row ~f:(fun x cell ->
-            match cell with
-            | Alpha.Filled _ -> assert_bool "Filled cell should be in bounds" (Coord.in_bounds { Coord.x = x; y } rows cols)
-            | _ -> ())) *)
 
   let test_word_placement_in_bounds _ = 
     let grid = Grid.create_empty_grid 8 6 in
@@ -217,9 +220,9 @@ let series =
 
     (* Grid tests *)
     "test grid initialization" >:: Grid_tests.test_create_empty_grid;
-    (* "test place empty spangram" >:: Grid_tests.test_place_empty_spangram; *)
-    "test update cell" >:: Grid_tests.test_update_cell;
-    (* "test spangram in bounds" >:: Grid_tests.test_spangram_in_bounds; *)
+    "test grid get empty cell" >:: Grid_tests.test_get_empty_cell;
+    "test grid update cell" >:: Grid_tests.test_update_cell;
+    "test grid is free" >:: Grid_tests.test_is_free;
     "test word placement in bounds" >:: Grid_tests.test_word_placement_in_bounds;
     "test word placement fills grid" >:: Grid_tests.test_final_placement_full_grid;
     "test word adjacency validation" >:: Grid_tests.test_validate_word_adjacency;
