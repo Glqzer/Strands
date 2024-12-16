@@ -132,54 +132,76 @@ module Grid = struct
             | _ -> false))
     |> not  (* return true if no orphan region is found *)
 
+  let remove_letter grid coord =
+    update_cell grid coord Alpha.Empty 
+    
   (* recursive call to place each letter of the spangram, after checking it meets ALL conditions, else choose another direction *)
   let rec place_letters grid coord letters rows cols directions retries spangram_coords map word =
-    if retries <= 0 then
-      (* restart placement from a new random position if retries are exhausted *)
-      let start_coord = { Coord.x = Random.int cols; y = Random.int rows } in
-      place_letters grid start_coord letters rows cols directions 100 spangram_coords map word
-    else
-      match letters with
-      | [] -> (grid, map)  (* return the final grid and WordCoords map *)
-      | letter :: rest ->  (* place each letter of the spangram *)
+    match letters with
+    | [] -> (grid, map)  (* return the final grid and map *)
+    | letter :: rest ->
+      (* retries are exhausted, fallback to the previous state (instead of random new coord in my earlier code) *)
+      if retries <= 0 then
+        match spangram_coords with
+        | [] -> (grid, map) 
+        | prev_coord :: prev_rest ->
+          (* backtrack, removes the last placed letter and retry *)
+          let updated_grid = remove_letter grid prev_coord in
+          let updated_spangram_coords = prev_rest in
+          let new_retries = 100 in  (* need to reset # of retries *)
+            place_letters updated_grid prev_coord (letter :: rest) rows cols directions new_retries updated_spangram_coords map word
+      else
+        (* attempts to place the current letter, checks if each letter is in bounds and is being placed at a free spot *)
         if Coord.in_bounds coord rows cols && is_free coord grid then
+
+          (* grid should be updated with a valid alpha letter *)
           match Alpha.make letter with
           | Ok alpha_value ->
             let updated_grid = update_cell grid coord alpha_value in
+
+            (* ensures no 3 or fewer isolated spots (orphans) are created *)
             if check_no_orphans updated_grid rows cols then
+
+              (* keep track of which directions are valid for the next iteration *)
               let valid_directions =
                 List.filter directions ~f:(fun dir ->
                     let new_coord = Coord.move coord dir in
                     Coord.in_bounds new_coord rows cols && is_free new_coord grid)
               in
+
+              (* after zig-zag motion reaches the edge, we use choose from all directions *)
               let next_directions = if List.is_empty valid_directions then all_directions else valid_directions in
+
+              
               (match List.random_element next_directions with
-               | Some direction ->
-                 let new_coord = Coord.move coord direction in
-
-                 (* collects all of the spangram coords*)
-                 let updated_spangram_coords = (coord.y, coord.x) :: spangram_coords in
-
-                 (* TODO: clean this up a bit but due to errors i had to convert Coord.t to Position.t and update the WordCoords map from there  *)
-                 let updated_map =
-                   let existing_coords =
-                     match WordCoords.find word map with
-                     | Some coords -> coords
-                     | None -> []  (* if the word is not found in the map, start with an empty list *)
-                   in
-                   let position = (coord.y, coord.x) in  (* converting Coord.t to Position.t *)
-                   WordCoords.add word (existing_coords @ [position]) map  (* IMPORTANT FOR FRONTEND - add the new position to the list *)
-                 in
-
-                 (* recursively place the next letter with the updated map *)
-                 place_letters updated_grid new_coord rest rows cols next_directions retries updated_spangram_coords updated_map word
-               | None -> (grid, map))  (* if no valid direction, return current grid and map *)
-            else
-              place_letters grid coord letters rows cols directions (retries - 1) spangram_coords map word
-          | Error _ -> (grid, map)  (* error in creating alpha value *)
-        else
-          place_letters grid coord letters rows cols directions (retries - 1) spangram_coords map word
-
+                | Some direction ->
+                    let new_coord = Coord.move coord direction in
+                    let updated_spangram_coords = coord :: spangram_coords in
+                    let updated_map =
+                      let existing_coords =
+                        match WordCoords.find word map with
+                        | Some coords -> coords
+                        | None -> []
+                      in
+                      let position = (coord.y, coord.x) in
+                      WordCoords.add word (existing_coords @ [position]) map
+                    in
+                    (* recursively place the remaining letters *)
+                    place_letters updated_grid new_coord rest rows cols next_directions 100 updated_spangram_coords updated_map word
+                | None ->
+                    (* no valid direction: decrement retries and retry current letter *)
+                    place_letters grid coord letters rows cols directions (retries - 1) spangram_coords map word)
+              else
+                (* grid state invalid: decrement retries and retry current letter *)
+                place_letters grid coord letters rows cols directions (retries - 1) spangram_coords map word
+            | Error _ ->
+                (* failed to create an alpha value; fallback to retrying current letter *)
+                place_letters grid coord letters rows cols directions (retries - 1) spangram_coords map word
+          else
+            (* cuurent position is invalid; decrement retries and retry current letter *)
+            place_letters grid coord letters rows cols directions (retries - 1) spangram_coords map word
+  
+  
   let fits_vertically word_length = word_length > 7 
   let fits_horizontally word_length = word_length <= 7 
 
@@ -395,8 +417,7 @@ end
 (* Word placement notes: Must be given a list of at least 15 words of varying lengths of at least 4 *)
 let () =
   let grid = Grid.create_empty_grid 8 6 in
-  (* BANANA APRICOT MANDARIN BLUEBERRY *)
-  let (grid_with_spangram, spangram_coords) = Grid.place_spangram "BANANA" grid in
+  let (grid_with_spangram, spangram_coords) = Grid.place_spangram "BLUEBERRY" grid in
   let (grid_with_words, word_coords) =
     Grid.retry_place_all_words
       ["1111"; "2222"; "33333"; "44444"; "555555"; "6666"; "77777"; "88888"; "999999";
