@@ -7,3 +7,4 @@ strands.config
 
 .bsb.lock
 /node_modules/
+_opam/
