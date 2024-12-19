@@ -106,8 +106,8 @@ Right now, Coverage report overall is 94.02%
     - Our game.ml has been updated to properly link together the grid and solution records for a game instance to create a "config"
 - Backend 
     - check_no_orphans fully works now where the spangram and all of the other word will NEVER have a configuration where orphan regions will form!
-    - the code works best when the the spangram is either 6 or 8 letters long (always generates well), but still it also works for very long spangrams (there are screenshots as proof)
+    - the code works best when the the spangram is either 6 or 8 letters long (always generates well), but still it also works for very long spangrams (there are screenshots as proof, the fruits one displays using a 6 lettered spangram, and the animals example shows 8 lettered version )
     - we found that the grid can be more and more accurate as more "retries" are given. This helps give the algorithm more opportunitites to backtrack and find alternative paths for each letter, BUT this comes with a TRADE-OFF for how long it takes to run the program. 
     - fp strands dynamic mode NOW can randomly pick from multiple text files and it should generate that particular theme to the front-end, just refresh and it does it automatically! 
-    - as you can see, the dyanmic mode is very much playable and the word coordinates are always accurate to the positions on the board <3
+    - as you can see, the dynamic mode is very much playable and the word coordinates are always accurate to the positions on the board <3
 
