@@ -109,4 +109,5 @@ Right now, Coverage report overall is 94.02%
     - the code works best when the the spangram is either 6 or 8 letters long (always generates well), but still it also works for very long spangrams (there are screenshots as proof)
     - we found that the grid can be more and more accurate as more "retries" are given. This helps give the algorithm more opportunitites to backtrack and find alternative paths for each letter, BUT this comes with a TRADE-OFF for how long it takes to run the program. 
     - fp strands dynamic mode NOW can randomly pick from multiple text files and it should generate that particular theme to the front-end, just refresh and it does it automatically! 
+    - as you can see, the dyanmic mode is very much playable and the word coordinates are always accurate to the positions on the board <3
 
