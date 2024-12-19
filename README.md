@@ -88,3 +88,19 @@ Right now, Coverage report overall is 94.02%
 
 #### TESTING
 - I think it would be nice to incorporate some frontend and API testing frameworks - we will look into it
+
+## FINAL SUBMISSION: FIXES 
+### Frontend and Server
+
+- Please see our [screenshots folder](./screenshots/final) to see updated images of our front-end! We made many changes such as having a Home Page, three different modes, links to our Github and Slides. We also made the game screen much nicer - added the theme phrase and better UI for the found words as well as error messages and a message for winning the game.
+
+#### ISSUES RESOLVED:
+- Frontend
+    - During the checkpoint, we ran into a few edge cases issues with the grid interaction. These have all been resolved so only valid tiles can be selected.
+    - We included error messages for invalid words as well as a modal for when the user wins the game!
+    - UI was organized, added a nicer color palette, added some additional modifications to the front-end and "completeness" of the project such as a Home page, a static, dynamic, and playground mode, as well as links to our Github and slides
+    - We refactored our frontend to be much more component-based.
+- Server
+    - Major updates to the server to allow for static and dynamic board creation as well as the playground mode.
+    - Previously, we only had a static, hard-coded grid, but we created new routes that allow for our backend grid-creation functions to generate the front-end board dynamically. We also created new routes to be used by our playground mode which allow the user to enter a theme and a spangram to test the spangram generation. 
+
