@@ -96,11 +96,12 @@ Right now, Coverage report overall is 94.02%
 
 #### ISSUES RESOLVED:
 - Frontend
-    - During the checkpoint, we ran into a few edge cases issues with the grid interaction. These have all been resolved so only valid tiles can be selected.
+    - At the time of the checkpoint, we ran into a few edge cases issues with the grid interaction. These have all been resolved so only valid tiles can be selected.
     - We included error messages for invalid words as well as a modal for when the user wins the game!
-    - UI was organized, added a nicer color palette, added some additional modifications to the front-end and "completeness" of the project such as a Home page, a static, dynamic, and playground mode, as well as links to our Github and slides
+    - UI was organized, added a nicer color palette, added some additional modifications to the front-end and "completeness" of the project by including a Home page, a static, dynamic, and playground mode, as well as links to our Github and slides
     - We refactored our frontend to be much more component-based.
 - Server
     - Major updates to the server to allow for static and dynamic board creation as well as the playground mode.
-    - Previously, we only had a static, hard-coded grid, but we created new routes that allow for our backend grid-creation functions to generate the front-end board dynamically. We also created new routes to be used by our playground mode which allow the user to enter a theme and a spangram to test the spangram generation. 
+    - Previously, we only had a static, hard-coded grid, but we created new routes that allow for our backend grid-creation functions to generate the front-end board dynamically. We also created new routes to be used by our playground mode which allow the user to enter a theme and a spangram to test the spangram generation.
+    - Our game.ml has been updated to properly link together the grid and solution records for a game instance to create a "config"
 
