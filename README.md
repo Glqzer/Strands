@@ -104,4 +104,9 @@ Right now, Coverage report overall is 94.02%
     - Major updates to the server to allow for static and dynamic board creation as well as the playground mode.
     - Previously, we only had a static, hard-coded grid, but we created new routes that allow for our backend grid-creation functions to generate the front-end board dynamically. We also created new routes to be used by our playground mode which allow the user to enter a theme and a spangram to test the spangram generation.
     - Our game.ml has been updated to properly link together the grid and solution records for a game instance to create a "config"
+- Backend 
+    - check_no_orphans fully works now where the spangram and all of the other word will NEVER have a configuration where orphan regions will form!
+    - the code works best when the the spangram is either 6 or 8 letters long (always generates well), but still it also works for very long spangrams (there are screenshots as proof)
+    - we found that the grid can be more and more accurate as more "retries" are given. This helps give the algorithm more opportunitites to backtrack and find alternative paths for each letter, BUT this comes with a TRADE-OFF for how long it takes to run the program. 
+    - fp strands dynamic mode NOW can randomly pick from multiple text files and it should generate that particular theme to the front-end, just refresh and it does it automatically! 
 
