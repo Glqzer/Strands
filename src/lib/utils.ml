@@ -6,7 +6,7 @@ open Words
 [@@@ocaml.warning "-27"]
 
 
-(* hard coded for static example *)
+(* hard coded populated grid for static example *)
 let static_grid = 
   [['f'; 'u'; 'h'; 't'; 's'; 'n'];
   ['l'; 'e'; 'n'; 'i'; 'm'; 'o'];
@@ -43,7 +43,6 @@ let static_coords =
   in coords
 
 
-
 [@@@coverage off]
 (* parses a file and returns a list of words *)
 let parse_file (filename : string) : string list =
@@ -54,14 +53,17 @@ let parse_file (filename : string) : string list =
 
 [@@@coverage on]
 (* 
-  in our implementation, spangram is the first word of the words list
-  and the remaining are the themed words 
+  in our implementation, each text file wilh have the first word as the spangram
+  and all following words are candiates for remaining word population 
 *)
+
+(* the hd of the word list should return the spangram *)
 let get_spangram (words : string list) =
   match words with 
   | [] -> "" 
   | hd :: tl -> hd           
 
+(* the tl of the word list should return the themed words *)
 let get_words (words : string list) = 
   match words with 
   | [] -> []              

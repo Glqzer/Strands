@@ -19,14 +19,14 @@ end
 
 (* coords to be a record of x and y *)
 module Coord = struct
-  type t = { x : int; y : int } [@@deriving compare, sexp]
+  type t = { x : int; y : int } 
 
   (* checks if a coord is in bounds, returns a bool *)
   let in_bounds { x; y } rows cols =
     x >= 0 && x < cols && y >= 0 && y < rows
 
   (* calculates how to move in a certain direction *)
-  let move { x; y } direction = (* TODO: why does it only work if we use ` in this function? *)
+  let move { x; y } direction = (* polymorphic variants for simplicity and flexibility *)
     match direction with
     | `Up -> { x; y = y - 1 }
     | `Down -> { x; y = y + 1 }
@@ -45,10 +45,13 @@ end
 module Grid = struct
   type t = Alpha.t list list (* 2D grid with alpha letters *)
 
-  (* spangram cannot be 100% random (case where it won't make it to the other edge *)
-  (* we control the path decision making by limiting certain directions *)
+  (* note: spangram cannot be 100% random (taking into account a case where it won't make it to the other edge *)
+  (* design choice: we control the path decision making by limiting certain directions *)
+
   let vertical_directions = [`Down; `DownLeft; `DownRight] (* can imagine a random zig-zag motion from top to bottom *)
+
   let horizontal_directions = [`Right; `UpRight; `DownRight] 
+
   let all_directions = [`Up; `Down; `Left; `Right; `UpLeft; `DownLeft; `UpRight; `DownRight] (* sometimes need to choose from all possible dirs *)
 
   let word_placement_directions = [`Down; `Right; `DownLeft; `DownRight]
@@ -57,23 +60,26 @@ module Grid = struct
   let create_empty_grid rows cols : t =
     List.init rows ~f:(fun _ -> List.init cols ~f:(fun _ -> Alpha.Empty))
 
+  (* gets a hold of the cell on the grid *)
   let get_cell grid { Coord.x; y } =
     List.nth grid y |> Option.bind ~f:(fun row -> List.nth row x)
 
+  (* checks if the coordinate on the grid is free (Alpha.Empty), returns bool *)
   let is_free coord grid =
     match get_cell grid coord with
     | Some Alpha.Empty -> true
     | _ -> false
 
+  (* given it's coord record, updates that cell with a specified value *)
   let update_cell grid { Coord.x; y } value =
     List.mapi grid ~f:(fun row_idx row ->
         if row_idx = y then
           List.mapi row ~f:(fun col_idx cell -> if col_idx = x then value else cell)
         else row)
 
-  (* helper function to get neighbors of a coordinate *)
+  (* function to get neighbors of a coordinate (used in BFS algorithm) *)
   let get_neighbors coord rows cols grid =
-    (* helper function to check if a direction is blocked by a filled cell *)
+    (* helper function to check if a direction is blocked by a filled cell (something to consider when detecting orphan regions) *)
     let is_direction_blocked coord dir =
       match Coord.move coord dir with
       | new_coord -> (match get_cell grid new_coord with
@@ -85,7 +91,7 @@ module Grid = struct
     List.fold_left all_directions ~init:[] ~f:(fun acc dir ->
         let new_coord = Coord.move coord dir in
         if Coord.in_bounds new_coord rows cols then
-          (* trying to avoid crossing over diagonals unto another word *)
+          (* need to avoid crossing over diagonals unto another word *)
           match dir with
           | `UpLeft -> if not (is_direction_blocked coord `Up || is_direction_blocked coord `Left) then new_coord :: acc else acc
           | `UpRight -> if not (is_direction_blocked coord `Up || is_direction_blocked coord `Right) then new_coord :: acc else acc
@@ -132,6 +138,7 @@ module Grid = struct
             | _ -> false))
     |> not  (* return true if no orphan region is found *)
 
+  (* removes a letter from the grid (back to Alpha.Empty -- used to backtrack *)
   let remove_letter grid coord =
     update_cell grid coord Alpha.Empty 
     
@@ -172,7 +179,7 @@ module Grid = struct
               (* after zig-zag motion reaches the edge, we use choose from all directions *)
               let next_directions = if List.is_empty valid_directions then all_directions else valid_directions in
 
-              
+              (* continues on, making sure to update list of coords after each successful letter is placed *)
               (match List.random_element next_directions with
                 | Some direction ->
                     let new_coord = Coord.move coord direction in
@@ -201,7 +208,7 @@ module Grid = struct
             (* cuurent position is invalid; decrement retries and retry current letter *)
             place_letters grid coord letters rows cols directions (retries - 1) spangram_coords map word
   
-  
+  (* quick booleans to check if a word can be placed either orientation, depending on its length  *)
   let fits_vertically word_length = word_length > 7 
   let fits_horizontally word_length = word_length <= 7 
 
@@ -209,7 +216,7 @@ module Grid = struct
   let place_spangram spangram grid =
     let rows = List.length grid in
     let cols = List.length (List.hd_exn grid) in
-    let letters = String.to_list spangram in
+    let letters = String.to_list spangram in (* letters of the spangram to be placed *)
     let word_length = String.length spangram in
 
     (* creates an empty map to track word coordinates *)
@@ -224,6 +231,7 @@ module Grid = struct
     in
 
     (* depending on the orientation v or h, place the letters at random col or row respectively *)
+    (* made amount of retries to be 100, program shouldn't run forever if there no possible configuration for spangram *)
     match orientation with
     | `Vertical ->
       let start_coord = { Coord.x = Random.int cols; y = 0 } in
@@ -232,14 +240,11 @@ module Grid = struct
       let start_coord = { Coord.x = 0; y = Random.int rows } in
       place_letters grid start_coord letters rows cols horizontal_directions 100 [] map spangram
 
-
   (* prints the grid to the console -- mainly for visual checking *)
   let print_grid grid =
     List.iter grid ~f:(fun row -> 
         List.iter row ~f:(fun cell -> Printf.printf "%c " (Alpha.show cell));
         Printf.printf "\n")
-
-  (* DAVID'S WORDS BELOW *)
 
   let is_grid_full grid rows cols =
     let rec check x y =

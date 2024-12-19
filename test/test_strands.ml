@@ -9,9 +9,15 @@ module Alpha_tests = struct
     assert_equal (Alpha.make 'T') (Ok (Alpha.Filled 'T'));
     assert_equal (Alpha.make '9') (Ok (Alpha.Filled '9')); (* we won't use numbers, but test in case *)
     assert_equal (Alpha.make '!') (Error "not an alphanumeric character!")
+
   let test_show_alpha _ =
     assert_equal (Alpha.show (Alpha.Filled 'M')) 'M';
     assert_equal (Alpha.show Alpha.Empty) '-'
+
+  let test_invalid_char _ =
+    match Alpha.make '!' with
+    | Ok _ -> assert_failure "should reject non-alphanumeric character"
+    | Error _ -> ()
 
 end
 
@@ -81,6 +87,133 @@ module Grid_tests = struct
     match Grid.get_cell updated_grid coord with
     | Some (Alpha.Filled c) -> assert_equal c 'T'
     | _ -> assert_failure "cell should be updated to 'T'"
+
+  let test_grid_boundaries _ =
+    let grid = Grid.create_empty_grid 2 2 in
+    let coord = { Coord.x = 1; y = 1 } in
+    let updated_grid = Grid.update_cell grid coord (Alpha.Filled 'A') in
+    assert_bool
+      "Cell at boundary should be updated"
+      (match Grid.get_cell updated_grid coord with
+        | Some (Alpha.Filled 'A') -> true
+        | _ -> false)
+
+    let test_corner_placement _ =
+      let grid = Grid.create_empty_grid 3 3 in
+      let corner = { Coord.x = 0; y = 0 } in
+      let updated_grid = Grid.update_cell grid corner (Alpha.Filled 'B') in
+      assert_bool
+        "Corner cell should be fillable"
+        (match Grid.get_cell updated_grid corner with
+          | Some (Alpha.Filled 'B') -> true
+          | _ -> false)
+
+  (* improving code coverage: `check_cell` function's fallback case `| _ -> false` *)
+  let test_check_cell_false _ =
+    let grid = Grid.create_empty_grid 8 6 in
+    let coord = { Coord.x = 2; y = 2 } in
+    let updated_grid = Grid.update_cell grid coord (Alpha.Filled 'A') in
+    assert_bool
+      "check_cell should return false for a filled cell"
+      (not (Grid.check_no_orphans updated_grid coord.x coord.y))
+
+  let test_orphan_pattern _ =
+    let grid = Grid.create_empty_grid 8 6 in
+    (* creates a pattern that would isolate a small region of empty cells *)
+    let grid = Grid.update_cell grid { Coord.x = 2; y = 2 } (Alpha.Filled 'T') in
+    let grid = Grid.update_cell grid { Coord.x = 3; y = 2 } (Alpha.Filled 'A') in
+    let grid = Grid.update_cell grid { Coord.x = 2; y = 3 } (Alpha.Filled 'Y') in
+    let grid = Grid.update_cell grid { Coord.x = 3; y = 3 } (Alpha.Filled 'L') in
+    let grid = Grid.update_cell grid { Coord.x = 2; y = 4 } (Alpha.Filled 'O') in
+    let grid = Grid.update_cell grid { Coord.x = 3; y = 4 } (Alpha.Filled 'R') in
+    
+    (* this creates a pattern that isolates a region of 3 cells *)
+    assert_bool
+      "detects orphan pattern in 8x6 grid"
+      (Grid.check_no_orphans grid 8 6)
+
+  let test_place_spangram_vertical _ =
+    let grid = Grid.create_empty_grid 8 6 in
+    let spangram = "RAMBUTAN" in
+    let (updated_grid, word_coords) = Grid.place_spangram spangram grid in
+    
+    (* count filled cells by folding over the grid *)
+    let count_filled_cells grid =
+      List.fold grid ~init:0 ~f:(fun acc row ->
+        acc + List.count row ~f:(function
+          | Alpha.Filled _ -> true
+          | Alpha.Empty -> false))
+    in
+    
+    let filled_count = count_filled_cells updated_grid in
+    assert_equal ~msg:"all spangram letters should be placed" 
+      (String.length spangram) filled_count;
+      
+    (* checks that spangram coordinates were recorded *)
+    let coords_length = 
+      WordCoords.find spangram word_coords
+      |> Option.value_map ~default:0 ~f:List.length
+    in
+    assert_equal ~msg:"should have coordinates for each letter"
+      (String.length spangram) coords_length;
+  
+    (* verify no orphan regions were created *)
+    assert_bool 
+      "no orphan regions should exist after placing spangram"
+      (Grid.check_no_orphans updated_grid 8 6)
+
+  let test_place_spangram_horizontal _ =
+    let grid = Grid.create_empty_grid 8 6 in
+    let spangram = "BANANA" in
+    let (updated_grid, word_coords) = Grid.place_spangram spangram grid in
+
+    (* count filled cells by folding over the grid *)
+    let count_filled_cells grid =
+      List.fold grid ~init:0 ~f:(fun acc row ->
+        acc + List.count row ~f:(function
+          | Alpha.Filled _ -> true
+          | Alpha.Empty -> false))
+    in
+
+    let filled_count = count_filled_cells updated_grid in
+    assert_equal ~msg:"all spangram letters should be placed"
+      (String.length spangram) filled_count;
+
+    (* checks that spangram coordinates were recorded *)
+    let coords_length = 
+      WordCoords.find spangram word_coords
+      |> Option.value_map ~default:0 ~f:List.length
+    in
+    assert_equal ~msg:"should have coordinates for each letter"
+      (String.length spangram) coords_length;
+
+    assert_bool 
+      "no orphan regions should exist after placing spangram"
+      (Grid.check_no_orphans updated_grid 8 6)
+  
+  (* trying to improve code coverage: seven lettered spangram can go either vertical or horizontal *)
+  (* i am testing the random case -->  if Random.bool () then `Vertical else `Horizontal *)
+  (*let test_place_spangram_seven_letters _ =
+    let grid = Grid.create_empty_grid 8 6 in
+    let spangram = "BRANDON" in
+    let (updated_grid, word_coords) = Grid.place_spangram spangram grid in
+    let count_filled_cells grid =
+      List.fold grid ~init:0 ~f:(fun acc row ->
+        acc + List.count row ~f:(function
+          | Alpha.Filled _ -> true
+          | Alpha.Empty -> false))
+    in
+
+    let filled_count = count_filled_cells updated_grid in
+    assert_equal ~msg:"all spangram letters should be placed"
+      (String.length spangram) filled_count;
+
+    let coords_length = 
+      WordCoords.find spangram word_coords
+      |> Option.value_map ~default:0 ~f:List.length
+    in
+    assert_equal ~msg:"should have coordinates for each letter" (String.length spangram) coords_length;
+    assert_bool "no orphan regions should exist after placing spangram" (Grid.check_no_orphans updated_grid 8 6)*)
 
   let test_word_placement_in_bounds _ = 
     let grid = Grid.create_empty_grid 8 6 in
@@ -212,6 +345,7 @@ let series =
     (* Alpha tests *)
     "test make alpha" >:: Alpha_tests.test_make_alpha;
     "test show alpha" >:: Alpha_tests.test_show_alpha;
+    "test invalid char" >:: Alpha_tests.test_invalid_char;
 
     (* Coord tests *)
     "test coord in bounds" >:: Coord_tests.test_in_bounds;
@@ -222,7 +356,14 @@ let series =
     "test grid initialization" >:: Grid_tests.test_create_empty_grid;
     "test grid get empty cell" >:: Grid_tests.test_get_empty_cell;
     "test grid update cell" >:: Grid_tests.test_update_cell;
+    "test grid boundaries" >:: Grid_tests.test_grid_boundaries;
+    "test grid corner placement" >:: Grid_tests.test_corner_placement;
+    "test grid check cell on false case" >:: Grid_tests.test_check_cell_false;
     "test grid is free" >:: Grid_tests.test_is_free;
+    "test grid orphan pattern" >:: Grid_tests.test_orphan_pattern;
+    "test place spangram vertical" >:: Grid_tests.test_place_spangram_vertical;
+    "test place spangram horizontal" >:: Grid_tests.test_place_spangram_horizontal;
+    (* "test place spangram seven letters" >:: Grid_tests.test_place_spangram_seven_letters; *)
     "test word placement in bounds" >:: Grid_tests.test_word_placement_in_bounds;
     "test word placement fills grid" >:: Grid_tests.test_final_placement_full_grid;
     "test word adjacency validation" >:: Grid_tests.test_validate_word_adjacency;

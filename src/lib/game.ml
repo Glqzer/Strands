@@ -12,8 +12,8 @@ module Game = struct
 
   let initialize_game initial_state =
     (* fruits.txt - 6 letter spangram (BANANA) *)
-    (* aniamals.txt - 8 letter spangram (CAPYBARA) *)
-    let all_textfiles = ["fruits.txt"; "animals.txt"] in 
+    (* animals.txt - 8 letter spangram (CAPYBARA) *)
+    let all_textfiles = ["fruits.txt"; "animals.txt"] in (* flexible, can simply add more text files to randomly choose from *)
     let selected_file = List.nth all_textfiles (Random.int (List.length all_textfiles)) in
 
     let spangram = 
@@ -31,6 +31,7 @@ module Game = struct
       with 
       | _ -> failwith "Count not parse words from file" in 
 
+    (* starts with an empty grid of size 8 x 6 *)
     let empty_grid = Grid.create_empty_grid 8 6 in
     let (spangram_board, spangram_coords) = 
        Grid.place_spangram spangram empty_grid
@@ -46,13 +47,15 @@ module Game = struct
         spangram_coords
     in
   
+    (* the game initializes its state with the resulting populated 
+        grid and each word's list of letter coordinates *)
     { initial_state with 
       board; 
       word_coords; 
       spangram; 
     }
   
-  
+  (* function to check if the player's selected word correctly corresponds to the word coord mapping *)
   let check_word word coords state =
     check_result word coords state.word_coords
 
